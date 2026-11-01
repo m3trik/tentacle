@@ -173,7 +173,7 @@ def _drill(app, tcl, chain):
 def _open_startmenu(tb, tcl, app):
     _u.SetCursorPos(760, 480)
     time.sleep(0.1)
-    tcl._on_activation_press()
+    tcl.activate()
     for _ in range(30):
         app.processEvents()
     tcl.show("blender#startmenu", force=True)
@@ -184,8 +184,9 @@ def _open_startmenu(tb, tcl, app):
 
 
 def _close(tb, tcl, app):
+    import blendertk as btk
     try:
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
     except Exception:
         pass
     try:
@@ -281,11 +282,12 @@ def _run():
             TestSandbox.activate()
         # tcl_blender first — it provisions qtpy/PySide6 for Blender's bundled Python.
         from tentacle import tcl_blender as tb
+        import blendertk as btk  # noqa: E402
         from qtpy import QtWidgets
 
         _instrument()
         _log("harness: launching tentacle ...")
-        tcl = tb._KeymapBridge.tcl or tb.launch()
+        tcl = btk.KeymapBridge.menu or tb.launch()
         app = QtWidgets.QApplication.instance()
         _log("harness: tentacle up")
 

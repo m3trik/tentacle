@@ -23,7 +23,7 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <property name="accessibleDescription">
-   <string>Drape procedural pleated curtains from a rail curve, edges or locators.</string>
+   <string>Drape procedural pleated curtains from a rail curve, edges or a row of objects.</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">

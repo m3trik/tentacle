@@ -3,7 +3,7 @@
 import inspect
 
 from qtpy import QtCore
-from uitk import Signals, Cancelable
+from uitk import AttributeSpec, ParamPanelSlots, Cancelable, ParamRegistry, Signals
 
 
 class Slots(QtCore.QObject):
@@ -17,8 +17,10 @@ class Slots(QtCore.QObject):
     """
 
     #: uitk slot decorators, re-exposed on the base so concrete slot modules never
-    #: import uitk themselves: ``@SlotsMaya.Signals("on_item_interacted")``,
-    #: ``@SlotsMaya.Cancelable(120)``.
+    #: import uitk themselves: ``@Slots.Signals("on_item_interacted")``,
+    #: ``@Slots.Cancelable(120)``. ``ParamPanelSlots`` rides along for the same
+    #: reason: the app-bridge panels' shared base (``slots/tools/_app_bridge``)
+    #: subclasses it, ``class HostBridge(Slots.ParamPanelSlots)``.
     #:
     #: ``self.sb`` is the single uitk gateway for the slots layer, and it reaches
     #: the whole of uitk: any public symbol resolves off it directly
@@ -27,18 +29,40 @@ class Slots(QtCore.QObject):
     #: (``self.sb.registered_widgets.X``, ``self.sb.style``), and its children carry
     #: their own APIs (``self.ui.footer.status_controller(...)``).
     #:
-    #: These two are the sole outlier: they are class-body decorators, evaluated
-    #: while the slot class is still being built, so no instance — and therefore no
-    #: ``self.sb`` — exists yet. Hanging them off the base the module already imports
-    #: is the only way to keep the gateway rule without a bare ``from uitk import``
-    #: in every slot file.
+    #: These are the sole outliers: two class-body decorators, one base class and
+    #: the two parameter-declaration types a standalone panel's registry is built
+    #: from at import (``slots/tools/_<tool>/parameters.py``: ``Slots.AttributeSpec``
+    #: rows in a ``Slots.ParamRegistry`` subclass), all evaluated while a module or
+    #: a slot class is still being built, so no instance — and therefore no
+    #: ``self.sb`` — exists yet. Hanging them off the base the module already
+    #: imports is the only way to keep the gateway rule without a bare
+    #: ``from uitk import`` in every slot file. The import is eager for that reason
+    #: (a base class is needed at definition time): it loads ``uitk.bridge.slots``
+    #: with the first Slots module.
     Signals = Signals
     Cancelable = Cancelable
+    ParamPanelSlots = ParamPanelSlots
+    AttributeSpec = AttributeSpec
+    ParamRegistry = ParamRegistry
 
     #: One-shot guard so the legacy repeat-last migration runs once per process,
     #: not on every slot instantiation (the base ``__init__`` runs for every
     #: slot class).
     _legacy_repeat_last_migrated = False
+
+    #: Default body for the empty-selection message box (see :meth:`require_selection`).
+    NOTHING_SELECTED = (
+        "<b>Nothing selected.</b><br>"
+        "The operation requires at least one selected object."
+    )
+
+    @property
+    def tk(self):
+        """The host toolkit (``mtk`` / ``btk``) the entry point set on the
+        switchboard: what a Slots class shared by both hosts calls for host
+        behavior, never the host itself (CODE_STANDARD section 3). ``None``
+        outside a host entry point."""
+        return getattr(self.sb, "tk", None)
 
     def __init__(self, switchboard):
         super().__init__()
@@ -98,6 +122,147 @@ class Slots(QtCore.QObject):
         # ``ComboBox.add`` ends with ``restore_state = not self.has_header``, so a headerless
         # combo seeded by its own ``add`` would silently opt itself back IN to persistence.
         widget.restore_state = False
+
+    def requires(self, widget, host) -> bool:
+        """Tag a code-built *widget* as served only by *host* -- the ``requires``
+        property a ``.ui`` widget carries -- and apply uitk's visibility policy,
+        which hides it on any other host (CODE_STANDARD section 15: hidden, never
+        a stub) and records why on ``widget.hidden_by_policy``.
+
+        Parameters:
+            widget (QWidget): The widget (a menu item, an option, a list row).
+            host (str): The host tag(s) that serve it (``"maya"``,
+                ``"maya|blender"``). Empty or None tags nothing: every host
+                serves it.
+
+        Returns:
+            bool: True when this host serves it.
+        """
+        if not host:
+            return True
+        widget.setProperty("requires", host)
+        return not self.sb.apply_visibility_policy(widget)
+
+    def hide_unless(self, widget, available) -> bool:
+        """Hide *widget* when this host cannot serve it: its engine lacks the
+        operation the widget runs (CODE_STANDARD section 15: hidden, never a
+        stub). The capability twin of :meth:`requires`, for a control both hosts
+        build but only one host's engine backs.
+
+        Hidden as a ``requires`` exclusion is (``hidden_by_policy``), so an app
+        gate never shows it again, and as a field
+        (``FieldVisibility.set_widget_visible``), so a ``CollapsableGroup`` that
+        re-shows its contents on expand leaves it hidden. The gap itself is the
+        engine's to close (BACKLOG); the panel never says "not available".
+
+        Parameters:
+            widget (QWidget): The control.
+            available (bool): Whether this host's engine backs it.
+
+        Returns:
+            bool: *available*, so a caller can skip wiring a hidden control.
+        """
+        if available:
+            return True
+        self.sb.FieldVisibility.set_widget_visible(widget, False)
+        widget.hidden_by_policy = "requires"
+        return False
+
+    def host_key(self, base: str) -> str:
+        """*base* namespaced by host (uitk's ``host_namespace_suffix`` of the
+        switchboard's ``context_tags``): a settings key each host keeps its own
+        value under, as Maya and Blender share one settings store."""
+        suffix = self.sb.ShortcutManager.host_namespace_suffix(
+            getattr(self.sb, "context_tags", None)
+        )
+        return base + suffix
+
+    def require_selection(self, message=None):
+        """The selection, or ``None`` -- after a message box -- when it is empty.
+
+        The guard a slot runs before work that cannot answer an empty selection
+        itself. An operation that takes ``None`` for the selection returns ``[]``
+        on an empty one instead: report from its result, as ``normals.py`` does.
+        Read through the host toolkit (``self.tk.CoreUtils.selected_objects``),
+        so a Slots class shared by both hosts gets Maya's selection as
+        ``cmds.ls`` names it (components included) and Blender's selected objects.
+
+        Parameters:
+            message (str, optional): HTML shown when nothing is selected.
+                Defaults to :attr:`NOTHING_SELECTED`.
+
+        Returns:
+            list | None: The selection, or ``None`` when it is empty.
+        """
+        selection = self.tk.CoreUtils.selected_objects()
+        if not selection:
+            self.sb.message_box(message or self.NOTHING_SELECTED)
+            return None
+        return selection
+
+    def activate_tool(self, tool) -> bool:
+        """Activate a viewport tool through the host toolkit and confirm it, or say
+        why not.
+
+        *tool* is a name both hosts register (``self.tk.UiUtils.get_tool_types``:
+        ``"Multi-Cut"``, ``"Quad Draw"``, ``"Lasso Select"`` ...). The confirmation
+        matters from the marking menu, which closes on the click: the tool change
+        is otherwise easy to miss. A refusal -- no 3D view, no object of the type
+        the tool edits, the host's own error -- reaches the user as the host
+        words it (``set_tool`` raises ``ValueError`` / ``RuntimeError``).
+
+        Returns:
+            bool: True when the tool was set.
+        """
+        try:
+            self.tk.UiUtils.set_tool(tool)
+        except (RuntimeError, ValueError) as error:
+            self.sb.message_box(str(error))
+            return False
+        self.sb.message_box(f"<hl>{tool}</hl> tool active.")
+        return True
+
+    def launch_app(self, app, show=True):
+        """Open the standalone app *app* (an extapps app, by name) through the
+        external-app handler, which installs a missing extapps within the range
+        tentacle declares (``Tcl.register_apps``); a failure -- an app that will
+        not install or import, or an install outside that range the user
+        declined -- is a message, never a traceback.
+
+        Returns:
+            The app's window, or None.
+        """
+        try:
+            return self.sb.handlers.external_app.launch(app, show=show)
+        except Exception as error:  # noqa: BLE001 -- said, for the user to act on
+            self.sb.message_box(
+                f"<hl>Couldn't open {app.replace('_', ' ').title()}</hl><br>{error}"
+            )
+            return None
+
+    def run_operation(self, call, *args, empty=None, **kwargs):
+        """Call a host operation and report it: a refusal (``ValueError`` for a
+        state the user can fix, ``RuntimeError`` for the host's own) as the host
+        words it, and *empty* when the operation found nothing to act on -- the
+        ``[]`` an operation given ``None`` for the selection returns (see
+        :meth:`require_selection`).
+
+        Parameters:
+            call (callable): The operation (``self.tk.Components.poke_faces``).
+            *args, **kwargs: Its arguments.
+            empty (str, optional): HTML shown when it returns ``[]``.
+
+        Returns:
+            The operation's result, or None after a refusal.
+        """
+        try:
+            result = call(*args, **kwargs)
+        except (ValueError, RuntimeError) as error:
+            self.sb.message_box(str(error))
+            return None
+        if empty and isinstance(result, list) and not result:
+            self.sb.message_box(empty)
+        return result
 
     def add_slot_widget(self, sublist, widget_class=None, **kwargs):
         """Add a slot-wired widget as an ExpandableList sublist entry.

@@ -1,338 +1,259 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.pivot.
+"""Regression tests for tentacle.slots.pivot, the one Pivot Slots class.
 
-The substantive unit at this layer is tb001 (Center Pivot) — a three-way
-radio dispatch between Component/Object/World that calls different
-cmds.xform paths. If the radio handler order drifts, the wrong pivot
-behavior would ship silently.
+It reaches its host only through ``self.tk``: a fake toolkit records what each
+slot asks of ``XformUtils`` (plain pytest), and in Maya the same class drives the
+real ``mtk``. What's worth pinning at this layer:
 
-tb003 (World-Aligned Pivot) similarly routes by checkbox to manip vs
-object pivot — pin the routing.
+- each option box's values reach the operation (Center Pivot's radio as its
+  mode, Transfer Pivot's channels and mirror, World-Aligned's manip/object);
+- every operation acts on the selection (``None``) and says so when it was empty;
+- the options only Maya's pivots serve are tagged ``requires="maya"``.
+
+The operations themselves are tested in mayatk and blendertk.
 """
 import unittest
-
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-pivot_module = maya_module("tentacle.slots.maya.pivot")
-
-
-class _FakeSb:
-    """Minimal switchboard stub recording message_box calls."""
-
-    def __init__(self):
-        self.messages = []
-
-    def message_box(self, string, *args, **kwargs):
-        self.messages.append(string)
-
-
-class _FakeChk:
-    def __init__(self, state):
-        self._state = state
-
-    def isChecked(self):
-        return self._state
-
-
-class _FakeMenu:
-    def __init__(self, **flags):
-        for k, v in flags.items():
-            setattr(self, k, _FakeChk(v))
-
-
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
-
-
-class _FakeWidget:
-    def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb001CenterPivot(unittest.TestCase):
-    """tb001 Center Pivot routes on Component / Object / World radio."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
-        # Capture the real xform — install the stub later, after each test
-        # has built its scene, so cmds.polyCube doesn't get intercepted.
-        self._original_xform = cmds.xform
-        self.xform_calls = []
-
-    def tearDown(self):
-        cmds.xform = self._original_xform
-        cmds.file(new=True, force=True)
-
-    def _install_xform_stub(self):
-        cmds.xform = lambda *a, **kw: self.xform_calls.append((a, kw))
-
-    def _widget(self, component=False, object_=False, world=False):
-        return _FakeWidget(
-            _FakeMenu(chk002=component, chk003=object_, chk004=world)
-        )
-
-    def test_no_selection_is_noop(self):
-        """tb001 with no selection returns early — no xform call."""
-        cmds.select(clear=True)
-        self._install_xform_stub()
-        self.instance.tb001(self._widget(object_=True))
-        self.assertEqual(self.xform_calls, [])
-
-    def test_object_mode_calls_center_pivots(self):
-        """Object radio → cmds.xform(centerPivots=1)."""
-        cube = cmds.polyCube(name="pv_obj")[0]
-        cmds.select(cube)
-        self._install_xform_stub()
-
-        self.instance.tb001(self._widget(object_=True))
-
-        self.assertEqual(len(self.xform_calls), 1)
-        _, kw = self.xform_calls[0]
-        self.assertTrue(kw.get("centerPivots"))
-
-    def test_component_mode_calls_center_on_components(self):
-        """Component radio → cmds.xform(centerPivotsOnComponents=1)."""
-        cube = cmds.polyCube(name="pv_comp")[0]
-        cmds.select(cube)
-        self._install_xform_stub()
-
-        self.instance.tb001(self._widget(component=True))
-
-        self.assertEqual(len(self.xform_calls), 1)
-        _, kw = self.xform_calls[0]
-        self.assertTrue(kw.get("centerPivotsOnComponents"))
-
-    def test_world_mode_sets_pivots_origin(self):
-        """World radio → cmds.xform(worldSpace=1, pivots=[0,0,0])."""
-        cube = cmds.polyCube(name="pv_world")[0]
-        cmds.select(cube)
-        self._install_xform_stub()
-
-        self.instance.tb001(self._widget(world=True))
-
-        self.assertEqual(len(self.xform_calls), 1)
-        _, kw = self.xform_calls[0]
-        self.assertTrue(kw.get("worldSpace"))
-        self.assertEqual(kw.get("pivots"), [0, 0, 0])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb003WorldAlignedPivot(unittest.TestCase):
-    """tb003 routes manip pivot vs object pivot based on chk010."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
-        # tb003 posts message_box feedback on success (added post-redesign) —
-        # stub sb so the bare __new__ instance can run it headlessly.
-        self.instance.sb = _FakeSb()
-
-        # Capture mtk.world_align_pivot calls.
-        import mayatk as mtk
-        self._original = mtk.world_align_pivot
-        self.captured = []
-
-        def fake_align(mode, pivot_type):
-            self.captured.append({"mode": mode, "pivot_type": pivot_type})
-            return True
-
-        mtk.world_align_pivot = fake_align
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.world_align_pivot = self._original
-        cmds.file(new=True, force=True)
-
-    def _widget(self, manip):
-        return _FakeWidget(_FakeMenu(chk010=manip))
-
-    def test_manip_checked_routes_to_manip_type(self):
-        """chk010=True → mode='set', pivot_type='manip' (+ manip feedback)."""
-        self.instance.tb003(self._widget(manip=True))
-        self.assertEqual(len(self.captured), 1)
-        self.assertEqual(self.captured[0]["pivot_type"], "manip")
-        self.assertEqual(self.captured[0]["mode"], "set")
-        self.assertEqual(len(self.instance.sb.messages), 1)
-        self.assertIn("manipulator", self.instance.sb.messages[0])
-
-    def test_manip_unchecked_routes_to_object_type(self):
-        """chk010=False → mode='set', pivot_type='object' (+ object feedback)."""
-        self.instance.tb003(self._widget(manip=False))
-        self.assertEqual(len(self.captured), 1)
-        self.assertEqual(self.captured[0]["pivot_type"], "object")
-        self.assertEqual(len(self.instance.sb.messages), 1)
-        self.assertIn("object", self.instance.sb.messages[0])
-
-
-class _FakeCombo:
-    def __init__(self, data):
-        self._data = data
-
-    def currentData(self):
-        return self._data
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb002TransferPivot(unittest.TestCase):
-    """tb002 forwards its option-box state (incl. the Mirror combo) to mtk.transfer_pivot."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
-        import mayatk as mtk
-
-        self._original = mtk.transfer_pivot
-        self.captured = []
-
-        def fake_transfer(objects, **kwargs):
-            self.captured.append((tuple(objects), kwargs))
-
-        mtk.transfer_pivot = fake_transfer
-
-    def tearDown(self):
-        import mayatk as mtk
-
-        mtk.transfer_pivot = self._original
-        cmds.file(new=True, force=True)
-
-    def _widget(self, mirror=""):
-        menu = _FakeMenu(
-            chk005=True, chk006=True, chk007=True, chk008=False, chk009=True
-        )
-        menu.cmb000 = _FakeCombo(mirror)
-        return _FakeWidget(menu)
-
-    def test_mirror_axis_forwarded(self):
-        """The selected Mirror axis is forwarded as mirror= to transfer_pivot."""
-        cube = cmds.polyCube(name="pv_src")[0]
-        cmds.select(cube)
-        self.instance.tb002(self._widget(mirror="x"))
-
-        self.assertEqual(len(self.captured), 1)
-        _, kwargs = self.captured[0]
-        self.assertEqual(kwargs["mirror"], "x")
-        self.assertTrue(kwargs["translate"])
-
-    def test_mirror_none_forwards_empty(self):
-        """Mirror: None forwards an empty string (unmirrored transfer)."""
-        cube = cmds.polyCube(name="pv_src2")[0]
-        cmds.select(cube)
-        self.instance.tb002(self._widget(mirror=""))
-
-        self.assertEqual(len(self.captured), 1)
-        _, kwargs = self.captured[0]
-        self.assertEqual(kwargs["mirror"], "")
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB004BakePivot(unittest.TestCase):
-    """b004 (Bake Pivot) delegates to mtk.bake_pivot with the current selection."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
-        import mayatk as mtk
-        self._original = mtk.bake_pivot
-        self.captured = []
-
-        def fake_bake(selection, **kwargs):
-            self.captured.append((tuple(selection), kwargs))
-
-        mtk.bake_pivot = fake_bake
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.bake_pivot = self._original
-        cmds.file(new=True, force=True)
-
-    def test_b004_forwards_selection_and_flags(self):
-        """b004 forwards the selection with position=True, orientation=True."""
-        a = cmds.polyCube(name="bake_a")[0]
-        cmds.select(a)
-        self.instance.b004()
-
-        self.assertEqual(len(self.captured), 1)
-        sel, kwargs = self.captured[0]
-        self.assertIn(a, sel)
-        self.assertTrue(kwargs["position"])
-        self.assertTrue(kwargs["orientation"])
-
-    def test_b004_empty_selection_still_dispatches(self):
-        """b004 with empty selection passes [] (no message-box guard)."""
-        cmds.select(clear=True)
-        self.instance.b004()
-        self.assertEqual(len(self.captured), 1)
-        self.assertEqual(self.captured[0][0], ())
-
-
-class _RecordingCombo:
-    def __init__(self):
-        self.items = []
-
-    def addItem(self, text, data):
-        self.items.append((text, data))
+from unittest import mock
+
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.pivot import PivotSlots
+
+
+def _widget(**values):
+    """A widget whose option-box menu holds fakes reading *values*."""
+    widget = mock.MagicMock()
+    for name, value in values.items():
+        child = getattr(widget.option_box.menu, name)
+        child.isChecked.return_value = value
+        child.currentData.return_value = value
+    return widget
 
 
 class _RecordingMenu:
-    """Records the widgets a ``*_init`` slot builds on the option box."""
+    """Records the widgets a ``*_init`` builds on the option box."""
 
     def __init__(self):
         self.added = {}
-        self.title = None
 
     def setTitle(self, title):
         self.title = title
 
     def add(self, widget_type, **kwargs):
-        self.added[kwargs.get("setObjectName")] = kwargs
-        return _RecordingCombo()
+        widget = mock.MagicMock()
+        self.added[kwargs.get("setObjectName")] = (kwargs, widget)
+        return widget
 
 
-class _RecordingWidget:
-    def __init__(self):
-        self.option_box = _FakeOptionBox(_RecordingMenu())
+class _SlotsCase(unittest.TestCase):
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = PivotSlots(self.sb)
+        self.xform = self.sb.tk.XformUtils
+
+    def _message(self):
+        (message,), _ = self.sb.message_box.call_args
+        return message
+
+    def _init(self, name):
+        widget = mock.MagicMock()
+        widget.option_box.menu = _RecordingMenu()
+        getattr(self.slots, f"{name}_init")(widget)
+        return widget.option_box.menu.added
 
 
-class _FakeTooltip:
-    def fmt(self, title="", body="", notes=(), **kwargs):
-        return f"{title}: {body}"
+class TestResetPivot(_SlotsCase):
+    def test_the_options_reach_the_operation(self):
+        self.xform.reset_pivot.return_value = ["a", "b"]
+        self.slots.tb000(_widget(chk000=True, chk001=False))
+        self.xform.reset_pivot.assert_called_once_with(
+            None, position=True, orientation=False
+        )
+        self.assertIn("<hl>2</hl>", self._message())
+
+    def test_nothing_selected_says_so(self):
+        self.xform.reset_pivot.return_value = []
+        self.slots.tb000(_widget(chk000=True, chk001=True))
+        self.assertEqual(self._message(), PivotSlots.NOTHING_SELECTED)
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb002Defaults(unittest.TestCase):
-    """tb002's option-box defaults.
+class TestCenterPivot(_SlotsCase):
+    def test_the_radio_is_the_mode(self):
+        for flags, mode in (
+            (dict(chk002=True, chk003=False, chk004=False), "component"),
+            (dict(chk002=False, chk003=True, chk004=False), "object"),
+            (dict(chk002=False, chk003=False, chk004=True), "world"),
+        ):
+            with self.subTest(mode=mode):
+                self.slots.tb001(_widget(**flags))
+                self.xform.center_pivot.assert_called_with(None, mode=mode)
 
-    Bake decides whether the transferred pivot is permanent or a temporary
-    manipulator pivot — it defaults ON so the button does something that
-    sticks.  Rotate defaults OFF: most transfers only want the pivot point,
-    and re-framing an orientation is the bigger change.
-    """
+    def test_nothing_selected_says_so(self):
+        self.xform.center_pivot.return_value = []
+        self.slots.tb001(_widget(chk002=False, chk003=True, chk004=False))
+        self.assertIn("requires a selection", self._message())
+
+    def test_the_shortcuts_drive_center_pivot(self):
+        for button, radio in (("b000", "chk003"), ("b001", "chk002"), ("b002", "chk004")):
+            with self.subTest(button=button):
+                tb001 = mock.MagicMock()
+                self.slots.ui = mock.MagicMock(tb001=tb001)
+                method = getattr(self.slots, button)
+                method(None) if button == "b002" else method()
+                getattr(tb001.option_box.menu, radio).setChecked.assert_called_once_with(True)
+                tb001.call_slot.assert_called_once_with()
+
+
+class TestTransferPivot(_SlotsCase):
+    def _run(self, **overrides):
+        values = dict(
+            chk005=True, chk006=False, chk007=True, chk008=True, chk009=True, cmb000="x"
+        )
+        values.update(overrides)
+        self.slots.tb002(_widget(**values))
+        return self.xform.transfer_pivot.call_args
+
+    def test_every_option_reaches_the_operation(self):
+        call = self._run()
+        self.assertEqual(call.args, (None,))
+        self.assertEqual(
+            call.kwargs,
+            dict(
+                translate=True,
+                rotate=False,
+                scale=True,
+                bake=True,
+                world_space=True,
+                mirror="x",
+                select_targets_after_transfer=True,
+            ),
+        )
+
+    def test_too_few_objects_says_which_is_the_source(self):
+        self.xform.transfer_pivot.return_value = []
+        self._run()
+        self.assertIn("source", self._message())
+
+    def test_the_hosts_reason_is_shown(self):
+        self.xform.transfer_pivot.side_effect = ValueError("make the source active")
+        self._run()
+        self.assertEqual(self._message(), "make the source active")
+
+    def test_option_defaults(self):
+        """Bake defaults ON (the button does something that sticks); Rotate OFF
+        (most transfers want the pivot point only)."""
+        added = self._init("tb002")
+        self.assertTrue(added["chk008"][0]["setChecked"])
+        self.assertFalse(added["chk006"][0]["setChecked"])
+        self.assertTrue(added["chk005"][0]["setChecked"])
+        self.assertTrue(added["chk007"][0]["setChecked"])
+        self.assertTrue(added["chk009"][0]["setChecked"])
+
+
+class TestMayaOnlyOptions(_SlotsCase):
+    """Blender's one origin is always baked, world-space and orientation-free: the
+    options it cannot serve are hidden there (``requires``), never stubs."""
+
+    def _tagged(self, added):
+        return {
+            name
+            for name, (_, widget) in added.items()
+            if mock.call("requires", "maya") in widget.setProperty.call_args_list
+        }
+
+    def test_transfer_pivot(self):
+        tagged = self._tagged(self._init("tb002"))
+        self.assertEqual(tagged, {"chk005", "chk006", "chk007", "chk008", "chk009"})
+
+    def test_reset_pivot(self):
+        self.assertEqual(self._tagged(self._init("tb000")), {"chk001"})
+
+    def test_the_rest_serve_both_hosts(self):
+        for name in ("tb001", "tb003"):
+            with self.subTest(name=name):
+                self.assertEqual(self._tagged(self._init(name)), set())
+
+
+class TestWorldAlignedPivot(_SlotsCase):
+    def test_the_option_picks_the_pivot(self):
+        self.xform.world_align_pivot.return_value = True
+        self.slots.tb003(_widget(chk010=True))
+        self.xform.world_align_pivot.assert_called_with(None, pivot_type="manip", mode="set")
+        self.assertIn("manipulator", self._message())
+        self.slots.tb003(_widget(chk010=False))
+        self.xform.world_align_pivot.assert_called_with(None, pivot_type="object", mode="set")
+        self.assertIn("object", self._message())
+
+    def test_a_failure_says_why(self):
+        self.xform.world_align_pivot.return_value = False
+        self.slots.tb003(_widget(chk010=False))
+        self.assertIn("requires a selection", self._message())
+        self.xform.world_align_pivot.side_effect = ValueError("linked data")
+        self.slots.tb003(_widget(chk010=False))
+        self.assertEqual(self._message(), "linked data")
+
+
+class TestBakePivot(_SlotsCase):
+    def test_the_selection_bakes_position_and_orientation(self):
+        self.slots.b004()
+        self.xform.bake_pivot.assert_called_once_with(
+            None, position=True, orientation=True
+        )
+        self.sb.message_box.assert_not_called()
+
+    def test_nothing_selected_or_a_refusal_says_so(self):
+        self.xform.bake_pivot.return_value = []
+        self.slots.b004()
+        self.assertIn("requires a selection", self._message())
+        self.xform.bake_pivot.side_effect = RuntimeError("edit mode")
+        self.slots.b004()
+        self.assertEqual(self._message(), "edit mode")
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestPivotInMaya(_SlotsCase):
+    """The same class over the real ``mtk``."""
 
     def setUp(self):
-        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
-        self.instance.sb = _FakeSb()
-        self.instance.sb.tooltip = _FakeTooltip()
-        self.widget = _RecordingWidget()
-        self.instance.tb002_init(self.widget)
-        self.added = self.widget.option_box.menu.added
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = maya_module("mayatk")
+        self.cube = self.cmds.polyCube(name="pv_cube")[0]
+        self.cmds.move(5, 0, 0, self.cube)
 
-    def test_bake_defaults_on(self):
-        self.assertTrue(self.added["chk008"]["setChecked"])
+    def tearDown(self):
+        self.cmds.file(new=True, force=True)
 
-    def test_rotate_defaults_off(self):
-        self.assertFalse(self.added["chk006"]["setChecked"])
+    def _rp(self):
+        return [round(v, 4) for v in self.cmds.xform(self.cube, q=True, ws=True, rp=True)]
 
-    def test_translate_and_scale_default_on(self):
-        self.assertTrue(self.added["chk005"]["setChecked"])
-        self.assertTrue(self.added["chk007"]["setChecked"])
+    def test_center_pivot_object_and_world(self):
+        self.cmds.xform(self.cube, worldSpace=True, pivots=(9, 9, 9))
+        self.cmds.select(self.cube)
+        self.slots.tb001(_widget(chk002=False, chk003=True, chk004=False))
+        self.assertEqual(self._rp(), [5.0, 0.0, 0.0])
+        self.slots.tb001(_widget(chk002=False, chk003=False, chk004=True))
+        self.assertEqual(self._rp(), [0.0, 0.0, 0.0])
 
-    def test_world_space_defaults_on(self):
-        self.assertTrue(self.added["chk009"]["setChecked"])
+    def test_nothing_selected_changes_nothing_and_says_so(self):
+        self.cmds.select(clear=True)
+        self.slots.tb001(_widget(chk002=False, chk003=True, chk004=False))
+        self.slots.b004()
+        self.assertEqual(self.sb.message_box.call_count, 2)
+
+    def test_bake_pivot_makes_the_pivot_the_objects_own(self):
+        self.cmds.xform(self.cube, worldSpace=True, pivots=(6, 1, 0))
+        self.cmds.select(self.cube)
+        self.slots.b004()
+        self.assertEqual(
+            [round(v, 4) for v in self.cmds.getAttr(f"{self.cube}.translate")[0]],
+            [6.0, 1.0, 0.0],
+        )
 
 
 if __name__ == "__main__":

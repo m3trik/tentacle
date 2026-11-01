@@ -23,7 +23,7 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <property name="accessibleDescription">
-   <string>Toggle modeling symmetry per axis, in object, world or topology space.</string>
+   <string>Toggle modeling symmetry per axis, in object or topology space.</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Symmetry: object space (else: world space)</string>
+            <string>Symmetry: object space, mirrored vertices matched by position.</string>
            </property>
            <property name="text">
             <string>Obj</string>
@@ -154,7 +154,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Symmetry: By Topography</string>
+            <string>Symmetry: by topology (Maya: seeded by a selected seam edge).</string>
            </property>
            <property name="text">
             <string>Topo</string>

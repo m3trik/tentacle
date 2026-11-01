@@ -146,7 +146,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Add an annotation to the selected object</string>
+     <string>Annotate: Maya adds an annotation (a text label) to the selected object; Blender activates its Annotate tool.</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
@@ -186,7 +186,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open the built-in blue pencil tool.</string>
+     <string>Sketch over the view: Blue Pencil (Maya), or a new Grease Pencil object to draw into (Blender).</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>

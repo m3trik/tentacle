@@ -32,7 +32,9 @@ from unittest import mock
 HERE = Path(__file__).resolve().parent
 PACKAGE = HERE.parent / "tentacle"
 INSTALLER = PACKAGE / "tentacle_installer.py"
-TCL_BLENDER = PACKAGE / "tcl_blender.py"
+#: blendertk's Qt bootstrap, whose ``QtBootstrap.QT_SPECS`` the installer's copy must equal:
+#: the monorepo sibling, else an installed blendertk (found, never imported).
+QT_RUNTIME = HERE.parent.parent / "blendertk" / "blendertk" / "ui_utils" / "qt_runtime.py"
 TEMP = HERE / "temp_tests" / "tentacle_installer"
 LIVE = os.environ.get("TENTACLE_LIVE_INSTALL") == "1"
 LIVE_TIMEOUT = 1200  # PySide6 for a fresh interpreter is a big download
@@ -252,19 +254,28 @@ class TestStructure(unittest.TestCase):
                     f"{node.name} carries logic; move it onto TentacleInstaller",
                 )
 
-    def test_qt_specs_match_tcl_blender(self):
-        """One list of Qt requirements, in two files: pin them together."""
-        tree = ast.parse(TCL_BLENDER.read_text(encoding="utf-8"))
+    def test_qt_specs_match_blendertk(self):
+        """One list of Qt requirements, in two packages: pin them together."""
+        source = QT_RUNTIME
+        if not source.is_file():
+            import importlib.util
+
+            spec = importlib.util.find_spec("blendertk")
+            origin = Path(spec.origin).parent if spec and spec.origin else None
+            source = origin / "ui_utils" / "qt_runtime.py" if origin else source
+        if not source.is_file():
+            self.skipTest("blendertk is neither beside tentacle nor installed")
+        tree = ast.parse(source.read_text(encoding="utf-8"))
         specs = None
         for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef) and node.name == "_QtBootstrap":
+            if isinstance(node, ast.ClassDef) and node.name == "QtBootstrap":
                 for stmt in node.body:
                     if isinstance(stmt, ast.Assign) and any(
                         isinstance(t, ast.Name) and t.id == "QT_SPECS"
                         for t in stmt.targets
                     ):
                         specs = tuple(ast.literal_eval(stmt.value))
-        self.assertIsNotNone(specs, "_QtBootstrap.QT_SPECS not found in tcl_blender.py")
+        self.assertIsNotNone(specs, f"QtBootstrap.QT_SPECS not found in {source}")
         self.assertEqual(_load().TentacleInstaller.QT_SPECS, specs)
 
     def test_specs_per_host_and_update_never_names_qt(self):

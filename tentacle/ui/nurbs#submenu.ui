@@ -127,7 +127,7 @@
     <property name="toolTip">
      <string>Build a surface lofted across the selected profile curves.
 
-Use the option box to set uniform parameterization, closed surface, and degree.</string>
+Use the option box to close the surface and set its spans.</string>
     </property>
     <property name="text">
      <string>Loft</string>
@@ -164,7 +164,7 @@ Use the option box to set uniform parameterization, closed surface, and degree.<
      </size>
     </property>
     <property name="toolTip">
-     <string>Extrude the selected NURBS curve(s) into a surface.</string>
+     <string>Extrude the selected curve(s) into a surface: a profile swept along a path curve, or a single curve extruded.</string>
     </property>
     <property name="text">
      <string>Extrude</string>
@@ -203,7 +203,7 @@ Use the option box to set uniform parameterization, closed surface, and degree.<
     <property name="toolTip">
      <string>Sweep the selected profile curve around an axis into a surface.
 
-Use the option box to set degree and sweep angle.</string>
+Use the option box to set the axis, sweep angle and sections.</string>
     </property>
     <property name="text">
      <string>Revolve</string>
@@ -237,7 +237,7 @@ Use the option box to set degree and sweep angle.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>Trace images into NURBS curves.</string>
+     <string>Trace images into curves.</string>
     </property>
     <property name="text">
      <string>Image Tracer</string>

@@ -1,6 +1,6 @@
 """GUI-level integration tests for the tentacle marking menu.
 
-Drives the gesture pipeline against the real ``TclMaya`` instance with
+Drives the gesture pipeline against the real ``Tcl.build("maya")`` instance with
 real ``cameras#startmenu`` / ``main#startmenu`` / ``animation#submenu``
 .ui files. Verifies the user-facing flow end-to-end: each registered
 menu actually loads, becomes visible, and lands on screen.
@@ -18,13 +18,13 @@ cropped-cameras regression is unit-tested in uitk:
   startmenu / submenu UIs.
 
 This file stays as the integration smoke test: it confirms the upstream
-fix actually wires up correctly when bound to tentacle's TclMaya.
+fix actually wires up correctly when bound to tentacle's Maya's marking menu.
 
 ## Skip behaviour
 
 Requires both an interactive-Qt context and a Maya runtime, since
-``TclMaya`` imports ``maya.cmds`` at module load and the marking-menu
-shows real ``QMainWindow`` widgets.
+Maya's menu (``Tcl.build("maya")``) is built over mayatk and the marking
+menu shows real ``QMainWindow`` widgets.
 
 * Plain Python:                      skip — no Maya
 * ``mayapy --include-slots`` (batch): skip — Qt is a stub, widgets crash
@@ -37,13 +37,18 @@ from __future__ import annotations
 
 import unittest
 
+from _host import MAYA_AVAILABLE
+
 
 def _can_run_marking_menu_tests() -> bool:
-    """True iff TclMaya can be instantiated and shown.
+    """True iff Maya's marking menu can be instantiated and shown.
 
     Needs real-widget Qt (not the mayapy.standalone stub) and a Maya
-    runtime — TclMaya imports maya.cmds at module load.
+    runtime — Maya's menu is built over mayatk. ``MAYA_AVAILABLE`` (the suite's
+    shared probe) is what routes this module to ``--in-maya``.
     """
+    if not MAYA_AVAILABLE:
+        return False
     try:
         import maya.cmds as cmds
     except ImportError:
@@ -73,7 +78,7 @@ _MIDDLE = 0x00000004
 class MarkingMenuGuiTest(unittest.TestCase):
     """Drives the gesture pipeline against real widgets.
 
-    Each test gets a fresh ``QMainWindow`` parent and ``TclMaya`` so that
+    Each test gets a fresh ``QMainWindow`` parent and ``Tcl.build("maya")`` so that
     state (registry-persisted geometry, hover transitions, submenu cache)
     cannot leak between cases.
     """
@@ -90,7 +95,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
 
     def setUp(self):
         from qtpy import QtWidgets, QtGui
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
         self.parent = QtWidgets.QMainWindow()
         self.parent.resize(1920, 1080)
@@ -110,7 +115,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
         QtGui.QCursor.setPos(sx + sw // 2, sy + sh // 2)
         self._process()
 
-        self.mm = TclMaya(parent=self.parent)
+        self.mm = Tcl.build("maya", parent=self.parent)
         self._process()
         self.mm._activation_key_held = True
 
@@ -500,41 +505,44 @@ class MarkingMenuGuiTest(unittest.TestCase):
         )
 
     def test_preload_leaves_mayas_own_menus_cold(self):
-        """The preload warms tentacle's submenus but never a native-menu page.
+        """Warming a native-menu page never builds one of Maya's own menus.
 
         Building one runs Maya's MEL menu builder: it switches the main
-        window's menu set mid-build, Arnold and MASH load their plugins
-        (warming arnold#submenu froze the first key_show press for 5.4 s), and
-        a stale mapping's error reached the Script Editor at every startup
-        (``NucleusCacheMenu.mel``: ``'MayaWindow|mainCacheMenu' not found``).
+        window's menu set mid-build, Arnold and MASH load their plugins (a
+        warm-up that built the Arnold menu froze the first key_show press for
+        5.4 s), and a stale mapping's error reached the Script Editor at every
+        startup (``NucleusCacheMenu.mel``: ``'MayaWindow|mainCacheMenu' not
+        found``). The pages are pure navigation with no Slots class, so they
+        warm like any other page; Maya's menu builds on its first release, when
+        the switchboard resolves the name through ``MayaUiHandler``.
         """
-        from fnmatch import fnmatchcase
-
-        def excluded(name):
-            return any(fnmatchcase(name, p) for p in self.mm.PRELOAD_EXCLUDE)
-
-        for name in ("cache#submenu", "arnold#submenu", "mash#submenu", "mesh#submenu"):
-            self.assertTrue(excluded(name), f"{name} builds a Maya menu at startup")
-        # Same names as native-menu keys, but tentacle's own pages.
-        for name in ("uv#submenu", "display#submenu", "edit#submenu"):
-            self.assertFalse(excluded(name), f"tentacle's {name} must still warm")
+        for name in ("cache", "arnold", "mash"):
+            self.mm._warm_menu(f"{name}#submenu")
+            page = self.mm.sb.loaded_ui.peek(f"{name}#submenu")
+            self.assertTrue(
+                page is not None and page.is_initialized, f"{name}#submenu did not warm"
+            )
+            self.assertIsNone(
+                self.mm.sb.loaded_ui.peek(name),
+                f"warming {name}#submenu built Maya's {name} menu",
+            )
 
     def test_preload_advances_only_from_mayas_own_loop(self):
         """A tick fired inside a script's processEvents (mayatk's
         test_shot_manifest) built a page mid-test and faulted Maya: Maya's loop
         is native, so the warm-up must wait whenever Python is beneath it."""
-        self.assertTrue(self.mm.PRELOAD_ONLY_FROM_HOST_LOOP)
+        self.assertTrue(self.mm.host.preload_only_from_host_loop)
 
 
 @unittest.skipUnless(_can_run_marking_menu_tests(), _SKIP_REASON)
 class BrowserPolicyGuiTest(unittest.TestCase):
-    """Launcher-surface policy + hosted-page launch delegation on real TclMaya.
+    """Launcher-surface policy + hosted-page launch delegation on real Maya's marking menu.
 
     The mechanism layers are unit-tested in uitk
     (``test_switchboard_browser.py::EntryFilterStructural``,
     ``test_marking_menu.py::TestMarkingMenuBrowserEntryFilter``,
     ``test_ui_handler.py`` delegation suites); this smoke test confirms they
-    wire up when bound to tentacle's TclMaya:
+    wire up when bound to tentacle's Maya's marking menu:
 
     * the UI Browser built off tentacle's switchboard never lists the
       marking-menu gesture pages (``*#startmenu*`` / ``*#submenu*``), and
@@ -552,13 +560,13 @@ class BrowserPolicyGuiTest(unittest.TestCase):
 
     def setUp(self):
         from qtpy import QtWidgets
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
         self.parent = QtWidgets.QMainWindow()
         self.parent.resize(1280, 720)
         self.parent.show()
         self._process()
-        self.mm = TclMaya(parent=self.parent)
+        self.mm = Tcl.build("maya", parent=self.parent)
         self._process()
 
     def tearDown(self):
@@ -656,6 +664,88 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             ui.hide()
             self._process()
 
+    def test_every_shared_tool_opens_sticky_over_the_host_toolkit(self):
+        """Each shared tool (``ui/tools/<tool>.ui`` + ``slots/tools/<tool>.py``)
+        Maya serves opens the way its menu opens it: from tentacle's folder, bound
+        to its one Slots class over ``mtk``, sticky by the panel tag (the rule
+        mayatk's own panels had by their package tag). A Preview panel's preview is
+        ``mtk``'s."""
+        from pathlib import Path
+
+        import mayatk as mtk
+        import tentacle
+        from tentacle.tcl import Tcl
+
+        tools = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
+        unserved = Tcl.unserved_tools(self.mm.sb.context_tags)
+        names = sorted(path.stem for path in tools.glob("*.ui") if path.stem not in unserved)
+        self.assertIn("duplicate_radial", names)
+        for name in names:
+            with self.subTest(tool=name):
+                # A Slots class that raises as it is built is only logged (and
+                # rebuilt on the next read), so the log is the check.
+                with self.assertNoLogs(self.mm.sb.logger, level="ERROR"):
+                    self.mm.sb.handlers.marking_menu.show(name)
+                    self._process()
+                ui = getattr(self.mm.sb.loaded_ui, name)
+                try:
+                    self.assertTrue(ui.isVisible(), "the panel did not show")
+                    filepath = self.mm.sb.registry.ui_registry.get(
+                        filename=name, return_field="filepath"
+                    )
+                    self.assertTrue(
+                        Path(filepath).resolve().is_relative_to(tools), filepath
+                    )
+                    slots = self.mm.sb.get_slots_instance(ui)
+                    self.assertEqual(
+                        type(slots).__module__, f"tentacle.slots.tools.{name}"
+                    )
+                    self.assertIs(slots.tk, mtk)
+                    if hasattr(slots, "preview"):
+                        self.assertIsInstance(slots.preview, mtk.Preview)
+                    self.assertEqual(
+                        self.mm.sb.handlers.ui.default_persistence(ui),
+                        self.mm.sb.handlers.ui.PERSISTENCE_STICKY,
+                    )
+                finally:
+                    ui.hide()
+                    self._process()
+
+    def test_a_tool_maya_does_not_serve_is_never_offered(self):
+        """A tool ``tentacle.slots.tools.HOSTS`` keeps out of Maya is left out of
+        Maya's marking menu's registration, and a former panel name (``RENAMED_FROM``: the
+        tool that took it over registers instead) is no tool at all: nothing
+        resolves either, so no menu, UI Browser row or ``marking_menu.show`` can
+        open it."""
+        from tentacle.slots.tools import RENAMED_FROM
+        from tentacle.tcl import Tcl
+
+        unserved = Tcl.unserved_tools(self.mm.sb.context_tags)
+        former = sorted(name for names in RENAMED_FROM.values() for name in names)
+        self.assertIn("workspace_editor", former)
+        registered = set(self.mm.sb.registry.ui_registry.get("filename") or [])
+        for name in unserved + former:
+            with self.subTest(tool=name):
+                self.assertNotIn(name, registered)
+                self.assertFalse(self.mm.sb.handlers.ui.can_resolve(name))
+
+    def test_a_composed_slots_class_binds_over_the_host_toolkit(self):
+        """``slots/normals.py`` (registered by the entry point) is what the normals menu
+        binds in Maya: one class for both hosts, reaching Maya through ``mtk``."""
+        import mayatk as mtk
+
+        shown = self.mm.show("normals")
+        self._process()
+        try:
+            ui = self.mm.sb.get_ui("normals")
+            slots = self.mm.sb.get_slots_instance(ui)
+            self.assertEqual(type(slots).__module__, "tentacle.slots.normals")
+            self.assertIs(slots.tk, mtk)
+        finally:
+            if shown is not None:
+                shown.hide()
+            self.mm.hide()
+            self._process()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

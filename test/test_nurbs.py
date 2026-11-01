@@ -1,321 +1,210 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.nurbs.
+"""Regression tests for tentacle.slots.nurbs, the one NURBS Slots class.
 
-Most of nurbs.py is a flat mel.eval dispatch table for NURBS edit
-operations. The units worth pinning at this layer:
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it
+here and records the calls (plain pytest), and in Maya the same class drives
+the real ``mtk``. What's worth pinning at this layer:
 
-- tb000 (Revolve): widget values → cmds.revolve kwargs.
-- b056 (Image Tracer): marking-menu key name.
-- b016 (Extract Curve): Exception fallback to mtk.create_curve_from_edges.
-- tb001 (Loft): forwards 10 widget values to mtk.loft. Pins the
-  contract after the 2026-05-16 fix that replaced a 2-year-old
-  ``self.loft`` typo (no such method existed) with ``mtk.loft``.
+- list000: each leaf names its curve action (or tool), a category row is
+  navigation only, and a refusal reaches the user with the leaf's label.
+  The parametric-NURBS-only rows carry ``requires="maya"``.
+- tb000 (Revolve) / tb001 (Loft): widget values -> the library's keywords.
+- b056 / b058: the shared tool panels they open.
+The operations themselves are tested in mayatk and blendertk.
 """
 import unittest
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-mel = maya_module("maya.mel")
-nurbs_module = maya_module("tentacle.slots.maya.nurbs")
-
-
-class _FakeChk:
-    def __init__(self, state):
-        self._state = state
-
-    def isChecked(self):
-        return self._state
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.nurbs import NurbsSlots
 
 
-class _FakeSpin:
-    def __init__(self, val):
-        self._v = val
-
-    def value(self):
-        return self._v
-
-
-class _FakeMenu:
-    def __init__(self, **attrs):
-        for k, v in attrs.items():
-            setattr(self, k, v)
+def _widget(**values):
+    """A widget whose option-box menu holds fakes reading *values*."""
+    widget = mock.MagicMock()
+    for name, value in values.items():
+        child = getattr(widget.option_box.menu, name)
+        child.value.return_value = value
+        child.isChecked.return_value = value
+        child.currentText.return_value = value
+    return widget
 
 
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
+def _leaf(text, parent, sublist=None):
+    """An ExpandableList item as list000 sees it."""
+    return mock.Mock(
+        item_text=mock.Mock(return_value=text),
+        parent_item_text=mock.Mock(return_value=parent),
+        sublist=sublist,
+    )
 
 
-class _FakeWidget:
-    def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
+REVOLVE = dict(
+    s002=3,
+    s003=10,
+    s004=350,
+    s005=16,
+    cmb_screw_axis="Z",
+    chk006=False,
+    chk007=True,
+    chk008=True,
+    chk009=False,
+    s006=0.001,
+)
+
+LOFT = dict(
+    chk000=True,
+    chk001=True,
+    s000=5,
+    chk002=True,
+    s001=4,
+    chk003=False,
+    chk004=True,
+    chk005=False,
+    chk010=True,
+    s007=8,
+)
 
 
-class _FakeMarkingMenu:
-    def __init__(self):
-        self.shown = []
-
-    def show(self, name):
-        self.shown.append(name)
-
-
-class _FakeHandlers:
-    def __init__(self):
-        self.marking_menu = _FakeMarkingMenu()
-
-
-class _RecordedSb:
-    def __init__(self):
-        self.messages = []
-        self.handlers = _FakeHandlers()
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-
-
-class _FakeSublist:
-    """Mimics an ExpandableList node's populated sublist (a category, not a leaf)."""
-
-    def __init__(self, items):
-        self._items = items
-
-    def get_items(self):
-        return self._items
-
-
-class _FakeItem:
-    """Mimics an ExpandableList leaf/category item as list000 sees it."""
-
-    def __init__(self, text, parent_text, sublist=None):
-        self._text = text
-        self._parent_text = parent_text
-        self.sublist = sublist
-
-    def item_text(self):
-        return self._text
-
-    def parent_item_text(self):
-        return self._parent_text
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb000Revolve(unittest.TestCase):
-    """tb000 forwards widget values to cmds.revolve as kwargs."""
-
+class _SlotsCase(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = NurbsSlots(self.sb)
+        self.nurbs = self.sb.tk.NurbsUtils
 
-        self._orig = cmds.revolve
-        self.captured = []
-        cmds.revolve = lambda *a, **kw: self.captured.append((a, kw)) or "rev1"
 
-    def tearDown(self):
-        cmds.revolve = self._orig
-        cmds.file(new=True, force=True)
+class TestList000Dispatch(_SlotsCase):
+    def test_each_leaf_runs_its_curve_action_on_the_selection(self):
+        self.slots.list000(_leaf("Reverse", "Edit"))
+        self.nurbs.curve_action.assert_called_once_with("reverse")
+        self.sb.message_box.assert_not_called()
 
-    def _widget(
-        self,
-        degree=3,
-        startSweep=0,
-        endSweep=360,
-        sections=8,
-        range_=False,
-        polygon=True,
-        useTolerance=False,
-        tolerance=0.001,
-    ):
-        return _FakeWidget(
-            _FakeMenu(
-                s002=_FakeSpin(degree),
-                s003=_FakeSpin(startSweep),
-                s004=_FakeSpin(endSweep),
-                s005=_FakeSpin(sections),
-                chk006=_FakeChk(range_),
-                chk007=_FakeChk(polygon),
-                chk009=_FakeChk(useTolerance),
-                s006=_FakeSpin(tolerance),
-            )
+    def test_tool_rows_activate_the_tool(self):
+        self.slots.list000(_leaf("Edit Curve Tool", "Edit"))
+        self.sb.tk.UiUtils.set_tool.assert_called_once_with("Edit Curve Tool")
+        self.nurbs.curve_action.assert_not_called()
+
+    def test_a_refusal_names_the_leaf(self):
+        self.nurbs.curve_action.side_effect = RuntimeError(
+            "ProjectCurveOnMesh: no target mesh"
         )
+        self.slots.list000(_leaf("Project", "Create"))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("Project", message)
+        self.assertIn("no target mesh", message)
 
-    def test_forwards_widget_values_to_revolve(self):
-        cmds.select(clear=True)  # cmds.revolve is mocked; selection doesn't matter
-        self.instance.tb000(
-            self._widget(degree=5, startSweep=10, endSweep=350, sections=16)
-        )
-
-        self.assertEqual(len(self.captured), 1)
-        kw = self.captured[0][1]
-        self.assertEqual(kw["degree"], 5)
-        self.assertEqual(kw["ssw"], 10)
-        self.assertEqual(kw["esw"], 350)
-        self.assertEqual(kw["s"], 16)
-
-    def test_polygon_checkbox_forwarded_as_int(self):
-        """chk007 (Polygon) is forwarded as 1/0, not bool."""
-        self.instance.tb000(self._widget(polygon=True))
-        self.assertEqual(self.captured[-1][1]["po"], 1)
-
-        self.instance.tb000(self._widget(polygon=False))
-        self.assertEqual(self.captured[-1][1]["po"], 0)
-
-    def test_revolve_axis_is_y(self):
-        """The axis stays pinned to Y (= [0, 1, 0]) by the slot."""
-        self.instance.tb000(self._widget())
-        self.assertEqual(self.captured[-1][1]["ax"], [0, 1, 0])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestList000Dispatch(unittest.TestCase):
-    """list000 dispatches a Nurbs leaf's MEL command via mel.eval; on failure
-    it reports through self.sb.message_box (2026-07-04: replaced a native
-    cmds.warning popup so failures surface in-app instead of only in the
-    script editor)."""
-
-    def setUp(self):
-        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
-        self.instance.sb = _RecordedSb()
-        self._orig_mel = mel.eval
-
-    def tearDown(self):
-        mel.eval = self._orig_mel
-
-    def test_success_does_not_report(self):
-        mel.eval = lambda cmd: None
-        self.instance.list000(_FakeItem("Project", "Create"))
-        self.assertEqual(self.instance.sb.messages, [])
-
-    def test_failure_reports_via_message_box(self):
-        def raise_(cmd):
-            raise RuntimeError("no target mesh")
-
-        mel.eval = raise_
-        self.instance.list000(_FakeItem("Project", "Create"))
-
-        self.assertEqual(len(self.instance.sb.messages), 1)
-        msg = self.instance.sb.messages[0][0][0]
-        self.assertIn("Project", msg)
-        self.assertIn("ProjectCurveOnMesh", msg)
-        self.assertIn("no target mesh", msg)
+    def test_a_wrong_selection_is_said_too(self):
+        self.nurbs.curve_action.side_effect = ValueError("Select one or more curves.")
+        self.slots.list000(_leaf("Smooth", "Modify"))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("Select one or more curves.", message)
 
     def test_category_click_is_a_noop(self):
-        """A category node (has a populated sublist) returns early -- no
-        dispatch, no report."""
-        mel.eval = lambda cmd: (_ for _ in ()).throw(
-            AssertionError("category click should not dispatch mel.eval")
-        )
-        item = _FakeItem(
-            "Create", "Nurbs", sublist=_FakeSublist(["Project", "Extract", "Duplicate"])
-        )
-        self.instance.list000(item)
-        self.assertEqual(self.instance.sb.messages, [])
+        item = _leaf("Create", "Nurbs", sublist=mock.Mock(get_items=lambda: ["x"]))
+        self.slots.list000(item)
+        self.nurbs.curve_action.assert_not_called()
+        self.sb.message_box.assert_not_called()
 
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB056ImageTracer(unittest.TestCase):
-    """b056 shows the 'image_tracer' marking menu."""
-
-    def test_b056_routes_to_image_tracer(self):
-        instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
-        instance.sb = _RecordedSb()
-        instance.b056()
-        self.assertEqual(instance.sb.handlers.marking_menu.shown, ["image_tracer"])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB016ExtractCurveFallback(unittest.TestCase):
-    """b016 falls back to mtk.create_curve_from_edges on any Exception."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
-
-        self._orig_mel = mel.eval
-
-        import mayatk as mtk
-        self._orig_create = mtk.create_curve_from_edges
-        self.fallback_calls = []
-        mtk.create_curve_from_edges = lambda: self.fallback_calls.append("called")
-
-    def tearDown(self):
-        mel.eval = self._orig_mel
-        import mayatk as mtk
-        mtk.create_curve_from_edges = self._orig_create
-        cmds.file(new=True, force=True)
-
-    def test_mel_success_skips_fallback(self):
-        """When CreateCurveFromPoly succeeds, fallback is not invoked."""
-        mel.eval = lambda s: None
-        self.instance.b016()
-        self.assertEqual(self.fallback_calls, [])
-
-    def test_mel_failure_invokes_fallback(self):
-        """When CreateCurveFromPoly raises, fallback is invoked."""
-        def raise_(s):
-            raise RuntimeError("no faces selected")
-
-        mel.eval = raise_
-        self.instance.b016()
-        self.assertEqual(self.fallback_calls, ["called"])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb001LoftForwardsToMtk(unittest.TestCase):
-    """tb001 forwards 10 widget values as kwargs to mtk.loft.
-
-    Pins the contract after fixing a 2-year-old typo (``self.loft``
-    referenced a method that never existed on Nurbs or its base; the
-    fix is ``mtk.loft``). If the call signature drifts again, this test
-    catches it.
-    """
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
-
-        import mayatk as mtk
-        self._orig = mtk.loft
-        self.captured = []
-        mtk.loft = lambda **kw: self.captured.append(kw)
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.loft = self._orig
-        cmds.file(new=True, force=True)
-
-    def _widget(
-        self,
-        uniform=True,
-        close=False,
-        degree=3,
-        autoReverse=False,
-        sectionSpans=1,
-        range_=False,
-        polygon=True,
-        reverseSurfaceNormals=True,
-        angle_loft=False,
-        angle_loft_spans=6,
-    ):
-        return _FakeWidget(
-            _FakeMenu(
-                chk000=_FakeChk(uniform),
-                chk001=_FakeChk(close),
-                s000=_FakeSpin(degree),
-                chk002=_FakeChk(autoReverse),
-                s001=_FakeSpin(sectionSpans),
-                chk003=_FakeChk(range_),
-                chk004=_FakeChk(polygon),
-                chk005=_FakeChk(reverseSurfaceNormals),
-                chk010=_FakeChk(angle_loft),
-                s007=_FakeSpin(angle_loft_spans),
-            )
+    def test_every_row_has_a_known_kind(self):
+        """Every row is a tool or a curve action; only Maya's parametric-NURBS
+        rows are host-tagged, and only as Maya's."""
+        maya_only = set()
+        for rows in NurbsSlots._LIST000_ITEMS.values():
+            for label, action, requires in rows:
+                self.assertIn(requires, (None, "maya"), label)
+                if requires:
+                    maya_only.add(action)
+        self.assertEqual(
+            maya_only,
+            {
+                "lock_length",
+                "unlock_length",
+                "insert_isoparm",
+                "insert_knot",
+                "extend_options",
+                "extend_on_surface",
+            },
         )
 
-    def test_forwards_all_ten_kwargs(self):
-        self.instance.tb001(
-            self._widget(
+    def test_init_tags_maya_only_rows(self):
+        widget = mock.MagicMock()
+        widget.ui.has_tags.return_value = False
+        rows = {}
+
+        def add_labels(labels):
+            items = [mock.MagicMock(name=label) for label in labels]
+            rows.update(zip(labels, items))
+            return items
+
+        widget.add.return_value.sublist.add.return_value.sublist.add.side_effect = (
+            add_labels
+        )
+        self.slots.list000_init(widget)
+        rows["Lock"].setProperty.assert_called_once_with("requires", "maya")
+        rows["Reverse"].setProperty.assert_not_called()
+        self.sb.apply_visibility_policy.assert_any_call(rows["Insert Knot"])
+
+
+class TestButtons(_SlotsCase):
+    def test_extrude_is_a_curve_action(self):
+        self.slots.b030()
+        self.nurbs.curve_action.assert_called_once_with("extrude")
+
+    def test_tool_panels(self):
+        self.slots.b056()
+        self.slots.b058()
+        shown = [c.args[0] for c in self.sb.handlers.marking_menu.show.call_args_list]
+        self.assertEqual(shown, ["image_tracer", "curve_to_tube"])
+
+
+class TestTb000Revolve(_SlotsCase):
+    def test_widget_values_reach_the_library(self):
+        self.nurbs.revolve.return_value = ["surface"]
+        self.slots.tb000(_widget(**REVOLVE))
+        call = self.nurbs.revolve.call_args
+        self.assertEqual(call.args, (None,))
+        self.assertEqual(
+            call.kwargs,
+            dict(
+                axis="Z",
+                start_sweep=10,
+                end_sweep=350,
+                sections=16,
+                degree=3,
+                range_=False,
+                polygon=True,
+                use_tolerance=False,
+                tolerance=0.001,
+                auto_correct_normal=True,
+            ),
+        )
+        self.sb.message_box.assert_not_called()
+
+    def test_nothing_to_revolve_says_so(self):
+        self.nurbs.revolve.return_value = []
+        self.slots.tb000(_widget(**REVOLVE))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("Revolve", message)
+
+    def test_a_refusal_is_said(self):
+        self.nurbs.revolve.side_effect = RuntimeError("bad profile")
+        self.slots.tb000(_widget(**REVOLVE))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("bad profile", message)
+
+
+class TestTb001Loft(_SlotsCase):
+    def test_widget_values_reach_the_library(self):
+        self.nurbs.loft.return_value = ["loft1"]
+        self.slots.tb001(_widget(**LOFT))
+        self.assertEqual(
+            self.nurbs.loft.call_args.kwargs,
+            dict(
                 uniform=True,
                 close=True,
                 degree=5,
@@ -324,27 +213,69 @@ class TestTb001LoftForwardsToMtk(unittest.TestCase):
                 range_=False,
                 polygon=True,
                 reverseSurfaceNormals=False,
-                angle_loft=True,
-                angle_loft_spans=8,
-            )
+                angle_loft_between_two_curves=True,
+                angleLoftSpans=8,
+            ),
         )
-        self.assertEqual(len(self.captured), 1)
-        kw = self.captured[0]
-        self.assertTrue(kw["uniform"])
-        self.assertTrue(kw["close"])
-        self.assertEqual(kw["degree"], 5)
-        self.assertTrue(kw["autoReverse"])
-        self.assertEqual(kw["sectionSpans"], 4)
-        self.assertFalse(kw["range_"])
-        self.assertEqual(kw["polygon"], 1)  # bool→int conversion in the slot
-        self.assertFalse(kw["reverseSurfaceNormals"])
-        self.assertTrue(kw["angle_loft_between_two_curves"])
-        self.assertEqual(kw["angleLoftSpans"], 8)
+        self.sb.message_box.assert_not_called()
 
-    def test_polygon_unchecked_forwards_zero(self):
-        """Polygon checkbox is bool but forwarded as 1/0, not True/False."""
-        self.instance.tb001(self._widget(polygon=False))
-        self.assertEqual(self.captured[0]["polygon"], 0)
+    def test_too_few_profiles_says_so(self):
+        self.nurbs.loft.return_value = []
+        self.slots.tb001(_widget(**LOFT))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("two or more", message)
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestNurbsInMaya(_SlotsCase):
+    """The same class over the real ``mtk``."""
+
+    def setUp(self):
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = maya_module("mayatk")
+        self.addCleanup(self.cmds.file, new=True, force=True)
+
+    def _profile(self):
+        return self.cmds.curve(degree=1, point=[(1, 0, 0), (1, 2, 0)])
+
+    def test_revolve_builds_a_surface_about_the_chosen_axis(self):
+        self.cmds.select(self._profile())
+        self.slots.tb000(_widget(**dict(REVOLVE, chk007=False)))
+        self.sb.message_box.assert_not_called()
+        surfaces = self.cmds.ls(selection=True)
+        self.assertEqual(len(surfaces), 1)
+        self.assertTrue(
+            self.cmds.listRelatives(surfaces[0], shapes=True, type="nurbsSurface")
+        )
+
+    def test_revolve_with_nothing_selected_says_so(self):
+        self.cmds.select(clear=True)
+        self.slots.tb000(_widget(**REVOLVE))
+        self.assertTrue(self.sb.message_box.called)
+
+    def test_loft_with_one_profile_says_so(self):
+        self.cmds.select(self.cmds.circle()[0])
+        self.slots.tb001(_widget(**dict(LOFT, chk004=False, chk010=False)))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("two or more", message)
+
+    def test_loft_two_circles(self):
+        a = self.cmds.circle()[0]
+        b = self.cmds.circle()[0]
+        self.cmds.move(0, 0, 4, b)
+        self.cmds.select(a, b)
+        self.slots.tb001(_widget(**dict(LOFT, chk004=False, chk010=False)))
+        self.sb.message_box.assert_not_called()
+
+    def test_reverse_leaf_reverses_the_selected_curve(self):
+        curve = self.cmds.curve(degree=1, point=[(0, 0, 0), (1, 0, 0), (3, 0, 0)])
+        self.cmds.select(curve)
+        self.slots.list000(_leaf("Reverse", "Edit"))
+        self.sb.message_box.assert_not_called()
+        start = self.cmds.pointPosition(f"{curve}.cv[0]", world=True)
+        self.assertAlmostEqual(start[0], 3.0, places=4)
 
 
 if __name__ == "__main__":

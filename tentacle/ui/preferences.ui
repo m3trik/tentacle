@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Open Maya's native Preferences window.</string>
+            <string>Open the app's own preferences (Blender: Preferences, Interface).</string>
            </property>
            <property name="text">
             <string>Preferences</string>
@@ -139,7 +139,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Open Maya's native Plug-in Manager.</string>
+            <string>Open the app's plug-in manager (Blender: Preferences, Add-ons).</string>
            </property>
            <property name="text">
             <string>Plug-ins</string>
@@ -161,7 +161,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Open the hotkey preferences.</string>
+            <string>Open the app's hotkey editor (Blender: Preferences, Keymap).</string>
            </property>
            <property name="text">
             <string>Hotkeys</string>
@@ -229,9 +229,9 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>App style / theme — pick a theme to match this app's look to the other DCCs.
+               <string>App style: match this app's look to the other DCCs.
 
-Mirrors the app's own theme selector, with our shipped theme plus a Default entry (a backup of your prior look) injected in.</string>
+Mirrors the app's own style selector: Maya lists our shipped color styles, Blender its Themes presets with our Maya theme added.</string>
               </property>
               <property name="maxCount">
                <number>999</number>
@@ -423,7 +423,7 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
                </size>
               </property>
               <property name="toolTip">
-               <string>Open color settings editor</string>
+               <string>Open the app's color settings (Blender: Preferences, Themes).</string>
               </property>
               <property name="text">
                <string>Ui Color</string>
@@ -565,9 +565,10 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
                </size>
               </property>
               <property name="toolTip">
-               <string>The number of autosave files to retain.
+               <string>The number of backups to keep.
 
-An amount of 0 will deactivate autosave.</string>
+Maya: the autosave files kept; 0 turns autosave off.
+Blender: the save versions kept (.blend1 ...).</string>
               </property>
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::NoButtons</enum>
@@ -598,7 +599,7 @@ An amount of 0 will deactivate autosave.</string>
                </size>
               </property>
               <property name="toolTip">
-               <string>The autosave interval in minutes.</string>
+               <string>The autosave interval in minutes (Blender: 0 turns Auto Save off).</string>
               </property>
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::NoButtons</enum>

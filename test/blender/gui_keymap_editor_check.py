@@ -11,7 +11,7 @@ injected keystrokes:
 
   1. Does dispatch follow the *edited user* item (does the new key reach our operator, and does
      the old one stop)?
-  2. Does the edit propagate back to the addon item in ``_KeymapBridge.keymaps`` — i.e. can the
+  2. Does the edit propagate back to the addon item in ``btk.KeymapBridge.keymaps`` — i.e. can the
      bridge notice a rebind by reading its own item?
 
 Then it measures the bridge's response, which is the part that decides what the *user* sees:
@@ -60,7 +60,8 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
     TestSandbox.activate()
 
 import bpy
-from tentacle import tcl_blender as tb
+from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6)
+import blendertk as btk  # noqa: E402
 
 _VK = {"F12": 0x7B, "Z": 0x5A, "ESC": 0x1B}
 _KEYUP = 0x0002
@@ -74,16 +75,16 @@ _result = {}
 
 
 def _set_activation_key(new_key):
-    """Stand in for ``TclBlender.set_activation_key`` — record, then move Blender's half."""
+    """Stand in for ``MarkingMenu.set_activation_key`` — record, then move Blender's half."""
     _events.append(f"setkey:{new_key}")
     _stub._activation_key_str = new_key
-    tb._KeymapBridge.rebind(_stub, new_key)
+    btk.KeymapBridge.rebind(_stub, new_key)
 
 
 _stub = NS(
-    _on_activation_press=lambda: _events.append("press"),
-    _on_activation_release=lambda: _events.append("release"),
-    _activation_key_held=False,
+    activate=lambda buttons=None: _events.append("press"),
+    release=lambda: _events.append("release"),
+    armed=False,
     _activation_key_str="Key_Z",
     isVisible=lambda: False,
     grabMouse=lambda: _events.append("grab"),
@@ -256,7 +257,7 @@ def _report_and_quit():
             else "NO — the addon item keeps the old key, so the bridge must read the USER keyconfig"
         ),
     )
-    adopted = f"setkey:Key_F12" in _result.get("adopt", [])
+    adopted = "setkey:Key_F12" in _result.get("adopt", [])
     print(
         "adoption  =",
         (
@@ -269,7 +270,7 @@ def _report_and_quit():
     )
     # One press, still armed mid-hold, released by key-up. The release can legitimately arrive
     # twice — the RELEASE keymap item and the poller's key-up level check both complete the
-    # gesture, which is pre-existing and idempotent (``drive_release`` / ``_on_activation_release``
+    # gesture, which is pre-existing and idempotent (``drive_release`` / ``menu.release``
     # only clear already-clear state). What must NOT happen is a release DURING the hold: that is
     # the signature of a poller left watching the old key, i.e. the rebind reading as "no effect".
     # Verdict on the STATE-MACHINE events only — ``op:`` markers just record that the operator was
@@ -296,13 +297,13 @@ def _edit_when_asked():
     """Rewrite the *user* keyconfig items the way Preferences ▸ Keymap would (main thread)."""
     if not _result.get("edit_now"):
         return 0.05  # keep polling for the input thread's handshake
-    items = tb._KeymapBridge.user_keymap_items()
+    items = btk.KeymapBridge.user_keymap_items()
     _result["user_before"] = [(k.type, k.value) for k in items]
     for k in items:
         k.type = "F12"
     _result["user_after"] = [(k.type, k.value) for k in items]
     _result["addon_at_edit"] = [
-        (kmi.type, kmi.value) for _km, kmi in tb._KeymapBridge.keymaps
+        (kmi.type, kmi.value) for _km, kmi in btk.KeymapBridge.keymaps
     ]
     _result["edit_done"] = True
     bpy.app.timers.register(_watch_adoption, first_interval=0.1)
@@ -314,8 +315,8 @@ def _watch_adoption():
 
     The add-on item moving proves the bridge adopted; the user item proves Blender re-merged, so
     something is actually bound again. Injecting between the two measures an empty keymap."""
-    addon_ok = tb._KeymapBridge.addon_key_type() == "F12"
-    user_ok = [k for k in tb._KeymapBridge.user_keymap_items() if k.type == "F12"]
+    addon_ok = btk.KeymapBridge.addon_key_type() == "F12"
+    user_ok = [k for k in btk.KeymapBridge.user_keymap_items() if k.type == "F12"]
     if addon_ok and user_ok:
         _result["adopted"] = True
         return None
@@ -323,9 +324,9 @@ def _watch_adoption():
 
 
 def _snapshot_and_quit():
-    _result["addon_key"] = tb._KeymapBridge.addon_key_type()
-    _result["active_vk"] = tb._KeymapBridge.active_vk
-    _result["user_end"] = [(k.type, k.value) for k in tb._KeymapBridge.user_keymap_items()]
+    _result["addon_key"] = btk.KeymapBridge.addon_key_type()
+    _result["active_vk"] = btk.KeymapBridge.active_vk
+    _result["user_end"] = [(k.type, k.value) for k in btk.KeymapBridge.user_keymap_items()]
     return _report_and_quit()
 
 
@@ -356,9 +357,9 @@ def _trace_operator():
 
 
 def _go():
-    tb._KeymapBridge.install_keymap(_stub, "Z")  # the real product path
+    btk.KeymapBridge.install_keymap(_stub, "Z")  # the real product path
     _trace_operator()
-    tb._KeymapBridge.install_poller(_stub, "Key_Z")  # the half that has to follow a rebind
+    btk.KeymapBridge.install_poller(_stub, "Key_Z")  # the half that has to follow a rebind
     # One pass for Blender to merge the addon keymap into the user keyconfig before we edit it.
     bpy.app.timers.register(_inject_start, first_interval=1.5)
     return None

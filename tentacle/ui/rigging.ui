@@ -120,7 +120,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Toggle local rotation axis visibility for all joint objects.</string>
+            <string>Toggle the local rotation axes of the selected objects; with Joints on (the option box), of the joints (Blender: armature bones), every one when none is selected.</string>
            </property>
            <property name="text">
             <string>Local Rotation Axes</string>
@@ -259,9 +259,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Create locators with the same transforms as any selected object(s).
+            <string>Rig each selected object under a zeroed locator and its group, named by the naming convention (Blender: Empties).
 
-If there are vertices selected, it creates a locator at the center of their combined bounding box.</string>
+With nothing selected, add a lone locator. The option box removes a rig.</string>
            </property>
            <property name="text">
             <string>Rig Object with Locator</string>
@@ -284,6 +284,9 @@ If there are vertices selected, it creates a locator at the center of their comb
         </property>
         <property name="title">
          <string>Skin</string>
+        </property>
+        <property name="requires" stdset="0">
+         <string>maya</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_skin">
          <property name="spacing">
@@ -325,6 +328,9 @@ Weights come from the closest point on the skinned surface; the bind pose and ex
            </property>
            <property name="checkable">
             <bool>false</bool>
+           </property>
+           <property name="requires" stdset="0">
+            <string>maya</string>
            </property>
           </widget>
          </item>
@@ -439,6 +445,8 @@ Select a constraint node, then click to add a control attribute:
 • 1 target: Boolean on/off toggle
 • 2 targets: Enum snap or float blend (if Weighted enabled)
 • 3+ targets: Enum dropdown for snapping between targets
+
+Blender: select the constrained object; a custom property drives its targeted constraints (2+), snapped or, Weighted, blended.
 
 Note: Overwrites any existing attribute with the same name.</string>
            </property>

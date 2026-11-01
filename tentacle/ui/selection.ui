@@ -326,6 +326,9 @@ Rig Aware: as the rigs author it -- rigged meshes are locked so a click or marqu
 Normal: rigged meshes select like any other mesh.
 Meshes Only: as Normal, and control curves and joints are not pickable.</string>
            </property>
+           <property name="requires" stdset="0">
+            <string>maya</string>
+           </property>
           </widget>
          </item>
         </layout>

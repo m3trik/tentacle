@@ -281,7 +281,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open the Naming tool — batch-rename scene objects using patterns and filters, ensuring compliance with Maya's naming conventions.</string>
+     <string>Open the Naming tool — find, rename and suffix scene objects using patterns and filters.</string>
     </property>
     <property name="text">
      <string>Naming</string>

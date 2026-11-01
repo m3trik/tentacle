@@ -38,6 +38,11 @@ os.environ.setdefault("QT_API", "pyside6")
 _UI_DIR = Path(__file__).resolve().parents[1] / "tentacle" / "ui"
 _BLENDER_UI_DIR = _UI_DIR / "blender_menus"
 
+# blendertk is no install of the workspace Python: its repo goes on the path.
+from _host import blendertk_on_path, qt_widgets_available as _can_create_widgets  # noqa: E402
+
+blendertk_on_path()
+
 try:
     from qtpy import QtWidgets  # noqa: F401
     from uitk import Switchboard
@@ -50,8 +55,6 @@ try:
 except Exception:  # pragma: no cover - environment without a Qt binding / blendertk
     _QT_OK = False
 
-
-from _host import qt_widgets_available as _can_create_widgets
 
 
 _QT_OK = _QT_OK and _can_create_widgets()
@@ -87,7 +90,7 @@ class BlenderChordMenuStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-        # context_tags={'blender'} mirrors TclBlender so the nav visibility policy runs as live.
+        # context_tags={'blender'} mirrors Tcl.build so the nav visibility policy runs as live.
         cls.sb = Switchboard(
             ui_source=[str(_UI_DIR), str(_BLENDER_UI_DIR)],
             log_level="ERROR",

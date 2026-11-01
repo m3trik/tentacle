@@ -1,137 +1,132 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.crease.
+"""Regression tests for tentacle.slots.crease, the one Crease Slots class.
 
-crease.py has two slot methods worth pinning:
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it
+here and records the calls (plain pytest), and in Maya the same class drives
+the real ``mtk``. What's worth pinning at this layer:
 
-- tb000 (Crease): forwards widget s003 (amount) + s004 (angle) to
-  mtk.Components.crease_edges.
-- b002 (Transfer Crease Edges): uses ``source, *targets = cmds.ls(...)``
-  unpacking. Empty selection raises ValueError; the handler catches it
-  and shows a message.
+- tb000 forwards the amount, and the angle only while "Set Smoothing Angle" is
+  checked; an empty result (nothing to crease) is reported.
+- b002 transfers on the selection, shows the host's reason when it refuses and
+  says so when nothing is selected.
+The operations themselves are tested in mayatk and blendertk.
 """
 import unittest
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-crease_module = maya_module("tentacle.slots.maya.crease")
-
-
-class _FakeSpin:
-    def __init__(self, val):
-        self._v = val
-
-    def value(self):
-        return self._v
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.crease import CreaseSlots
 
 
-class _FakeMenu:
-    def __init__(self, **attrs):
-        for k, v in attrs.items():
-            setattr(self, k, v)
+def _widget(amount=10, set_angle=False, angle=30):
+    """A Crease button whose option-box menu reads the given values."""
+    widget = mock.MagicMock()
+    menu = widget.option_box.menu
+    menu.s003.value.return_value = amount
+    menu.chk000.isChecked.return_value = set_angle
+    menu.s004.value.return_value = angle
+    return widget
 
 
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
-
-
-class _FakeWidget:
-    def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
-
-
-class _RecordedSb:
-    def __init__(self):
-        self.messages = []
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb000Crease(unittest.TestCase):
-    """tb000 forwards crease amount + angle to mtk.Components.crease_edges."""
-
+class _SlotsCase(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = crease_module.CreaseSlots.__new__(crease_module.CreaseSlots)
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = CreaseSlots(self.sb)
+        self.components = self.sb.tk.Components
 
-        import mayatk as mtk
-        self._orig = mtk.Components.crease_edges
-        self.calls = []
-        mtk.Components.crease_edges = lambda **kw: self.calls.append(kw)
 
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.Components.crease_edges = self._orig
-        cmds.file(new=True, force=True)
+class TestTb000Crease(_SlotsCase):
+    def test_the_amount_reaches_the_selection_without_an_angle(self):
+        self.components.crease_edges.return_value = ["e"]
+        self.slots.tb000(_widget(amount=8, set_angle=False, angle=45))
+        self.components.crease_edges.assert_called_once_with(None, amount=8, angle=None)
+        self.sb.message_box.assert_not_called()
 
-    def _widget(self, amount, angle):
-        return _FakeWidget(
-            _FakeMenu(s003=_FakeSpin(amount), s004=_FakeSpin(angle))
-        )
-
-    def test_amount_and_angle_forwarded(self):
-        self.instance.tb000(self._widget(amount=8, angle=45))
-        self.assertEqual(len(self.calls), 1)
-        self.assertEqual(self.calls[0]["amount"], 8)
-        self.assertEqual(self.calls[0]["angle"], 45)
+    def test_the_angle_rides_only_while_checked(self):
+        self.components.crease_edges.return_value = ["e"]
+        self.slots.tb000(_widget(amount=8, set_angle=True, angle=45))
+        self.components.crease_edges.assert_called_once_with(None, amount=8, angle=45)
 
     def test_zero_amount_is_passed_through(self):
-        """Amount=0 (no crease) should still call through, not warn."""
-        self.instance.tb000(self._widget(amount=0, angle=30))
-        self.assertEqual(self.calls[0]["amount"], 0)
+        """Amount 0 (no crease) still calls through, it is not a warning."""
+        self.components.crease_edges.return_value = ["e"]
+        self.slots.tb000(_widget(amount=0))
+        self.assertEqual(self.components.crease_edges.call_args.kwargs["amount"], 0)
+
+    def test_nothing_to_crease_says_so(self):
+        self.components.crease_edges.return_value = []
+        self.slots.tb000(_widget())
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("selection", message)
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB002TransferCreaseEdges(unittest.TestCase):
-    """b002 catches ValueError from ``source, *targets = selection`` when
-    selection is empty, and shows a message."""
+class TestB002TransferCreases(_SlotsCase):
+    def test_transfers_on_the_selection(self):
+        self.components.transfer_creased_edges.return_value = ["target"]
+        self.slots.b002(None)
+        self.components.transfer_creased_edges.assert_called_once_with(None)
+        self.sb.message_box.assert_not_called()
+
+    def test_nothing_selected_asks_for_a_source_and_a_target(self):
+        self.components.transfer_creased_edges.return_value = []
+        self.slots.b002(None)
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("source", message)
+
+    def test_a_refusal_shows_the_hosts_reason(self):
+        self.components.transfer_creased_edges.side_effect = ValueError("one mesh")
+        self.slots.b002(None)
+        self.sb.message_box.assert_called_once_with("one mesh")
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestCreaseInMaya(_SlotsCase):
+    """The same class over the real ``mtk``."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = crease_module.CreaseSlots.__new__(crease_module.CreaseSlots)
-        self.instance.sb = _RecordedSb()
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = maya_module("mayatk")
+        self.src = self.cmds.polyCube(name="cr_src")[0]
 
-        import mayatk as mtk
-        self._orig = mtk.Components.transfer_creased_edges
-        self.calls = []
-        mtk.Components.transfer_creased_edges = lambda src, tgts: self.calls.append(
-            (src, list(tgts))
-        )
+    def _creases(self, node):
+        return self.cmds.polyCrease(f"{node}.e[*]", query=True, value=True) or []
 
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.Components.transfer_creased_edges = self._orig
-        cmds.file(new=True, force=True)
+    def test_crease_the_selected_object(self):
+        self.cmds.select(self.src)
+        self.slots.tb000(_widget(amount=5))
+        self.assertEqual(self._creases(self.src), [5.0] * 12)
+        self.sb.message_box.assert_not_called()
 
-    def test_empty_selection_warns_and_skips(self):
-        cmds.select(clear=True)
-        self.instance.b002(widget=None)
-        self.assertEqual(self.calls, [])
-        self.assertTrue(self.instance.sb.messages)
+    def test_nothing_selected_creases_nothing_and_says_so(self):
+        self.cmds.select(clear=True)
+        self.slots.tb000(_widget(amount=5))
+        self.assertTrue(all(v <= 0 for v in self._creases(self.src)))
+        self.assertTrue(self.sb.message_box.called)
 
-    def test_one_object_dispatches_with_empty_targets(self):
-        """Single selection: source, *targets = [a] → source=a, targets=[]."""
-        a = cmds.polyCube(name="cr_a")[0]
-        cmds.select(a)
-        self.instance.b002(widget=None)
-        self.assertEqual(len(self.calls), 1)
-        src, tgts = self.calls[0]
-        self.assertEqual(src, a)
-        self.assertEqual(tgts, [])
+    def test_transfer_from_the_first_selected(self):
+        tgt = self.cmds.polyCube(name="cr_tgt")[0]
+        self.cmds.polyCrease(f"{self.src}.e[0]", value=5.0)
+        self.cmds.select([self.src, tgt])
+        self.slots.b002(None)
+        self.assertEqual(self._creases(tgt)[0], 5.0)
+        self.sb.message_box.assert_not_called()
 
-    def test_two_objects_dispatches_source_and_targets(self):
-        a = cmds.polyCube(name="cr_src")[0]
-        b = cmds.polyCube(name="cr_tgt")[0]
-        cmds.select([a, b])
-        self.instance.b002(widget=None)
-        self.assertEqual(len(self.calls), 1)
-        src, tgts = self.calls[0]
-        self.assertEqual(src, a)
-        self.assertEqual(tgts, [b])
+    def test_transfer_with_one_object_warns(self):
+        self.cmds.select(self.src)
+        self.slots.b002(None)
+        self.assertTrue(self.sb.message_box.called)
+
+    def test_transfer_with_nothing_selected_warns(self):
+        self.cmds.select(clear=True)
+        self.slots.b002(None)
+        self.assertTrue(self.sb.message_box.called)
 
 
 if __name__ == "__main__":

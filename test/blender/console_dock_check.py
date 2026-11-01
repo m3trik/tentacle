@@ -136,9 +136,10 @@ def _go():
         from tentacle import (
             tcl_blender as tb,
         )  # greeting banner prints INTO the capture
+        import blendertk as btk  # noqa: E402
 
-        if tb._KeymapBridge.tcl is None:
-            tb.launch()  # TclBlender.__init__ runs script_output.restore()
+        if btk.KeymapBridge.menu is None:
+            tb.launch()  # BlenderMarkingMenuHost.attach runs script_output.restore()
 
         inst = so.ScriptConsole.instance()
         _ck(
@@ -541,11 +542,11 @@ def _reshow():
 
 def _cold_restore():
     """Simulate ``tb.reload()`` + the NEXT session. ``ScriptConsole.teardown()`` (what
-    ``BlenderHost.reload`` calls on the old module) must undock + drop the widget/glue +
+    ``btk.BlenderMarkingMenuHost.teardown`` calls on the old module) must undock + drop the widget/glue +
     restore the streams while LEAVING the persisted flag alone — without it the old
     module's draw handler, widget and docked area survive a reload and the reloaded
     ``restore()`` docks a SECOND area. Then a fresh instance's ``restore()`` (what
-    TclBlender.__init__ runs at launch) must re-open the console from the saved flag by
+    BlenderMarkingMenuHost.attach runs at launch) must re-open the console from the saved flag by
     itself."""
     try:
         from qtpy import QtWidgets

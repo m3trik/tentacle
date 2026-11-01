@@ -4,10 +4,9 @@
 
 Validates:
 - Every .ui file in ui/ has a matching _ui.py (and vice versa)
-- Key binding targets in TclMaya reference real UI files
+- Key binding targets in each host's chord table reference real UI files
 - Slot modules have at least one corresponding UI file
 """
-import ast
 import sys
 import unittest
 import xml.etree.ElementTree as ET
@@ -122,21 +121,13 @@ class TestBindingTargetsResolve(unittest.TestCase):
     fork at its call site, which is read from that fork's source (constructing one needs its DCC).
     """
 
-    def _fork_targets(self, tcl_filename):
-        """The menu target(s) a fork passes to ``Tcl.chord_bindings`` — its both-button chord.
+    @staticmethod
+    def _host_targets(host):
+        """Every target of *host*'s chord table, as ``Tcl.build`` makes it: the shared chords
+        plus the both-button chord's ``<host>#startmenu``."""
+        from tentacle.tcl import Tcl
 
-        Read from that call specifically, not from every ``#``-bearing string in the module:
-        docstrings legitimately contain ``#`` ("the #1 cause of…") and would swamp the result.
-        """
-        source = (PKG / tcl_filename).read_text(encoding="utf-8")
-        return [
-            arg.value
-            for node in ast.walk(ast.parse(source))
-            if isinstance(node, ast.Call)
-            and getattr(node.func, "attr", None) == "chord_bindings"
-            for arg in node.args
-            if isinstance(arg, ast.Constant) and isinstance(arg.value, str)
-        ]
+        return list(Tcl.chord_bindings(None, f"{host}#startmenu").values())
 
     def _assert_all_resolve(self, targets, all_ui, label):
         self.assertGreater(len(targets), 0, f"Could not extract any {label} binding targets")
@@ -152,29 +143,30 @@ class TestBindingTargetsResolve(unittest.TestCase):
         )
 
     def test_maya_binding_ui_files_exist(self):
-        """Each TclMaya binding target (e.g. 'hud#startmenu') must have a .ui file."""
-        from tentacle.tcl import Tcl
-
-        fork = self._fork_targets("tcl_maya.py")
-        self.assertTrue(fork, "TclMaya passes no menu target to Tcl.chord_bindings")
+        """Each Maya binding target (e.g. 'hud#startmenu', the both-button 'maya#startmenu')
+        must have a .ui in ui/ or ui/maya_menus/."""
         self._assert_all_resolve(
-            list(Tcl.chord_bindings().values()) + fork,
+            self._host_targets("maya"),
             _ui_files(UI_DIR) | _ui_files(UI_MAYA_DIR),
-            "TclMaya",
+            "maya",
         )
 
     def test_blender_binding_ui_files_exist(self):
-        """Each TclBlender binding target (incl. the both-button 'blender#startmenu') must
+        """Each Blender binding target (incl. the both-button 'blender#startmenu') must
         resolve to a .ui in ui/ or ui/blender_menus/ — so no chord can dead-end."""
+        self._assert_all_resolve(
+            self._host_targets("blender"),
+            _ui_files(UI_DIR) | _ui_files(UI_BLENDER_DIR),
+            "blender",
+        )
+
+    def test_every_host_has_its_native_menu_pages(self):
+        """``Tcl.build`` registers ``ui/<host>_menus`` by convention: each host has one."""
         from tentacle.tcl import Tcl
 
-        fork = self._fork_targets("tcl_blender.py")
-        self.assertTrue(fork, "TclBlender passes no menu target to Tcl.chord_bindings")
-        self._assert_all_resolve(
-            list(Tcl.chord_bindings().values()) + fork,
-            _ui_files(UI_DIR) | _ui_files(UI_BLENDER_DIR),
-            "TclBlender",
-        )
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                self.assertTrue((UI_DIR / f"{host}_menus").is_dir())
 
 
 class TestSlotUiCoverage(unittest.TestCase):
@@ -301,6 +293,34 @@ class TestNoShadowedObjectNames(unittest.TestCase):
             [],
             "objectName(s) shadow a MainWindow callable and won't bind as attributes "
             f"— rename them: {offenders}",
+        )
+
+
+class TestCustomWidgetsAreDeclared(unittest.TestCase):
+    """A widget class a ``.ui`` uses is Qt's own or declared in that file's
+    ``<customwidgets>``. uitk's runtime loader silently drops an undeclared
+    class -- the widget never exists -- while the compiled path tolerates it, so
+    the panel works in one launch and not the other (2026-10-31: the Naming
+    panel's new Scope combo, a ``ComboBox`` the file never declared)."""
+
+    def test_every_widget_class_is_qt_or_declared(self):
+        try:
+            from qtpy import QtWidgets
+        except Exception as e:  # Qt absent: nothing to resolve the Qt classes
+            self.skipTest(f"Qt unavailable: {e}")
+        offenders, checked = [], 0
+        for path in sorted(UI_DIR.rglob("*.ui")):
+            root = ET.parse(path).getroot()
+            declared = {c.findtext("class") for c in root.iter("customwidget")}
+            for widget in root.iter("widget"):
+                cls = widget.get("class")
+                checked += 1
+                if cls in declared or hasattr(QtWidgets, cls):
+                    continue
+                offenders.append(f"{path.relative_to(UI_DIR)}:{widget.get('name')} ({cls})")
+        self.assertGreater(checked, 0, "no widget parsed")
+        self.assertEqual(
+            offenders, [], f"undeclared custom widget class(es): {offenders}"
         )
 
 

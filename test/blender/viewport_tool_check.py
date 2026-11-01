@@ -1,4 +1,4 @@
-"""Manual harness for mode-gated viewport tools (``SlotsBlender.set_viewport_tool``).
+"""Manual harness for mode-gated viewport tools (``btk.UiUtils.set_tool``).
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -150,7 +150,8 @@ def tool_landed(context_mode, tool_id):
 def main():
     import bpy
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.polygons import PolygonsSlots
+    from tentacle.slots.polygons import PolygonsSlots  # composed: reaches Blender via sb.tk
+    import blendertk as btk
 
     # State which assertion level ran: a strict check that silently degrades reads exactly like
     # one that passed, so say it out loud rather than leaving a GUI-only leg invisibly skipped.
@@ -162,9 +163,9 @@ def main():
             else "mode gate + active-tool id (GUI: full activation)"
         )
     )
-    from tentacle.slots.blender.subdivision import SubdivisionSlots
-    from tentacle.slots.blender.nurbs import NurbsSlots
-    from tentacle.slots.blender.utilities import UtilitiesSlots
+    from tentacle.slots.subdivision import SubdivisionSlots
+    from tentacle.slots.nurbs import NurbsSlots
+    from tentacle.slots.utilities import UtilitiesSlots
 
     # -- 1. the bug reproduces: knife is absent from OBJECT mode's tool list -----------------
     # It surfaces as a report WARNING (not an exception), which is why the tool silently stayed
@@ -183,11 +184,11 @@ def main():
     for cls, method, tool_id, label in (
         (PolygonsSlots, "b012", "builtin.knife", "Multi-Cut"),
         (PolygonsSlots, "b047", "builtin.loop_cut", "Insert Edgeloop"),
-        (SubdivisionSlots, "b028", "builtin.poly_build", "Quad Draw"),
     ):
         reset()
         obj = add_cube()
         slot = make_slot(cls)
+        slot.sb.tk = btk  # the composed PolygonsSlots reaches Blender through self.tk
         getattr(slot, method)()
         landed, why = tool_landed("EDIT_MESH", tool_id)
         check(
@@ -197,20 +198,41 @@ def main():
         )
 
     # -- 3. curve tools: Object Mode -> Edit Mode, tool resolvable ---------------------------
-    for method, tool_id, label in (
-        ("_edit_curve_tool", "builtin.pen", "Edit Curve Tool"),
-        ("_add_points_tool", "builtin.draw", "Add Points Tool"),
+    # The composed NurbsSlots runs a tool row through Slots.activate_tool (btk.UiUtils).
+    import blendertk as btk
+
+    for tool_id, label in (
+        ("builtin.pen", "Edit Curve Tool"),
+        ("builtin.draw", "Add Points Tool"),
     ):
         reset()
         obj = add_curve()
         slot = make_slot(NurbsSlots)
-        getattr(slot, method)()
+        slot.sb.tk = btk
+        slot.list000(
+            NS(sublist=None, item_text=lambda t=label: t, parent_item_text=lambda: "Edit")
+        )
         landed, why = tool_landed("EDIT_CURVE", tool_id)
         check(
-            f"{label} ({method}) from Object Mode",
+            f"{label} (list000 'Edit' row) from Object Mode",
             obj.mode == "EDIT" and landed,
             f"mode={obj.mode} {why}".strip(),
         )
+
+    # -- 2b. Quad Draw: the composed SubdivisionSlots, through Slots.activate_tool -----------
+    import blendertk as btk
+
+    reset()
+    obj = add_cube()
+    slot = make_slot(SubdivisionSlots)
+    slot.sb.tk = btk
+    slot.b028()
+    landed, why = tool_landed("EDIT_MESH", "builtin.poly_build")
+    check(
+        "Quad Draw (b028) from Object Mode",
+        obj.mode == "EDIT" and landed,
+        f"mode={obj.mode} {why}".strip(),
+    )
 
     # -- 4. selection fall-back: right-type object selected but NOT active -------------------
     reset()
@@ -219,6 +241,7 @@ def main():
     cube.select_set(True)
     bpy.context.view_layer.objects.active = curve
     slot = make_slot(PolygonsSlots)
+    slot.sb.tk = btk
     slot.b012()
     landed, why = tool_landed("EDIT_MESH", "builtin.knife")
     check(
@@ -233,6 +256,7 @@ def main():
     reset()
     add_curve()  # a curve is active; Multi-Cut has no mesh to work on
     slot = make_slot(PolygonsSlots)
+    slot.sb.tk = btk
     slot.b012()
     check(
         "Multi-Cut with no mesh reports a friendly message",
@@ -245,8 +269,11 @@ def main():
     # -- 6. mode-agnostic tool: works with no edit_type and forces no mode change ------------
     reset()
     obj = add_cube()
+    import blendertk as btk
+
     slot = make_slot(UtilitiesSlots)
-    slot.b000()  # Measure
+    slot.sb.tk = btk  # the composed slot reaches Blender through self.tk
+    slot.b000()  # Measure (Slots.activate_tool -> btk.UiUtils.set_tool)
     landed, why = tool_landed("OBJECT", "builtin.measure")
     check(
         "Measure works from Object Mode without forcing Edit Mode",

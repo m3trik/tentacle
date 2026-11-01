@@ -43,8 +43,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -103,11 +103,12 @@ def _run():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     app = QtWidgets.QApplication.instance()
     try:
-        tb._KeymapBridge.drive_press(buttons=QtCore.Qt.LeftButton)
+        btk.KeymapBridge.drive_press(buttons=QtCore.Qt.LeftButton)
         for _ in range(25):
             app.processEvents()
         tcl.show("cameras#startmenu", force=True)
@@ -201,7 +202,7 @@ def _run():
         ok = revealed and nav_ok and mb_empty
         _log(f"\nVERDICT: {'FIX MECHANISM CONFIRMED — poller-driven track() reveals + navigates' if ok else 'INCOMPLETE — see above'}")
 
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
         for _ in range(15):
             app.processEvents()
     except Exception as error:

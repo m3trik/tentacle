@@ -1,12 +1,12 @@
 # `ui/blender_menus/`
 
 Blender-specific marking-menu overlays, layered on top of the shared `ui/` menus by
-`TclBlender` (`ui_source=("ui", "ui/blender_menus")`) — the Blender counterpart to
+`Tcl.build` (`ui/<host>_menus` by convention) — the Blender counterpart to
 `ui/maya_menus/`.
 
 ## Both-button chord menu — a thin launcher for Blender's own menus
 
-`F12 + L + R` opens `blender#startmenu.ui`. **These menus are not part of tentacle's custom
+The activation key + LMB + RMB (default `Z`) opens `blender#startmenu.ui`. **These menus are not part of tentacle's custom
 marking-menu system** (polygons / cameras / editors); like `ui/maya_menus/`, they are a fast
 radial way to reach the DCC's **built-in** menus. The `.ui` files author almost nothing — they are
 pure navigation, and the real menu is Blender's own.
@@ -79,8 +79,8 @@ hides on `key_show` release**, exactly like every other marking-menu window. The
   names; a per-name proxy is pre-registered so the release path (`get_ui`) resolves to it, and
   `show` swaps in the wrapped menu window (`_wrap_native_menu`).
 
-So — like `maya_menus` — **these `MenuButton`s carry no tentacle slots**; `slots/blender/blender.py`
-is just the base-name (`blender`) anchor the startmenu resolves to.
+So — like `maya_menus` — **these pages carry no Slots class at all** (the startmenu included): a
+`MenuButton` navigates, and a release resolves its target through `BlenderUiHandler`.
 
 ### Known deltas from Maya's wrap
 

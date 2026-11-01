@@ -1,349 +1,188 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.normals.
+"""Regression tests for tentacle.slots.normals, the one Normals Slots class.
 
-The bulk of Normals dispatches to mtk.Components / mtk.Macros. What's
-worth pinning at this layer:
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it
+here and records the calls (plain pytest), and in Maya the same class drives
+the real ``mtk``. What's worth pinning at this layer:
 
-- tb001's -1 → None translation for upper/lower hardness sentinel values.
-- b000/b001 polySoftEdge dispatch (soften / harden by angle).
-- b002's "≥2 selected" gate.
-- tb010's combo-index → polyNormal normalMode mapping.
+- tb001's -1 → None translation for the upper/lower hardness sentinels, and
+  its warning when the host reports locked normals.
+- b002's warning with too little selected, and every other operation's
+  "Nothing selected" when the host ran it on an empty selection.
+- b004's message for the state the toggle leaves.
+- tb010's combo index → ``reverse_normals`` mode.
+The operations themselves are tested in mayatk and blendertk.
 """
 import unittest
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-normals_module = maya_module("tentacle.slots.maya.normals")
-
-
-class _FakeSpin:
-    def __init__(self, value):
-        self._v = value
-
-    def value(self):
-        return self._v
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.normals import NormalsSlots
 
 
-class _FakeCheck:
-    def __init__(self, checked):
-        self._v = checked
-
-    def isChecked(self):
-        return self._v
-
-
-class _FakeCombo:
-    def __init__(self, index):
-        self._i = index
-
-    def currentIndex(self):
-        return self._i
+def _widget(**values):
+    """A widget whose option-box menu holds fakes reading *values*."""
+    widget = mock.MagicMock()
+    for name, value in values.items():
+        child = getattr(widget.option_box.menu, name)
+        child.value.return_value = value
+        child.isChecked.return_value = value
+        child.currentIndex.return_value = value
+    return widget
 
 
-class _FakeMenu:
-    pass
+class _SlotsCase(unittest.TestCase):
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = NormalsSlots(self.sb)
+        self.components = self.sb.tk.Components
 
 
-class _FakeOptionBox:
-    def __init__(self):
-        self.menu = _FakeMenu()
-
-
-class _FakeWidget:
-    def __init__(self):
-        self.option_box = _FakeOptionBox()
-
-
-class _RecordedSb:
-    def __init__(self):
-        self.messages = []
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb001HardnessTranslation(unittest.TestCase):
+class TestTb001HardnessTranslation(_SlotsCase):
     """tb001 reads three spinbox values; -1 must become None before dispatch."""
 
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
+    def _run(self, threshold=90, upper=0, lower=180, unlock=False):
+        self.components.set_edge_hardness.return_value = []
+        self.slots.tb001(
+            _widget(s002=threshold, s003=upper, s004=lower, chk_unlock_normals=unlock)
+        )
+        return self.components.set_edge_hardness.call_args
 
-        # Patch mtk.Components.set_edge_hardness to capture call args.
-        import mayatk as mtk
-        self._original = mtk.Components.set_edge_hardness
-        self.captured = []
-
-        def fake_set_edge_hardness(selection, threshold, upper, lower, **kwargs):
-            self.captured.append({
-                "threshold": threshold,
-                "upper": upper,
-                "lower": lower,
-                "unlock_normals": kwargs.get("unlock_normals"),
-            })
-
-        mtk.Components.set_edge_hardness = staticmethod(fake_set_edge_hardness)
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.Components.set_edge_hardness = self._original
-        cmds.file(new=True, force=True)
-
-    def _make_widget(self, threshold, upper, lower, unlock=False):
-        widget = _FakeWidget()
-        widget.option_box.menu.s002 = _FakeSpin(threshold)
-        widget.option_box.menu.s003 = _FakeSpin(upper)
-        widget.option_box.menu.s004 = _FakeSpin(lower)
-        widget.option_box.menu.chk_unlock_normals = _FakeCheck(unlock)
-        return widget
+    def test_values_pass_through_on_the_selection(self):
+        call = self._run(threshold=45)
+        self.assertEqual(call.args, (None, 45, 0, 180))
 
     def test_unlock_checkbox_propagates(self):
-        widget = self._make_widget(threshold=90, upper=0, lower=180, unlock=True)
-        self.instance.tb001(widget)
-        self.assertTrue(self.captured[0]["unlock_normals"])
+        self.assertTrue(self._run(unlock=True).kwargs["unlock_normals"])
+        self.assertFalse(self._run(unlock=False).kwargs["unlock_normals"])
 
-    def test_unlock_unchecked_propagates_false(self):
-        widget = self._make_widget(threshold=90, upper=0, lower=180, unlock=False)
-        self.instance.tb001(widget)
-        self.assertFalse(self.captured[0]["unlock_normals"])
-
-    def test_normal_values_pass_through(self):
-        widget = self._make_widget(threshold=45, upper=0, lower=180)
-        self.instance.tb001(widget)
-        self.assertEqual(self.captured[0]["threshold"], 45)
-        self.assertEqual(self.captured[0]["upper"], 0)
-        self.assertEqual(self.captured[0]["lower"], 180)
-
-    def test_upper_minus_one_becomes_none(self):
-        widget = self._make_widget(threshold=90, upper=-1, lower=180)
-        self.instance.tb001(widget)
-        self.assertIsNone(self.captured[0]["upper"])
-        self.assertEqual(self.captured[0]["lower"], 180)
-
-    def test_lower_minus_one_becomes_none(self):
-        widget = self._make_widget(threshold=90, upper=0, lower=-1)
-        self.instance.tb001(widget)
-        self.assertEqual(self.captured[0]["upper"], 0)
-        self.assertIsNone(self.captured[0]["lower"])
-
-    def test_both_minus_one_both_become_none(self):
-        widget = self._make_widget(threshold=90, upper=-1, lower=-1)
-        self.instance.tb001(widget)
-        self.assertIsNone(self.captured[0]["upper"])
-        self.assertIsNone(self.captured[0]["lower"])
+    def test_minus_one_becomes_none(self):
+        self.assertEqual(self._run(upper=-1).args[2:], (None, 180))
+        self.assertEqual(self._run(lower=-1).args[2:], (0, None))
+        self.assertEqual(self._run(upper=-1, lower=-1).args[2:], (None, None))
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb001LockedNormalsGuard(unittest.TestCase):
-    """When 'Unlock Normals' is off and set_edge_hardness reports locked
-    objects, tb001 must warn via message_box and abort (no soft-edge display).
-    """
+class TestTb001LockedNormalsGuard(_SlotsCase):
+    """The host reports meshes it skipped for locked normals: tb001 names them."""
 
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
-        self.instance.sb = _RecordedSb()
+    def test_locked_objects_are_named_in_a_warning(self):
+        self.components.set_edge_hardness.return_value = ["|grp|locked_cube"]
+        self.slots.tb001(_widget(s002=90, s003=0, s004=180, chk_unlock_normals=False))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("locked_cube", message)
+        self.assertNotIn("|grp", message)
 
-        import mayatk as mtk
-        self._orig_seh = mtk.Components.set_edge_hardness
-        self._orig_polyopts = cmds.polyOptions
-        self.polyopts_calls = []
-
-        def fake_polyOptions(*args, **kwargs):
-            self.polyopts_calls.append((args, kwargs))
-
-        cmds.polyOptions = fake_polyOptions
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.Components.set_edge_hardness = self._orig_seh
-        cmds.polyOptions = self._orig_polyopts
-        cmds.file(new=True, force=True)
-
-    def _make_widget(self, unlock=False):
-        widget = _FakeWidget()
-        widget.option_box.menu.s002 = _FakeSpin(90)
-        widget.option_box.menu.s003 = _FakeSpin(0)
-        widget.option_box.menu.s004 = _FakeSpin(180)
-        widget.option_box.menu.chk_unlock_normals = _FakeCheck(unlock)
-        return widget
-
-    def test_locked_objects_trigger_message_box_and_abort(self):
-        import mayatk as mtk
-        cube = cmds.polyCube(name="locked_cube")[0]
-        mtk.Components.set_edge_hardness = staticmethod(
-            lambda *a, **k: [f"|{cube}"]
-        )
-        cmds.select(cube)
-
-        self.instance.tb001(self._make_widget(unlock=False))
-
-        self.assertTrue(self.instance.sb.messages, "user must be warned")
-        self.assertEqual(
-            self.polyopts_calls, [], "aborted run must not set soft-edge display"
-        )
-
-    def test_no_locked_objects_proceeds(self):
-        import mayatk as mtk
-        mtk.Components.set_edge_hardness = staticmethod(lambda *a, **k: [])
-        cube = cmds.polyCube(name="clean_cube")[0]
-        cmds.select(cube)
-
-        self.instance.tb001(self._make_widget(unlock=True))
-
-        self.assertEqual(self.instance.sb.messages, [], "no warning on clean run")
-        self.assertTrue(self.polyopts_calls, "soft-edge display should be applied")
+    def test_a_clean_run_says_nothing(self):
+        self.components.set_edge_hardness.return_value = []
+        self.slots.tb001(_widget(s002=90, s003=0, s004=180, chk_unlock_normals=True))
+        self.sb.message_box.assert_not_called()
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSoftenHarden(unittest.TestCase):
-    """b000 softens all edges; b001 hardens all edges."""
+class TestOperations(_SlotsCase):
+    def test_soften_and_harden_act_on_the_selection(self):
+        self.slots.b000()
+        self.components.set_edge_softness.assert_called_with(None, soft=True)
+        self.slots.b001()
+        self.components.set_edge_softness.assert_called_with(None, soft=False)
+
+    def test_average_and_set_to_face(self):
+        self.slots.tb004(_widget(chk003=True))
+        self.components.average_normals.assert_called_once_with(None, by_uv_shell=True)
+        self.slots.b006()
+        self.components.set_to_face_normals.assert_called_once_with(None)
+
+    def test_tb010_maps_the_combo_index_to_the_mode(self):
+        for index in range(5):
+            self.slots.tb010(_widget(cmb000=index))
+            self.components.reverse_normals.assert_called_with(None, mode=index)
+
+    def test_an_empty_selection_says_so_and_a_run_says_nothing(self):
+        self.components.set_edge_softness.return_value = None
+        self.slots.b000()
+        self.sb.message_box.assert_not_called()
+        self.components.set_edge_softness.return_value = []  # CoreUtils.selected
+        self.slots.b000()
+        self.sb.message_box.assert_called_once_with(NormalsSlots.NOTHING_SELECTED)
+
+
+class TestB002SelectionGate(_SlotsCase):
+    """b002 (Transfer Normals) needs a source and a target."""
+
+    def test_nothing_selected_warns(self):
+        self.components.transfer_normals.return_value = []  # CoreUtils.selected
+        self.slots.b002()
+        self.assertTrue(self.sb.message_box.called, "User must be warned")
+
+    def test_too_few_meshes_warns_with_the_hosts_reason(self):
+        self.components.transfer_normals.side_effect = ValueError("one mesh")
+        self.slots.b002()
+        self.sb.message_box.assert_called_once_with("one mesh")
+
+    def test_a_transfer_says_nothing(self):
+        self.components.transfer_normals.return_value = None
+        self.slots.b002()
+        self.sb.message_box.assert_not_called()
+
+
+class TestB004LockToggle(_SlotsCase):
+    def test_each_state_is_reported(self):
+        for state, word in ((True, "Locked"), (False, "Unlocked"), ([], "requires")):
+            with self.subTest(state=state):
+                self.components.toggle_normal_lock.return_value = state
+                self.slots.b004()
+                (message,), _ = self.sb.message_box.call_args
+                self.assertIn(word, message)
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestNormalsInMaya(_SlotsCase):
+    """The same class over the real ``mtk``."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.cube = cmds.polyCube(name="nrm_cube")[0]
-        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = maya_module("mayatk")
+        self.cube = self.cmds.polyCube(name="nrm_cube")[0]
 
-    def tearDown(self):
-        cmds.file(new=True, force=True)
+    def _hard_edges(self):
+        info = self.cmds.polyInfo(f"{self.cube}.e[*]", edgeToVertex=True) or []
+        return sum("Hard" in line for line in info)
 
-    def test_b000_softens_edges(self):
-        # First, harden everything so we can verify softening changes state.
-        cmds.polySoftEdge(f"{self.cube}.e[:]", angle=0)
-        # Verify edges are hard.
-        cmds.select(f"{self.cube}.e[0]")
-        was_smooth = cmds.polyInfo(faceToVertex=False) or []
+    def test_harden_then_soften_the_selection(self):
+        self.cmds.select(self.cube)
+        self.slots.b001()
+        self.assertEqual(self._hard_edges(), 12)
+        self.slots.b000()
+        self.assertEqual(self._hard_edges(), 0)
+        self.assertTrue(self.cmds.polyOptions(self.cube, q=True, se=True)[0])
 
-        cmds.select(self.cube)
-        self.instance.b000()
+    def test_soften_handles_a_leaf_name_collision(self):
+        """Two objects sharing a leaf name must not crash b000 (the
+        ``More than one object matches name`` regression)."""
+        self.cmds.group(self.cmds.polyCube(name="pCube1")[0], name="grp1")
+        self.cmds.group(self.cmds.polyCube(name="pCube1")[0], name="grp2")
+        self.cmds.select(self.cmds.ls("grp1|pCube1.e[0:3]", flatten=True), replace=True)
+        self.slots.b000()
+        self.assertTrue(self.cmds.polyOptions("grp1|pCube1", q=True, se=True)[0])
 
-        # After softening, polyInfo should report soft edges.
-        # Simplest check: query the soft-edge display option.
-        is_soft_display = cmds.polyOptions(self.cube, q=True, se=True)
-        self.assertTrue(is_soft_display[0])
+    def test_transfer_with_one_mesh_warns(self):
+        self.cmds.select(self.cube)
+        self.slots.b002()
+        self.assertTrue(self.sb.message_box.called)
 
-    def test_b001_hardens_edges(self):
-        # Start with soft edges.
-        cmds.polySoftEdge(f"{self.cube}.e[:]", angle=180)
-        cmds.select(self.cube)
-        self.instance.b001()
-        # Soft-edge display flag is still set after hardening (it's a
-        # display option, not edge-state). The behavioral check is that
-        # the call didn't raise — verifying b001 dispatch path works.
-
-    def test_b000_no_selection_is_noop(self):
-        """No selection → no work, no crash."""
-        cmds.select(clear=True)
-        self.instance.b000()
-
-    def test_b000_handles_name_collision(self):
-        """Two objects sharing a leaf name must not crash b000.
-
-        Historically map_components_to_objects keyed by leaf name, so a
-        duplicate short name (``pCube1`` under different parents) made the
-        old ``polyOptions(obj)`` raise ``More than one object matches name``.
-        Keys are unambiguous now; the slot additionally resolves long paths
-        from the components. Kept as the slot-level regression guard.
-        """
-        cmds.group(cmds.polyCube(name="pCube1")[0], name="grp1")
-        cmds.group(cmds.polyCube(name="pCube1")[0], name="grp2")
-        cmds.select(cmds.ls("grp1|pCube1.e[0:3]", flatten=True), replace=True)
-
-        self.instance.b000()  # Must not raise.
-
-        is_soft = cmds.polyOptions("grp1|pCube1", q=True, se=True)
-        self.assertTrue(is_soft[0])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB002SelectionGate(unittest.TestCase):
-    """b002 (Transfer Normals) requires ≥2 objects."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
-        self.instance.sb = _RecordedSb()
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_no_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.b002()
-        self.assertTrue(self.instance.sb.messages, "User must be warned")
-
-    def test_one_object_warns(self):
-        cube = cmds.polyCube(name="single")[0]
-        cmds.select(cube)
-        self.instance.b002()
-        self.assertTrue(self.instance.sb.messages, "User must be warned")
-
-    def test_two_objects_proceeds(self):
-        """With 2 selected, the gate is satisfied — should dispatch without
-        raising (the mtk call might still no-op on these cubes but no crash)."""
-        a = cmds.polyCube(name="nrm_src")[0]
-        b = cmds.polyCube(name="nrm_dst")[0]
-        cmds.select([a, b])
-        # Just verify it doesn't raise; the gate is what we're testing.
-        try:
-            self.instance.b002()
-        except Exception:
-            # The downstream mtk.Components.transfer_normals may itself raise
-            # in some edge cases; we only care that the gate let it through.
-            pass
-        # If we reached this assert, the gate let the call through.
-        self.assertEqual(self.instance.sb.messages, [])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb010NormalModeMapping(unittest.TestCase):
-    """tb010 maps combo index 0-4 to polyNormal normalMode 0-4."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.cube = cmds.polyCube(name="nrm_rev")[0]
-        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
-
-        # Patch cmds.polyNormal to capture normalMode values.
-        self._original = cmds.polyNormal
-        self.captured = []
-
-        def fake_polyNormal(*args, **kwargs):
-            self.captured.append(kwargs.get("normalMode"))
-
-        cmds.polyNormal = fake_polyNormal
-
-    def tearDown(self):
-        cmds.polyNormal = self._original
-        cmds.file(new=True, force=True)
-
-    def _make_widget(self, index):
-        widget = _FakeWidget()
-        widget.option_box.menu.cmb000 = _FakeCombo(index)
-        return widget
-
-    def test_index_zero_reverse(self):
-        cmds.select(self.cube)
-        self.instance.tb010(self._make_widget(0))
-        self.assertEqual(self.captured, [0])
-
-    def test_index_two_conform(self):
-        cmds.select(self.cube)
-        self.instance.tb010(self._make_widget(2))
-        self.assertEqual(self.captured, [2])
-
-    def test_index_three_reverse_and_extract(self):
-        cmds.select(self.cube)
-        self.instance.tb010(self._make_widget(3))
-        self.assertEqual(self.captured, [3])
-
-    def test_no_selection_does_not_call_polyNormal(self):
-        cmds.select(clear=True)
-        self.instance.tb010(self._make_widget(0))
-        self.assertEqual(self.captured, [])
+    def test_nothing_selected_changes_nothing_and_says_so(self):
+        before = self._hard_edges()  # a new polyCube's edges are all hard
+        self.cmds.select(clear=True)
+        self.slots.b000()
+        self.slots.tb010(_widget(cmb000=0))
+        self.assertEqual(self._hard_edges(), before)
+        self.assertEqual(self.sb.message_box.call_count, 2)
 
 
 if __name__ == "__main__":

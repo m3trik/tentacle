@@ -10,7 +10,7 @@ existing tentacle test suite uses fake widget stubs and bypasses the
 entire uitk persistence chain, so this regression had no end-to-end
 coverage.
 
-This file fills the gap. Each test constructs a real :class:`TclMaya`
+This file fills the gap. Each test constructs a real ``Tcl.build("maya")``
 (which registers the marking_menu handler the production slot classes
 require at construction time), loads a real slot panel, exercises its
 dynamically-added option_box widgets, and verifies the
@@ -36,7 +36,7 @@ _SKIP_REASON = "Requires maya.cmds + Qt widgets (run via mayapy)"
 
 @unittest.skipUnless(MAYA_AVAILABLE and qt_widgets_available(), _SKIP_REASON)
 class _PersistenceBase(unittest.TestCase):
-    """Shared setup: one TclMaya per class, isolated QSettings, event drain.
+    """Shared setup: one Maya's marking menu per class, isolated QSettings, event drain.
 
     Clearing the test store goes through the LIVE ``sb.settings``
     instance so the long-lived QSettings cache stays consistent with
@@ -58,9 +58,9 @@ class _PersistenceBase(unittest.TestCase):
         cls.QtWidgets = QtWidgets
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
-        cls.tcl = TclMaya(parent=None, log_level="WARNING")
+        cls.tcl = Tcl.build("maya", parent=None, log_level="WARNING")
         cls.sb = cls.tcl.sb
 
         from uitk.managers.settings_manager import SettingsManager
@@ -72,7 +72,7 @@ class _PersistenceBase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # Clear and tear down the TclMaya instance so no QObjects leak
+        # Clear and tear down the Maya's marking menu instance so no QObjects leak
         # into subsequent test modules (mayapy reuses one process for
         # the whole suite).
         cls.sb.settings.settings.clear()
@@ -408,9 +408,9 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
                 lst = ui.list001
                 # get_items() recurses; every row carrying a populated sublist is
                 # the root plus one category (categories fan out on hover).
-                from tentacle.slots._selection import SelectionMixin
+                from tentacle.slots.selection import SelectionSlots
 
-                groups = SelectionMixin._CONVERT_TO_GROUPS
+                groups = SelectionSlots._CONVERT_TO_GROUPS
                 branches = [
                     w
                     for w in lst.get_items()
@@ -434,13 +434,13 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
 
 
 # ===========================================================================
-# UV: b030 (Stack) option box comes from the shared UvMixin.b030_init
+# UV: b030 (Stack) option box comes from the composed UvSlots.b030_init
 # ===========================================================================
 
 
 class TestUvStackOptionBox(_PersistenceBase):
     """The Stack button's option box (Mode cmb020 / Tolerance s024 / Pin chk047) is
-    built by the DCC-shared ``UvMixin.b030_init`` -- prove it lands on the REAL
+    built by the composed ``UvSlots.b030_init`` (both hosts) -- prove it lands on the REAL
     widget (not a fake) with its documented defaults, that ``_stack_options``
     reads it back, and that a flipped Pin persists like any other option-box
     widget."""

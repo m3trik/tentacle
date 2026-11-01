@@ -1,6 +1,6 @@
 # tentacle
 
-**Role**: The product: every tool, panel and Slots class, for Maya, Blender and standalone (3ds Max: a thin launcher). Target layout (root CLAUDE.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): `tools/<tool>/` (`model/`, adapter Protocol, `maya.py` / `blender.py`), `ui/panels/<panel>/` (`.ui` + one shared Slots class), `core/<engine>/`. Panels and tools arrive from mayatk and blendertk one tool per release; no library imports tentacle.
+**Role**: The DCC product's UI: the launcher, the UIs and the Slots classes, for Maya and Blender, and no logic of its own: a tool's API is mayatk / blendertk, shared logic pythontk. Layout (root CLAUDE.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): a tool's UI is `ui/tools/<tool>.ui` and its one Slots class `slots/tools/<tool>.py` (shared by both hosts, paired by name; Qt helpers in `slots/tools/_<tool>/`); categories are `ui/<category>.ui` + `slots/<category>.py`. Nothing imports tentacle. A host-free standalone app (engine, panel, Slots) is [extapps](../extapps/CLAUDE.md)', the other product: the rule is that a tool with a host half, or one that needs a DCC to run, is tentacle's.
 
 **Nav**: [← root](../CLAUDE.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · **Host libraries**: [mayatk](../mayatk/CLAUDE.md) · [blendertk](../blendertk/CLAUDE.md) (host-provided, not pinned)
 
@@ -10,17 +10,18 @@
 
 ## Architecture
 
-- `tentacle/slots/<dcc>/*.py` — DCC-specific slot handlers (e.g. `slots/maya/rendering.py`).
-- **Target: one `<Base>Slots` per category, shared by both hosts**, reaching the host through `self.tk` or the tool's API, never a per-host fork (§3). The normals pilot opens it; each category folds its forks and mixin into one class when next touched. Until then:
-- **Behavior shared by a panel's Maya + Blender forks** → ONE underscore-prefixed mixin module per panel: `slots/_<panel>.py` defining a single `<Panel>Mixin` **class** (a plain mixin, NOT a `Slots{Maya,Blender}` subclass). This is the sanctioned exception to root's composition-over-mixins rule: Switchboard binds a slot by *method name on the slots class*, so shared slot bodies can only be inherited. Concrete slot: `from tentacle import <Panel>Mixin, SlotsDcc` → `class <Panel>Slots(<Panel>Mixin, SlotsDcc)`. Grow the panel's existing mixin — never drop loose per-feature helper modules or module-level `def`s into `slots/` (that's the pre-encapsulation regression). The `_` prefix keeps it out of slot/UI discovery (concrete panels live in `slots/<dcc>/` and pair with a `.ui`). Exemplar: [`slots/_hud_warnings.py`](tentacle/slots/_hud_warnings.py).
-  - **Never fold a mixin into `SlotsMaya`/`SlotsBlender`.** Mixins define widget-named slots (`SceneMixin.tb002`, `MaterialsMixin.b003`) and objectNames are reused across panels — on a shared base, a panel that has a `tb002` widget but no `tb002` method silently binds to another panel's slot. Register new mixins in `tentacle/__init__.py`'s `DEFAULT_INCLUDE`; mix in per panel.
-- `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu. `tcl_blender.py` is a full Blender integration (drives `slots/blender` + the `blendertk` engine); `tcl_max.py` is a thin wrapper.
+- **One `<Base>Slots(Slots)` per marking-menu category, shared by both hosts** (`slots/<category>.py`; exemplar [`slots/normals.py`](tentacle/slots/normals.py)): host behavior through `self.tk` or the tool's API, never a per-host fork or a mixin (§3); a control one host cannot serve is hidden there, never a stub (§15): a `requires` tag in the `.ui`, `Slots.requires(widget, host)` for one built in code, `Slots.hide_unless(widget, available)` where the host's engine lacks the operation.
+- No per-host slot package: the chord menus' native-menu pages (`ui/maya_menus`, `ui/blender_menus`) are pure `MenuButton` navigation with no Slots class; each host's UI handler (mayatk / blendertk) builds its own menus when the switchboard resolves a release's target.
+- **One launcher** (`tcl.py`): `Tcl.launch` defers through the host toolkit's adapter (`Tcl.ADAPTERS`: a `uitk.MarkingMenuHost` to the menu, a `uitk.MarkingMenuLaunchHost` to the launcher) and `Tcl.build` makes ONE `uitk.MarkingMenu(host=...)`; `Tcl.reload` is one path too (`teardown`, reload, `defer` the rebuild, `report`). Host behavior is the adapter's, never a `MarkingMenu` subclass or a host-named launcher method, and nothing is per host beyond `Tcl.HOSTS` (folder, chord target, context tag by convention). `tcl_blender.py` is only the Blender add-on stub; Blender's Qt hosting is blendertk's.
+- **Standalone apps are extapps'**, never tentacle's and never a dependency: a category's slots open one BY NAME through the host's external-app handler (`self.sb.handlers.external_app.launch("converter")`), which discovers extapps' `uitk.external_apps.in_process` entry points and installs a missing provider; `test_package.py` holds every launched name to extapps' table.
 - **UI**: Qt via [uitk](../uitk/CLAUDE.md). Widget naming: `tb###`, `b###`, `list###`, etc.
 
 ## Conventions
 
-- Slot classes are `<Base>Slots` (`edit.py` -> `EditSlots`; the name keys users' shortcut overrides, pinned by `test_dcc_invariants.py`) and inherit from the DCC base; slot methods are named after their widget (`tb000`, `b005`).
+- Slot classes are `<Base>Slots` (`edit.py` -> `EditSlots`; the name keys users' shortcut overrides, pinned by `test_dcc_invariants.py`) and subclass `Slots`; slot methods are named after their widget (`tb000`, `b005`).
 - UI files pair with slot files (same basename). Enforced by `test_ui_integrity.py`.
+- Slots reach uitk off `self.sb` (any public uitk name: `self.sb.IconManager`), never a bare `from uitk import` (the class-body exceptions ride the `Slots` base: `Slots.Signals`, `Slots.AttributeSpec`).
+- A tool one host serves is a `slots.tools.HOSTS` row (with its reason); a panel merged into or renamed to a tool is a `RENAMED_FROM` row plus a `RENAMED_HOSTS` row per former panel, so users' saved values carry over.
 - **No PyMEL** (rule owned by [mayatk](../mayatk/CLAUDE.md)) — `maya.cmds` / `maya.mel` only.
 - Heavy scenes: suspend viewport refresh around bulk edits.
 

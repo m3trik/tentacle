@@ -423,6 +423,38 @@ class TestMigrateLegacyRepeatLast(unittest.TestCase):
         self.assertEqual(sb.configurable.repeat_last_shortcut.get(None), "Ctrl+R")
 
 
+class TestLaunchApp(unittest.TestCase):
+    """``Slots.launch_app``: a standalone app that will not open -- not
+    installed and declined, outside tentacle's range, or broken -- is a
+    message naming why, never a traceback (2026-10-31: the Scene and Rendering
+    launches raised)."""
+
+    def _slots(self):
+        from unittest import mock
+
+        slots = Slots.__new__(Slots)
+        slots.sb = mock.MagicMock()
+        return slots
+
+    def test_a_refused_launch_is_a_message_and_none(self):
+        slots = self._slots()
+        slots.sb.handlers.external_app.launch.side_effect = RuntimeError(
+            "extapps 0.7.0 is outside extapps>=0.8.0,<0.9"
+        )
+        self.assertIsNone(slots.launch_app("mesh_convert", show=False))
+        message = slots.sb.message_box.call_args.args[0]
+        self.assertIn("Mesh Convert", message)
+        self.assertIn("outside", message)
+
+    def test_a_launch_returns_the_window(self):
+        slots = self._slots()
+        window = slots.sb.handlers.external_app.launch.return_value
+        self.assertIs(slots.launch_app("webxr_preview"), window)
+        slots.sb.handlers.external_app.launch.assert_called_once_with(
+            "webxr_preview", show=True
+        )
+
+
 class TestMigrationRunsOnce(unittest.TestCase):
     """Instantiating slots migrates once per process, not per instance."""
 
@@ -781,6 +813,41 @@ class TestRecheckAppGates(unittest.TestCase):
         Slots._app_gate_specs.update({good, _Bad()})
         self.assertEqual(self._slot(sb).recheck_app_gates(), 0)
         self.assertEqual(good.refreshes, 1)
+
+
+class TestToolkit(unittest.TestCase):
+    """A shared Slots class reaches the host through ``self.tk``, the toolkit
+    the host's entry point sets on the switchboard -- never the host itself."""
+
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+
+    def test_tk_is_the_toolkit_the_entry_point_set(self):
+        sb = _Sb()
+        sb.tk = object()
+        self.assertIs(Slots(sb).tk, sb.tk)
+
+    def test_without_one_tk_is_none(self):
+        self.assertIsNone(Slots(_Sb()).tk)
+
+    def test_the_one_launcher_sets_the_hosts_toolkit(self):
+        """Read off the source: ``Tcl.build`` sets ``sb.tk`` to the host's toolkit, once,
+        for every host -- the launcher imports no toolkit by name."""
+        import ast
+        from pathlib import Path
+
+        package = Path(__file__).resolve().parents[1] / "tentacle"
+        tree = ast.parse((package / "tcl.py").read_text(encoding="utf-8"))
+        sets = [
+            node.value.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Name)
+            and any(ast.unparse(t).endswith("sb.tk") for t in node.targets)
+        ]
+        self.assertEqual(sets, ["toolkit"])
 
 
 if __name__ == "__main__":

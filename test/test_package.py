@@ -10,31 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-
-def _standalone_interpreter():
-    """``(path, "")`` of a Python interpreter to spawn, or ``(None, reason)``.
-
-    Under the --in-maya dispatcher ``sys.executable`` is the HOST binary
-    (maya.exe), not an interpreter: ``maya.exe -c ...`` is not a valid
-    invocation and dies in native code -- rc 1 with an unsymbolized stack
-    trace and no Python traceback, which reads as the test's assertion failing
-    rather than as the spawn being nonsense. mayapy ships beside maya.exe, so
-    a spawning check keeps its coverage under every entry point instead of
-    skipping the one where a stray side effect is most likely.
-    """
-    import os
-
-    if not sys.executable:
-        # Embedded interpreters can leave this empty, and Path("") has no
-        # name to substitute -- with_name() would raise ValueError.
-        return None, "sys.executable is empty; nothing to spawn"
-    exe = Path(sys.executable)
-    if exe.stem.lower().startswith("python"):
-        return exe, ""
-    mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
-    if mayapy.exists():
-        return mayapy, ""
-    return None, f"no standalone interpreter beside {exe.name}"
+from _host import standalone_interpreter  # noqa: E402
 
 
 class TestSuiteIsolation(unittest.TestCase):
@@ -95,8 +71,8 @@ class TestPackageMetadata(unittest.TestCase):
 
         pkg_dir = Path(tentacle.__file__).parent
         for mod_path in tentacle.DEFAULT_INCLUDE:
-            # e.g. "tcl_maya" -> tentacle/tcl_maya.py
-            # e.g. "slots.maya._slots_maya" -> tentacle/slots/maya/_slots_maya.py
+            # e.g. "tcl" -> tentacle/tcl.py
+            # e.g. "slots._slots" -> tentacle/slots/_slots.py
             rel = mod_path.replace(".", "/") + ".py"
             full = pkg_dir / rel
             self.assertTrue(full.exists(), f"DEFAULT_INCLUDE module missing: {full}")
@@ -123,7 +99,7 @@ class TestPackageMetadata(unittest.TestCase):
 
         from pythontk.core_utils.module_resolver import import_footprint
 
-        exe, why = _standalone_interpreter()
+        exe, why = standalone_interpreter()
         if exe is None:
             self.skipTest(why)
         # import_footprint spawns sys.executable, the host binary in Maya.
@@ -132,19 +108,24 @@ class TestPackageMetadata(unittest.TestCase):
         self.assertEqual(footprint, {"modules": [], "third_party": []})
 
 
-class TestExtappsRegistration(unittest.TestCase):
-    """External apps are auto-discovered from extapps' entry points — the
-    hosts must carry NO hand-maintained registration table.
+class TestExternalAppRegistration(unittest.TestCase):
+    """The standalone apps are extapps', a separate product: tentacle declares
+    none and depends on none, and its category slots open each BY NAME through
+    the host's external-app handler, which discovers them from extapps' own
+    ``uitk.external_apps.in_process`` entry points.
 
-    The old per-app ``(name, module, entry)`` loop in tcl_maya / tcl_blender
-    drifted from extapps' entry points (and from each other) every time an
-    app was added or moved. The refactor deleted it in favour of
-    ``ExternalAppHandler.discover()`` reading the entry points directly, with
-    ``install_spec`` derived from the distribution. These tests guard that
-    contract: (1) no host reintroduces a manual table, and (2) the entry
-    points (the single source of truth) declare the expected apps and the
-    per-host visibility gates the hosts rely on.
+    The old per-app ``(name, module, entry)`` loop in the per-host launchers
+    drifted from the entry points (and from each other) every time an app was
+    added or moved. The refactor deleted it in favour of
+    ``ExternalAppHandler.discover()`` reading the entry points directly. These
+    tests guard that contract: (1) no host reintroduces a manual table, (2)
+    tentacle declares no app and no extapps dependency, and (3) every name a
+    slot launches is one of extapps' entry points.
     """
+
+    #: The calls that open an external app by name: the handler's own,
+    #: ``Slots.launch_app`` and the materials slots' texture-app wrapper.
+    LAUNCHERS = {"launch", "launch_app", "_open_texture_app"}
 
     @staticmethod
     def _registered_modules(filename):
@@ -184,57 +165,138 @@ class TestExtappsRegistration(unittest.TestCase):
                 return mapping
         return {}
 
+    @classmethod
+    def _launched_names(cls):
+        """``{app name: [file, ...]}`` for every literal name a category slot
+        opens through the handler (``external_app.launch("converter")``)."""
+        import ast
+        import tentacle
+
+        found = {}
+        slots = Path(tentacle.__file__).parent / "slots"
+        for path in sorted(slots.rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not (isinstance(node, ast.Call) and node.args):
+                    continue
+                func = node.func
+                name = getattr(func, "attr", None) or getattr(func, "id", None)
+                if name not in cls.LAUNCHERS or not isinstance(node.args[0], ast.Constant):
+                    continue
+                if name == "launch" and "external_app" not in ast.unparse(func):
+                    continue
+                found.setdefault(node.args[0].value, []).append(path.name)
+        return found
+
+    @staticmethod
+    def _extapps_entry_points():
+        """extapps' in-process entry-point names: from its checkout's
+        pyproject.toml beside tentacle's (newer than an editable install's
+        metadata), else from its installed metadata; None when neither is here."""
+        group = "uitk.external_apps.in_process"
+        toml = ROOT.parent / "extapps" / "pyproject.toml"
+        if toml.is_file():
+            try:
+                import tomllib
+            except ModuleNotFoundError:  # < 3.11
+                tomllib = None
+            if tomllib is not None:
+                with open(toml, "rb") as handle:
+                    table = tomllib.load(handle)["project"]["entry-points"]
+                return set(table[group])
+        from importlib.metadata import PackageNotFoundError, distribution
+
+        try:
+            eps = distribution("extapps").entry_points
+        except PackageNotFoundError:
+            return None
+        return {ep.name for ep in eps if ep.group == group}
+
     def test_hosts_have_no_manual_registration_table(self):
-        """Regression guard: neither host may hand-enumerate extapps apps."""
-        for filename in ("tcl_maya.py", "tcl_blender.py"):
+        """Regression guard: no launcher may hand-enumerate the standalone apps."""
+        for filename in ("tcl.py", "tcl_blender.py"):
             self.assertEqual(
                 self._registered_modules(filename),
                 {},
                 f"{filename} reintroduced a hardcoded external-app register() "
-                f"table — apps must self-describe via extapps entry points and "
+                f"table — apps must self-describe via extapps' entry points and "
                 f"be picked up by ExternalAppHandler.discover() instead.",
             )
 
-    def test_entry_points_declare_apps_and_maya_gates(self):
-        """extapps' entry points are the SSoT — they must carry the core apps
-        and gate Substance/Marmoset out of Maya (native bridges supersede)."""
+    def test_tentacle_declares_no_app_and_no_extapps_dependency(self):
+        """Read from the source pyproject, not metadata an editable install
+        wrote before the last edit: no external-app table, no provider row and
+        no extapps requirement among the base dependencies (the apps' installs
+        are the handler's, within the range the ``apps`` extra states)."""
         try:
-            from importlib.metadata import entry_points
+            import tomllib
+        except ModuleNotFoundError:  # < 3.11
+            self.skipTest("no TOML parser available")
+        toml = ROOT / "pyproject.toml"
+        if not toml.is_file():
+            self.skipTest("no pyproject.toml (installed, not a source checkout)")
+        with open(toml, "rb") as handle:
+            project = tomllib.load(handle)["project"]
+        groups = set(project.get("entry-points", {}))
+        self.assertFalse({g for g in groups if g.startswith("uitk.external_app")}, groups)
+        self.assertFalse(
+            [d for d in project["dependencies"] if d.startswith("extapps")],
+            project["dependencies"],
+        )
 
-            eps = list(entry_points(group="uitk.external_apps.in_process"))
-        except Exception:
-            eps = []
-        if not eps:
-            self.skipTest("extapps entry points not available in this environment")
-
-        names = {ep.name for ep in eps}
-        for expected in ("compositor", "metashape_workflow", "mesh_convert",
-                         "substance_workflow", "marmoset_workflow"):
-            self.assertIn(expected, names, f"extapps no longer declares {expected!r}")
-
-        extras = {ep.name: set(ep.extras or ()) for ep in eps}
-        for gated in ("substance_workflow", "marmoset_workflow"):
-            self.assertIn(
-                "hide_maya", extras.get(gated, set()),
-                f"{gated} must keep the 'hide_maya' gate so Maya (which ships a "
-                f"native bridge) doesn't surface the redundant external panel.",
-            )
+    def test_every_launched_name_is_an_extapps_entry_point(self):
+        """Bug: a slot that launches a name extapps does not declare (a rename on
+        one side) opens nothing, and says only that the app is unknown. The names
+        the Materials, Scene and Rendering slots open are held to extapps' table."""
+        names = self._extapps_entry_points()
+        if names is None:
+            self.skipTest("extapps neither checked out beside tentacle nor installed")
+        launched = self._launched_names()
+        files = {f for paths in launched.values() for f in paths}
+        self.assertLessEqual({"materials.py", "scene.py", "rendering.py"}, files)
+        unknown = {n: f for n, f in launched.items() if n not in names}
+        self.assertEqual(unknown, {}, f"launched names extapps does not declare: {unknown}")
 
 
 class TestGreeting(unittest.TestCase):
-    """Verify the greeting() helper."""
+    """Verify the launcher's greeting helper (``Tcl.greeting``)."""
 
     def test_greeting_contains_version(self):
         import tentacle
 
-        result = tentacle.greeting("Running {modver} on {pyver}", outputToConsole=False)
+        result = tentacle.Tcl.greeting(
+            "Running {modver} on {pyver}", outputToConsole=False
+        )
         self.assertIn(tentacle.__version__, result)
 
     def test_greeting_time_of_day(self):
         import tentacle
 
-        result = tentacle.greeting("Good {hr}!", outputToConsole=False)
+        result = tentacle.Tcl.greeting("Good {hr}!", outputToConsole=False)
         self.assertIn(result, ["Good morning!", "Good afternoon!", "Good evening!"])
+
+    def test_the_small_hours_are_the_evening(self):
+        """Bug: before 5 the greeting said "Good afternoon" (any hour under 18
+        that was not the morning). Fixed: 2026-10-29"""
+        import datetime
+        from unittest import mock
+
+        import tentacle
+
+        for hour, expected in ((2, "evening"), (9, "morning"), (14, "afternoon")):
+            with self.subTest(hour=hour), mock.patch.object(
+                datetime, "datetime"
+            ) as clock:
+                clock.now.return_value.hour = hour
+                result = tentacle.Tcl.greeting("{hr}", outputToConsole=False)
+            self.assertEqual(result, expected)
+
+    def test_the_flat_name_says_where_it_went(self):
+        import tentacle
+
+        with self.assertRaises(AttributeError) as caught:
+            tentacle.greeting  # noqa: B018 -- the read is the test
+        self.assertIn("tentacle.Tcl.greeting", str(caught.exception))
 
     def test_plain_import_prints_nothing(self):
         """``import tentacle`` must be silent — root CLAUDE.md: "Imports: no side effects."
@@ -245,7 +307,7 @@ class TestGreeting(unittest.TestCase):
         import os
         import subprocess
 
-        exe, why = _standalone_interpreter()
+        exe, why = standalone_interpreter()
         if exe is None:
             self.skipTest(why)
 
@@ -268,7 +330,7 @@ class TestGreeting(unittest.TestCase):
     def test_greeting_python_version(self):
         import tentacle
 
-        result = tentacle.greeting("{pyver}", outputToConsole=False)
+        result = tentacle.Tcl.greeting("{pyver}", outputToConsole=False)
         expected = (
             f"python v{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
         )

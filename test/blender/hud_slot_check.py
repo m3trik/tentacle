@@ -1,4 +1,4 @@
-"""Manual harness for the Blender ``hud`` slot (``tentacle/slots/blender/hud.py``).
+"""Manual harness for the composed HUD slot (``tentacle/slots/hud.py``) in Blender.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -6,9 +6,9 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/hud_slot_check.py
 
-Drives the status/selection/component/warning mixins with a recording hud stub (the Qt/UI
+Drives ``HudSlots`` over the real ``btk`` (``sb.tk``) with a recording hud stub (the Qt/UI
 layer can't load headless): scene-status lines, dense-safe poly counts, edit-mode component
-counts, and the warning checks + shared gating.
+counts, the warning checks and their gating, and one whole build.
 """
 import sys
 import os
@@ -71,11 +71,13 @@ def reset():
 try:
     import bpy
     import bmesh
+    import blendertk as btk
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt for the slot imports
-    from tentacle.slots.blender.hud import HudSlots
+    from tentacle.slots.hud import HudSlots
 
     slot = HudSlots.__new__(HudSlots)
-    slot.sb = NS(prev_slot=None, loaded_ui=NS())  # no preferences -> warnings gate closed
+    slot.sb = NS(prev_slot=None, loaded_ui=NS(), tk=btk)  # no preferences -> gate closed
+    slot._versions = NS(new_version_available=False, latest_ver="")
 
     # scene status: units + fps always present; symmetry line when a mirror flag is set
     reset()
@@ -83,15 +85,17 @@ try:
     cube = bpy.context.active_object
     cube.data.use_mirror_x = True
     hud = _Hud()
-    slot.insert_scene_status(hud)
+    slot.insert_scene_status(hud, btk.EnvUtils.scene_status())
     check("status has Units + Frame Rate",
           "Units:" in hud.joined() and "Frame Rate:" in hud.joined())
     check("status shows symmetry X", "Symmetry Axis" in hud.joined() and ">X<" in hud.joined(),
           detail=next((t for t in hud.texts if "Symmetry" in t), ""))
+    check("status has no Xform Constraint line (Maya's)", "Xform Constraint" not in hud.joined())
 
     # selection info: cube -> 1 selected, 6 faces, 12 tris, 24 uvs
+    btk.CoreUtils.select([cube])
     hud = _Hud()
-    slot.insert_selection_info(hud, [cube])
+    slot.insert_selection_info(hud, btk.NodeUtils.selection_summary())
     joined = hud.joined()
     check("selection count line", "Selected:" in joined and ">1<" in joined)
     check("faces=6 tris=12", "6" in next((t for t in hud.texts if "Faces" in t), "")
@@ -107,36 +111,47 @@ try:
     for i in range(3):
         bm.verts[i].select = True
     bmesh.update_edit_mesh(cube.data)
+    summary = btk.NodeUtils.selection_summary()
     hud = _Hud()
-    slot.insert_component_info(hud, cube)
+    slot.insert_component_info(hud, summary)
     check("component counts 3/8", "Selected Verts" in hud.joined()
           and ">3 <" in hud.joined() and "/8" in hud.joined(),
           detail=hud.joined())
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    # warnings: scene unsaved (factory startup) + checks fire correctly
-    check("_scene_is_unsaved True on untitled", slot._scene_is_unsaved())
+    # warnings: the scene is unsaved (factory startup); the checks read scene_status
+    status = btk.EnvUtils.scene_status()
+    check("scene_status: untitled is unsaved", status["saved"] is False)
     fps_spec, autosave_spec, open_spec = slot.WARNING_DEFS
-    check("default-fps check fires at 24",
-          bpy.context.scene.render.fps != 24 or fps_spec["check"](slot))
+    bpy.context.scene.render.fps, bpy.context.scene.render.fps_base = 24, 1.0
+    check("default-fps check fires at 24", fps_spec["check"](btk.EnvUtils.scene_status()))
     autosave_on = bpy.context.preferences.filepaths.use_auto_save_temporary_files
-    check("autosave-off check mirrors prefs", autosave_spec["check"](slot) == (not autosave_on))
-    check("autosave-open False on untitled", not open_spec["check"](slot))
+    check("autosave-off check mirrors prefs", autosave_spec["check"](status) == (not autosave_on))
+    check("autosave-open False on untitled", not open_spec["check"](status))
 
-    # shared gating: enabled warning fires; skip-unsaved suppresses everything on untitled
+    # gating: an enabled warning fires; skip-unsaved suppresses everything on untitled
     prefs = NS(
         chk_warn_framerate=_Checkbox(True),
         chk_warn_autosave_off=_Checkbox(False),
         chk_warn_autosave_open=_Checkbox(False),
         chk_warn_skip_unsaved=_Checkbox(False),
     )
-    slot.sb = NS(prev_slot=None, loaded_ui=NS(preferences=prefs))
-    bpy.context.scene.render.fps = 24
+    slot.sb = NS(prev_slot=None, loaded_ui=NS(preferences=prefs), tk=btk)
     active = slot.evaluate_warnings()
     check("gating: enabled fps warning fires", [w["key"] for w in active] == ["chk_warn_framerate"],
           detail=str([w["key"] for w in active]))
+    check("gating: the detail names the rate", "24 fps" in (active[0]["detail"] if active else ""))
     prefs.chk_warn_skip_unsaved = _Checkbox(True)
     check("gating: skip-unsaved suppresses on untitled", slot.evaluate_warnings() == [])
+
+    # one whole build: nothing selected -> the scene status, then nothing else
+    reset()
+    hud = _Hud()
+    slot.ui = NS(hudTextEdit=hud)
+    slot._active_warnings = []
+    slot.construct_hud()
+    check("construct_hud: nothing selected shows the scene", "Units:" in hud.joined(),
+          detail=hud.joined())
 
 except Exception as e:
     import traceback

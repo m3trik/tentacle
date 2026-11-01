@@ -254,7 +254,7 @@ Use the option box to set the crease amount and an optional smoothing angle.</st
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfer the crease set from the first selected object, to the remaining selected objects.</string>
+            <string>Transfer the edge creases from the source object to the other selected objects. The source is the first selected object (Maya) or the active object (Blender).</string>
            </property>
            <property name="text">
             <string>Transfer Crease Sets</string>

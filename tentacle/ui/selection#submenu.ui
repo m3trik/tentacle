@@ -267,7 +267,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Select Style: Paint</string>
+     <string>Select Style: Paint (Blender: Circle Select)</string>
     </property>
     <property name="text">
      <string>Paint ±</string>
@@ -301,7 +301,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Toggle camera-based (depth) selection — ignores backfacing geometry when selecting through the viewport.</string>
+     <string>Select only the geometry facing the camera when selecting through the viewport (Maya: camera-based selection; Blender: X-ray off).</string>
     </property>
     <property name="text">
      <string>Ignore Backfacing ±</string>

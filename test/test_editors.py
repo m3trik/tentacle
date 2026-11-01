@@ -1,159 +1,218 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.editors.
+"""Regression tests for tentacle.slots.editors, the one Editors Slots class.
 
-editors.py's list000 opens every Maya editor through the
-mtk.UiUtils.get_editor_types registry. The unit with real conditional logic worth pinning
-is b009 (Time & Range) — its 4-way visibility-state matrix decides
-which sliders to toggle.
+It reaches its host only through ``self.tk``: a fake toolkit records what each
+slot asks of it (plain pytest), and in Maya the same class drives the real
+``mtk``. What's worth pinning at this layer:
+
+- the All Editors list is the host's own grouping, and a row opens its editor
+  (a category row only expands; a failed open says so);
+- each button names the editor or docked strip it opens, by mayatk's name;
+- the ``.ui`` hides each host's buttons from the other (``requires``).
+
+The registries and the Time & Range toggle rule are tested in mayatk and
+blendertk (``UiUtils.get_editor_categories`` / ``toggle_editor``).
 """
 import unittest
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.editors import EditorsSlots
 
-cmds = maya_module("maya.cmds")
-mel = maya_module("maya.mel")
-editors_module = maya_module("tentacle.slots.maya.editors")
+UI = Path(__file__).resolve().parents[1] / "tentacle" / "ui" / "editors#startmenu.ui"
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB009TimeAndRange(unittest.TestCase):
-    """b009 toggles Time Slider and Range Slider based on current visibility.
+class _Item:
+    def __init__(self, text, children=()):
+        self._text = text
+        self.sublist = mock.Mock(get_items=mock.Mock(return_value=list(children)))
 
-    - Both visible: toggle both off (each its own ToggleX).
-    - Only TS visible: toggle TS off (only).
-    - Only RS visible: toggle RS off (only).
-    - Neither visible: toggle both on.
-    """
+    def item_text(self):
+        return self._text
 
+
+class _SlotsCase(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = editors_module.EditorsSlots.__new__(editors_module.EditorsSlots)
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = EditorsSlots(self.sb)
+        self.ui_utils = self.sb.tk.UiUtils
+        self.ui_utils.get_editor_types.return_value = {"UV Editor": "x", "Outliner": "y"}
 
-        # Mock mel.eval to drive the isUIComponentVisible queries and
-        # capture toggle invocations.
-        self._orig = mel.eval
-        # Per-test, set ts_visible / rs_visible on self before invoking.
-        self.ts_visible = False
-        self.rs_visible = False
-        self.eval_log = []
 
-        def fake_eval(s):
-            self.eval_log.append(s)
-            if s == 'isUIComponentVisible "Time Slider"':
-                return self.ts_visible
-            if s == 'isUIComponentVisible "Range Slider"':
-                return self.rs_visible
-            return None
-
-        mel.eval = fake_eval
-
-    def tearDown(self):
-        mel.eval = self._orig
-        cmds.file(new=True, force=True)
-
-    def _toggle_calls(self):
-        """Return only the toggle commands (not the visibility queries)."""
-        return [s for s in self.eval_log if s in ("ToggleTimeSlider", "ToggleRangeSlider")]
-
-    def test_both_visible_toggles_both_off(self):
-        self.ts_visible = True
-        self.rs_visible = True
-        self.instance.b009()
-        self.assertEqual(
-            self._toggle_calls(), ["ToggleTimeSlider", "ToggleRangeSlider"]
+class TestEditorsList(_SlotsCase):
+    def test_the_list_is_the_hosts_grouping_sorted(self):
+        self.ui_utils.get_editor_categories.return_value = {
+            "General Editors": ["Outliner", "Attribute Editor"],
+            "Empty": [],
+        }
+        widget = mock.MagicMock()
+        self.slots.list000_init(widget)
+        widget.add.assert_called_once_with("General Editors")
+        widget.add.return_value.sublist.add.assert_called_once_with(
+            ["Attribute Editor", "Outliner"]
         )
-
-    def test_only_ts_visible_toggles_ts_only(self):
-        self.ts_visible = True
-        self.rs_visible = False
-        self.instance.b009()
-        self.assertEqual(self._toggle_calls(), ["ToggleTimeSlider"])
-
-    def test_only_rs_visible_toggles_rs_only(self):
-        self.ts_visible = False
-        self.rs_visible = True
-        self.instance.b009()
-        self.assertEqual(self._toggle_calls(), ["ToggleRangeSlider"])
-
-    def test_neither_visible_toggles_both_on(self):
-        """The else-branch fires both toggles unconditionally."""
-        self.ts_visible = False
-        self.rs_visible = False
-        self.instance.b009()
-        self.assertEqual(
-            self._toggle_calls(), ["ToggleTimeSlider", "ToggleRangeSlider"]
-        )
-
-
-class TestList000EditorsResolve(unittest.TestCase):
-    """Every row of the editors list opens through mtk.UiUtils's registry.
-
-    list000 was a 132-line ``if text == ...: mel.eval(...)`` chain that had to
-    be kept in step with the init's item list by hand; both halves now read
-    ``mtk.UiUtils.get_editor_types()``. The init filters against it, so a name
-    missing from the registry would not dead-end -- it would silently vanish
-    from the list. Read by AST so this runs without Maya.
-    """
-
-    def test_every_listed_editor_is_registered(self):
-        import ast
-        import pathlib
-
-        import mayatk as mtk
-
-        path = pathlib.Path(__file__).parents[1] / "tentacle/slots/maya/editors.py"
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        editors = next(
-            n for n in ast.walk(tree) if isinstance(n, ast.ClassDef) and n.name == "EditorsSlots"
-        )
-        table = next(
-            ast.literal_eval(n.value)
-            for n in editors.body
-            if isinstance(n, ast.Assign)
-            and any(getattr(t, "id", None) == "_EDITORS" for t in n.targets)
-        )
-        listed = {name for names in table.values() for name in names}
-        self.assertEqual(len(listed), 59)
-        self.assertEqual(listed - set(mtk.UiUtils.get_editor_types()), set())
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestList000Dispatch(unittest.TestCase):
-    """list000 opens the picked editor, and says so when it could not."""
-
-    class _Item:
-        def __init__(self, text):
-            self._text = text
-
-        def item_text(self):
-            return self._text
-
-    def setUp(self):
-        from unittest import mock
-
-        self.instance = editors_module.EditorsSlots.__new__(editors_module.EditorsSlots)
-        self.messages = []
-        self.instance.sb = mock.Mock()
-        self.instance.sb.message_box.side_effect = self.messages.append
-        patcher = mock.patch.object(editors_module.mtk.UiUtils, "open_editor")
-        self.open_editor = patcher.start()
-        self.addCleanup(patcher.stop)
 
     def test_an_editor_row_opens_its_editor(self):
-        self.open_editor.return_value = "TextureViewWindow"
-        self.instance.list000(self._Item("UV Editor"))
-        self.open_editor.assert_called_once_with("UV Editor")
-        self.assertEqual(self.messages, [])
+        self.ui_utils.open_editor.return_value = "ok"
+        self.slots.list000(_Item("UV Editor"))
+        self.ui_utils.open_editor.assert_called_once_with("UV Editor")
+        self.sb.message_box.assert_not_called()
 
-    def test_a_category_header_opens_nothing(self):
-        self.instance.list000(self._Item("Modeling Editors"))
-        self.open_editor.assert_not_called()
+    def test_a_category_row_only_expands(self):
+        self.slots.list000(_Item("Modeling Editors", children=["UV Editor"]))
+        self.slots.list000(_Item("Modeling Editors"))  # not an editor name either
+        self.ui_utils.open_editor.assert_not_called()
 
     def test_a_failed_open_is_reported(self):
-        self.open_editor.return_value = None
-        self.instance.list000(self._Item("XGen Editor"))
-        self.assertTrue(self.messages)
+        self.ui_utils.open_editor.return_value = None
+        self.slots.list000(_Item("Outliner"))
+        (message,), _ = self.sb.message_box.call_args
+        self.assertIn("Outliner", message)
+
+
+class TestButtons(_SlotsCase):
+    #: button -> the editor it opens, by mayatk's name
+    OPENS = {
+        "b000": "Attribute Editor",
+        "b001": "Outliner",
+        "b002": "Tool Settings",
+        "b003": "Layer Editor",
+        "b004": "Channel Box",
+        "b005": "Node Editor",
+        "b006": "Hypergraph: Hierarchy",
+        "b014": "Geometry Nodes",
+        "b015": "UV Editor",
+        "b016": "Image Editor",
+        "b017": "Graph Editor",
+        "b018": "Text Editor",
+    }
+    #: button -> the docked strip it toggles
+    TOGGLES = {
+        "b007": "Status Line",
+        "b008": "Shelf",
+        "b009": "Timeline",
+        "b011": "Command Line",
+        "b012": "Help Line",
+        "b013": "Tool Box",
+    }
+
+    def test_each_editor_button_opens_its_editor(self):
+        for button, editor in self.OPENS.items():
+            with self.subTest(button=button):
+                getattr(self.slots, button)()
+                self.ui_utils.open_editor.assert_called_with(editor)
+
+    def test_each_strip_button_toggles_its_strip(self):
+        for button, editor in self.TOGGLES.items():
+            with self.subTest(button=button):
+                getattr(self.slots, button)()
+                self.ui_utils.toggle_editor.assert_called_with(editor)
+
+    def test_a_refused_toggle_says_why(self):
+        self.ui_utils.toggle_editor.side_effect = ValueError("no such strip")
+        self.slots.b011()
+        self.sb.message_box.assert_called_once_with("no such strip")
+
+    def test_script_output_toggles_the_console_bare(self):
+        self.slots.b010()
+        self.sb.tk.ScriptConsole.toggle.assert_called_once_with()
+
+
+class TestEachHostsButtonsAreTagged(unittest.TestCase):
+    """The ``.ui`` is shared: Maya's chrome toggles and Dependency Graph are hidden
+    in Blender, Blender's editor row in Maya (``requires``; uitk's
+    ``apply_visibility_policy``), and every button has its slot."""
+
+    MAYA = {"b006", "b007", "b008", "b012", "b013"}
+    BLENDER = {"b014", "b015", "b016", "b017", "b018"}
+
+    def setUp(self):
+        self.buttons = {
+            w.get("name"): w
+            for w in ET.parse(UI).getroot().iter("widget")
+            if w.get("class") == "QPushButton"
+        }
+
+    def _requires(self, name):
+        node = self.buttons[name].find("property[@name='requires']/string")
+        return node.text if node is not None else None
+
+    def test_each_hosts_buttons_carry_its_tag(self):
+        for name in self.buttons:
+            expected = (
+                "maya" if name in self.MAYA else "blender" if name in self.BLENDER else None
+            )
+            with self.subTest(button=name):
+                self.assertEqual(self._requires(name), expected)
+
+    def test_each_blender_button_sits_where_its_maya_button_does(self):
+        for maya, blender in zip(sorted(self.MAYA), sorted(self.BLENDER)):
+            rect = [
+                self.buttons[n].find("property[@name='geometry']/rect") for n in (maya, blender)
+            ]
+            with self.subTest(pair=(maya, blender)):
+                self.assertEqual(
+                    [e.text for e in rect[0]], [e.text for e in rect[1]]
+                )
+
+    def test_every_button_has_a_slot(self):
+        missing = [n for n in self.buttons if not callable(getattr(EditorsSlots, n, None))]
+        self.assertEqual(missing, [])
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestEditorsInMaya(_SlotsCase):
+    """The same class over the real ``mtk``."""
+
+    def setUp(self):
+        super().setUp()
+        self.mtk = maya_module("mayatk")
+        self.sb.tk = self.mtk
+        self.ui_module = maya_module("mayatk.ui_utils._ui_utils")
+
+    def test_the_list_holds_every_maya_editor(self):
+        widget = mock.MagicMock()
+        rows = []
+        widget.add.return_value.sublist.add.side_effect = rows.extend
+        self.slots.list000_init(widget)
+        self.assertEqual(len(rows), 59)
+        self.assertEqual(set(rows) - set(self.mtk.UiUtils.get_editor_types()), set())
+
+    def _run(self, button, visible=()):
+        """The commands *button* runs, with the components in *visible* showing."""
+        ran = []
+
+        def fake(command):
+            if command.startswith("isUIComponentVisible"):
+                return command.split('"')[1] in visible
+            ran.append(command)
+            return None
+
+        with mock.patch.object(self.ui_module.mel, "eval", side_effect=fake):
+            getattr(self.slots, button)()
+        return ran
+
+    def test_time_and_range_hides_what_shows_and_shows_both_when_hidden(self):
+        self.assertEqual(
+            self._run("b009", {"Time Slider"}), ["ToggleTimeSlider"]
+        )
+        self.assertEqual(
+            self._run("b009"), ["ToggleTimeSlider", "ToggleRangeSlider"]
+        )
+
+    def test_the_buttons_open_mayas_windows(self):
+        self.assertEqual(self._run("b000"), ["AttributeEditor"])
+        self.assertEqual(self._run("b001"), ["OutlinerWindow"])
+        self.assertEqual(self._run("b005"), ["NodeEditorWindow"])
+        self.assertEqual(self._run("b006"), ["HypergraphHierarchyWindow"])
+        self.assertEqual(self._run("b007"), ["ToggleStatusLine"])
 
 
 if __name__ == "__main__":

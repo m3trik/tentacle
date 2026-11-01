@@ -1,13 +1,11 @@
 #!/usr/bin/python
 # coding=utf-8
-"""DCC-agnostic structural invariants, parametrized over every slot package (plan M1).
+"""Host-agnostic structural invariants of the slots layer.
 
-One source of truth for the checks every DCC slot layer must hold — package/base wiring,
-exactly one base-subclass per slot file, unique widget objectNames per slot. The per-DCC
-files keep only what is genuinely DCC-specific (``test_slot_integrity``: pymel ban + cmds
-perf; ``test_blender_slots``: launcher/add-on surface, cross-DCC objectName semantics, the
-M2 shared-UI contract). AST-based: no DCC runtime needed. A new DCC slot package is covered
-by adding one entry to ``DCCS``.
+One Slots class per category, shared by every host (``slots/<category>.py``), and no
+per-host slot package beside them: the chord menus' native-menu pages need no Slots
+class (each host's UI handler builds its own menus). Plus the layer's import
+discipline. AST-based: no DCC runtime needed.
 """
 
 import ast
@@ -18,26 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 
-# dcc package dir -> required base class. Maya is the established baseline and is
-# ALWAYS enforced (a missing slots/maya/ is a real regression these invariants must
-# catch). The Blender slot layer is built on dev but deliberately held off main
-# while under construction, so it is covered only on checkouts where its slot dir
-# is present — keeping main green without weakening the Maya guarantee. Add a
-# stable DCC to DCCS directly; gate an under-construction one on its dir.
-DCCS = {"maya": "SlotsMaya"}
-# Detect via the base FILE, not the dir: a leftover __pycache__/ keeps the dir
-# present after the slot sources are removed, which would wrongly include Blender.
-if (SLOTS_ROOT / "blender" / "_slots_blender.py").is_file():
-    DCCS["blender"] = "SlotsBlender"
-
-
-def _slot_files(dcc):
-    """Concrete slot modules for a DCC (excludes the package marker + base)."""
-    d = SLOTS_ROOT / dcc
-    skip = {"__init__.py", f"_slots_{dcc}.py"}
-    return sorted(
-        f for f in d.glob("*.py") if f.name not in skip and not f.name.startswith("__")
-    )
+#: The hosts, none of which keeps a slot package of its own (``slots/<host>/``).
+HOSTS = ("maya", "blender")
 
 
 def _parse_classes(source):
@@ -67,81 +47,20 @@ def _set_object_names(source):
     ]
 
 
-class TestDccSlotInvariants(unittest.TestCase):
-    """The invariants shared by every DCC slot package."""
+class TestNoPerHostSlotPackage(unittest.TestCase):
+    """No host keeps a slot package: a category is one composed class every host
+    shares (``TestComposedSlots``), a tool's Slots class lives in ``slots/tools/``,
+    and the chord menus' native-menu pages (``ui/maya_menus``, ``ui/blender_menus``)
+    carry no Slots class at all -- the switchboard resolves each page's target
+    through the host's UI handler, which builds the host's own menu."""
 
-    def test_package_and_base_wiring(self):
-        """Slot dir + __init__ + base file exist; the base inherits Slots."""
-        for dcc, base in DCCS.items():
-            with self.subTest(dcc=dcc):
-                d = SLOTS_ROOT / dcc
-                self.assertTrue(d.is_dir(), f"Missing directory: {d}")
-                self.assertTrue((d / "__init__.py").exists(), "Missing __init__.py")
-                base_file = d / f"_slots_{dcc}.py"
-                self.assertTrue(base_file.exists(), f"Missing {base_file.name}")
-                classes = _parse_classes(base_file.read_text(encoding="utf-8"))
-                self.assertTrue(
-                    any(name == base and "Slots" in bases for name, bases in classes),
-                    f"{base} must inherit from Slots",
-                )
-
-    def test_exactly_one_base_subclass_per_file(self):
-        """Every slot module defines exactly one <SlotsDcc> subclass."""
-        offenders = {}
-        for dcc, base in DCCS.items():
-            for f in _slot_files(dcc):
-                found = [
-                    name
-                    for name, bases in _parse_classes(f.read_text(encoding="utf-8"))
-                    if base in bases
-                ]
-                if len(found) != 1:
-                    offenders[f"{dcc}/{f.name}"] = found
-        self.assertEqual(
-            offenders, {}, f"Slot files without exactly one base subclass: {offenders}"
-        )
-
-    def test_slot_class_is_named_base_slots(self):
-        """Every slot module's <SlotsDcc> subclass is ``<Base>Slots`` (``edit.py`` ->
-        ``EditSlots``; case-insensitive, so ``ncloth.py`` -> ``NClothSlots`` passes).
-
-        Switchboard binds ``<Base>Slots`` first, and the class name keys every
-        user shortcut override (``shortcuts_<host>.<Class>.<method>``), so the
-        name is persistent state: settling it on one convention keeps a later
-        rename from being needed at all. uitk carries overrides saved under a
-        bare ``<Base>`` forward (``_slot_shortcut_key``)."""
-        offenders = {}
-        for dcc, base in DCCS.items():
-            for f in _slot_files(dcc):
-                expected = f.stem.replace("_", "") + "slots"
-                for name, bases in _parse_classes(f.read_text(encoding="utf-8")):
-                    if base in bases and name.lower() != expected:
-                        offenders[f"{dcc}/{f.name}"] = name
-        self.assertEqual(
-            offenders, {}, f"Slot classes not named <Base>Slots: {offenders}"
-        )
-
-    def test_unique_object_names_per_slot(self):
-        """Widget objectNames a slot adds must be unique within that slot — duplicates
-        collide the StateManager/QSettings key ``<name>/<signal>`` and the cross-UI sync
-        lookup ("edit one field, another field changes")."""
-        offenders = {}
-        for dcc in DCCS:
-            for f in _slot_files(dcc):
-                names = _set_object_names(f.read_text(encoding="utf-8"))
-                dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
-                if dupes:
-                    offenders[f"{dcc}/{f.name}"] = dupes
-        self.assertEqual(
-            offenders,
-            {},
-            "Slot files add duplicate widget objectNames (each collides its StateManager "
-            f"key + cross-UI sync — give the later one a free name): {offenders}",
-        )
+    def test_no_host_keeps_a_slot_package(self):
+        present = [host for host in HOSTS if (SLOTS_ROOT / host).exists()]
+        self.assertEqual(present, [], f"a per-host slot package is back: {present}")
 
 
-# Every module in the slots layer: the concrete per-DCC panels plus the shared
-# ``slots/_<panel>.py`` mixins (the import rules below apply to both).
+# Every module in the slots layer: the composed categories, the shared tools and
+# their helpers (the import rules below apply to all of them).
 def _all_slot_modules():
     return sorted(
         f
@@ -161,133 +80,53 @@ def _imports(source):
     return out
 
 
-#: dcc -> (Import-list label, Export-list label) for the OTHER DCC's native format.
-#: Both directions of the Maya<->Blender scene hand-off are reachable from the Scene
-#: panel, and each is a registry entry + a backing method -- neither of which the panel
-#: parity sweep can see (it diffs widgets, and these lists are populated at runtime from
-#: these dicts). A third DCC with a scene bridge adds one entry here.
-SCENE_HANDOFF = {
-    "maya": ("Import Blender Scene", "Export .blend"),
-    "blender": ("Import Maya Scene", "Export .ma"),
-}
-#: The formats BOTH Scene forks read and write: the same labels on either side (a
-#: tentacle slot must not branch on the host to offer it), same rules as above.
-#: Maya's glTF rows ride the bridge (import) and FBX2glTF (export); Blender's are
-#: native operators -- the label pair is the contract, not the route.
-SCENE_SHARED_FORMATS = (("Import USD", "Export USD"), ("Import glTF", "Export glTF"))
+def _composed_files():
+    """The composed Slots modules: ``slots/<category>.py``, one class every host shares."""
+    return sorted(f for f in SLOTS_ROOT.glob("*.py") if not f.name.startswith("_"))
 
 
-def _scene_list_pairs(dcc):
-    """Every (Import label, Export label) pair the *dcc* Scene lists must carry."""
-    return (SCENE_HANDOFF[dcc], *SCENE_SHARED_FORMATS)
+class TestComposedSlots(unittest.TestCase):
+    """A composed ``slots/<category>.py`` is that category's one Slots class: one
+    ``<Base>Slots(Slots)`` (the name uitk binds and shortcut overrides key on); no
+    per-host fork is left beside it (``TestNoPerHostSlotPackage``: two classes of one
+    name break the Slots lookup)."""
 
-
-def _dict_entries(class_node, name):
-    """``{literal key: value node}`` for the class-level dict assigned to *name*.
-
-    Empty when *name* is absent or is not a dict LITERAL -- a registry built some
-    other way is a finding for the caller, not an AttributeError here.
-    """
-    for item in class_node.body:
-        if not (
-            isinstance(item, ast.Assign)
-            and any(isinstance(t, ast.Name) and t.id == name for t in item.targets)
-            and isinstance(item.value, ast.Dict)
-        ):
-            continue
-        return {
-            k.value: v
-            for k, v in zip(item.value.keys, item.value.values)
-            if isinstance(k, ast.Constant) and isinstance(k.value, str)
-        }
-    return {}
-
-
-class TestSceneHandoffSymmetry(unittest.TestCase):
-    """Each DCC's Scene panel can BOTH read and write the other DCC's native format --
-    and USD, the one format both read and write, under the same labels on each side.
-
-    The push direction (``save_as``) exists because the pull direction alone left the
-    Import list able to reach a foreign scene while the Export list could not produce
-    one. Pinned here rather than left to the panel parity sweep, which diffs *widgets*:
-    these rows are built at runtime from ``_IMPORTERS`` / ``_EXPORTERS``, so a twin
-    silently missing its entry is invisible to that sweep. AST-based -- the Blender
-    slots import ``bpy`` at module scope and cannot be imported offline.
-    """
-
-    @staticmethod
-    def _class_node(path, class_name):
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ClassDef) and node.name == class_name:
-                return node
-        return None
-
-    def _scene_class(self, dcc):
-        cls = self._class_node(SLOTS_ROOT / dcc / "scene.py", "SceneSlots")
-        self.assertIsNotNone(cls, f"{dcc}/scene.py defines no SceneSlots")
-        return cls
-
-    def _resolvable_methods(self, dcc):
-        """Method names a Scene entry may call: the fork's own PLUS the shared mixin's.
-
-        Shared fork behavior lives on ``SceneMixin`` by convention (see tentacle's
-        CLAUDE.md), so a mixin-provided handler is a legitimate target -- looking only
-        at the fork class would reject exactly the arrangement the rule asks for.
-        """
-        names = set()
-        for cls in (
-            self._scene_class(dcc),
-            self._class_node(SLOTS_ROOT / "_scene.py", "SceneMixin"),
-        ):
-            names.update(
-                item.name
-                for item in (cls.body if cls else [])
-                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
-            )
-        return names
-
-    def test_both_directions_are_registered(self):
-        for dcc in SCENE_HANDOFF:
-            if dcc not in DCCS:
-                continue
-            cls = self._scene_class(dcc)
-            for import_label, save_label in _scene_list_pairs(dcc):
-                with self.subTest(dcc=dcc, entry=import_label):
-                    self.assertIn(import_label, _dict_entries(cls, "_IMPORTERS"))
-                    self.assertIn(save_label, _dict_entries(cls, "_EXPORTERS"))
-
-    def test_each_entry_calls_a_method_that_exists(self):
-        """The lists dispatch by item TEXT, so a lambda naming a missing method dies at
-        click time with no compile-time error. A string entry is a host-native
-        operator id (Blender's ``export_scene.gltf``), dispatched by the fork itself
-        and not resolvable offline, so only its presence is pinned."""
-        for dcc in SCENE_HANDOFF:
-            if dcc not in DCCS:
-                continue
-            cls = self._scene_class(dcc)
-            defined = self._resolvable_methods(dcc)
-            entries = [
-                (registry, label)
-                for labels in _scene_list_pairs(dcc)
-                for registry, label in zip(("_IMPORTERS", "_EXPORTERS"), labels)
+    def test_each_defines_one_slots_subclass_named_base_slots(self):
+        offenders = {}
+        for f in _composed_files():
+            found = [
+                name
+                for name, bases in _parse_classes(f.read_text(encoding="utf-8"))
+                if "Slots" in bases
             ]
-            for registry, label in entries:
-                entry = _dict_entries(cls, registry).get(label)
-                with self.subTest(dcc=dcc, label=label):
-                    if isinstance(entry, ast.Constant) and isinstance(entry.value, str):
-                        continue
-                    self.assertIsInstance(
-                        entry, ast.Lambda, f"{label} must be a callable entry"
-                    )
-                    called = [
-                        n.func.attr
-                        for n in ast.walk(entry)
-                        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-                    ]
-                    self.assertTrue(
-                        any(name in defined for name in called),
-                        f"{label} calls {called}, none on SceneSlots or SceneMixin",
-                    )
+            if found != [f.stem.title().replace("_", "") + "Slots"]:
+                offenders[f.name] = found
+        self.assertEqual(offenders, {}, f"Composed modules off the rule: {offenders}")
+
+    def test_unique_object_names(self):
+        offenders = {}
+        for f in _composed_files():
+            names = _set_object_names(f.read_text(encoding="utf-8"))
+            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+            if dupes:
+                offenders[f.name] = dupes
+        self.assertEqual(offenders, {}, f"duplicate widget objectNames: {offenders}")
+
+    def test_a_tool_panel_names_each_widget_once(self):
+        """An option-box item registers with its window, whose saved state is keyed
+        ``<objectName>/<signal>``: two boxes each building a ``chk002`` share one
+        saved value. Naming's Rename and Suffix By Location boxes did (``chk002``,
+        ``chk007``), so a toggle in one came back in the other."""
+        offenders = {}
+        for f in sorted((SLOTS_ROOT / "tools").glob("*.py")):
+            names = _set_object_names(f.read_text(encoding="utf-8"))
+            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+            if dupes:
+                offenders[f.name] = dupes
+        self.assertEqual(offenders, {}, f"duplicate widget objectNames: {offenders}")
+
+    def test_the_composed_checks_are_not_vacuous(self):
+        self.assertTrue(_composed_files(), f"no composed Slots module in {SLOTS_ROOT}")
 
 
 class TestSlotImportDiscipline(unittest.TestCase):
@@ -306,14 +145,20 @@ class TestSlotImportDiscipline(unittest.TestCase):
     2. **No deep module paths** into an upstream package. ``mtk.ScriptJobManager``,
        not ``mayatk.core_utils.script_job_manager``; a deep path hard-codes a layout
        that is not the package's contract. Applies to tentacle's own namespace too
-       (``from tentacle import SceneMixin``).
+       (``from tentacle import Slots``).
     """
 
     #: Only this module may import uitk directly — see rule 1.
     _UITK_IMPORT_EXEMPT = {"_slots.py"}
 
     #: ``bootstrap_package`` installs the resolver, so it cannot come through it.
-    _DEEP_IMPORT_EXEMPT = {("pythontk.core_utils.module_resolver", "bootstrap_package")}
+    #: pythontk publishes ``Mapping`` and ``Behaviors`` by module path on purpose
+    #: (generic names kept off its top level): that path is their contract.
+    _DEEP_IMPORT_EXEMPT = {
+        ("pythontk.core_utils.module_resolver", "bootstrap_package"),
+        ("pythontk.core_utils.engines.shots.manifest.mapping", "Mapping"),
+        ("pythontk.core_utils.engines.shots.manifest.behaviors", "Behaviors"),
+    }
 
     _NAMESPACED = ("pythontk", "uitk", "mayatk", "blendertk", "tentacle")
 
@@ -368,100 +213,6 @@ class TestSlotImportDiscipline(unittest.TestCase):
             and getattr(node.func, "attr", None) == "loadPlugin"
         ]
         self.assertEqual(offenders, [], "load plug-ins through mtk.Plugins.load")
-
-
-def _gate_tokens(source):
-    """``(gated widget names, gated AppSpec names)`` for one slot module.
-
-    Two spellings reach the same feature, so both are collected:
-
-    * ``_EXTERNAL_APP_GATES`` — a ``{slot name: () -> AppSpec}`` registry consumed by a
-      loop that builds the widgets (the Tools list), where the ``gate_on_app`` call site
-      names a loop variable and says nothing about WHICH entries are gated.
-    * a direct ``self.gate_on_app(widget.menu.<name>, lambda: <Bridge>.APP)`` on a widget
-      built by hand (the UV header's RizomUV button).
-
-    The AppSpec half is the DCC-neutral tail of the resolver chain (``mtk.X.APP`` and
-    ``btk.X.APP`` both reduce to ``X``), which is what makes the two forks comparable.
-    """
-    widgets, specs, resolvers = set(), set(), []
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.ClassDef):
-            registry = _dict_entries(node, "_EXTERNAL_APP_GATES")
-            widgets.update(registry)
-            resolvers.extend(registry.values())
-        if not (
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Attribute)
-            and node.func.attr == "gate_on_app"
-        ):
-            continue
-        target = node.args[0] if node.args else None
-        # A bare Name is a loop variable (``item``) — the registry above already
-        # names those entries; only a hand-built widget path identifies itself here.
-        if isinstance(target, ast.Attribute):
-            widgets.add(target.attr)
-        resolvers.append(node)
-    for resolver in resolvers:
-        for sub_node in ast.walk(resolver):
-            if (
-                isinstance(sub_node, ast.Attribute)
-                and sub_node.attr == "APP"
-                and isinstance(sub_node.value, ast.Attribute)
-            ):
-                specs.add(sub_node.value.attr)
-    return widgets, specs
-
-
-class TestExternalAppGateParity(unittest.TestCase):
-    """A widget gated on an optional external app in one fork is gated in the twin.
-
-    ``blendertk`` mirrors ``mayatk``'s bridge surface (``MarmosetBridge`` /
-    ``SubstanceBridge`` / ``RizomUVBridge`` all carry the same ``APP`` spec), and the
-    forks carry the same menu entries — so gating only one fork leaves the other
-    offering a button whose sole outcome is a "not found" error, ignoring the user's
-    ``unmet_policy``. Invisible to the panel parity sweep, which diffs *widgets*: both
-    forks HAVE the widget; only one presents it conditionally.
-
-    AST-based — the Blender slots import ``bpy`` at module scope. Extends to a new
-    bridge or a third DCC with no edit here.
-    """
-
-    def _forks(self, module):
-        out = {}
-        for dcc in DCCS:
-            path = SLOTS_ROOT / dcc / module
-            if path.is_file():
-                out[dcc] = _gate_tokens(path.read_text(encoding="utf-8"))
-        return out
-
-    def test_the_same_widgets_are_gated_in_every_fork(self):
-        for module in ("materials.py", "uv.py"):
-            forks = self._forks(module)
-            if len(forks) < 2:
-                continue
-            baseline = forks["maya"][0]
-            self.assertTrue(baseline, f"maya/{module} gates nothing — bad baseline")
-            for dcc, (widgets, _) in forks.items():
-                with self.subTest(module=module, dcc=dcc):
-                    self.assertEqual(
-                        widgets,
-                        baseline,
-                        f"{dcc}/{module} gates {sorted(widgets)}; "
-                        f"maya/{module} gates {sorted(baseline)}",
-                    )
-
-    def test_every_fork_gates_on_the_same_bridge_specs(self):
-        """``mtk.MarmosetBridge.APP`` and ``btk.MarmosetBridge.APP`` are the same spec —
-        a fork gating on a differently named bridge is a mirror that drifted."""
-        for module in ("materials.py", "uv.py"):
-            forks = self._forks(module)
-            if len(forks) < 2:
-                continue
-            baseline = forks["maya"][1]
-            for dcc, (_, specs) in forks.items():
-                with self.subTest(module=module, dcc=dcc):
-                    self.assertEqual(specs, baseline)
 
 
 if __name__ == "__main__":

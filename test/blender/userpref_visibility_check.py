@@ -14,8 +14,8 @@ Preferences window foregrounded on click 1, re-raising it even when buried (meas
 failure mode is **cross-process foreground** (user last in Maya, clicking straight onto the Qt
 panel): Windows denies GHOST the foreground transfer, the window opens/reuses fully obscured, and
 retries never raise it — an invisible success that reads as a dead button.
-``PreferencesSlots._open_preferences`` now surfaces op failures and explicitly lifts the window
-(``_raise_ghost_window``); this harness pins the whole path.
+``btk.UiUtils.open_preferences`` (what the shared ``PreferencesSlots.b008`` calls) surfaces op
+failures and explicitly lifts the window (``_raise_native_window``); this harness pins the whole path.
 
 Flow: full tentacle startup, ``preferences`` shown as a standalone window holding OS foreground,
 then programmatic ``b008`` clicks — clean click, redundant click, and a retry with the prefs
@@ -45,8 +45,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(os.path.join(_MONO, _pkg)) and os.path.join(_MONO, _pkg) not in sys.path:
         sys.path.insert(0, os.path.join(_MONO, _pkg))
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -138,14 +138,15 @@ def _step():
     try:
         if state["phase"] == "wait":
             tb = sys.modules.get("tentacle.tcl_blender")
-            if tb is None or tb._KeymapBridge.tcl is None:
+            btk = sys.modules.get("blendertk")
+            if tb is None or btk is None or btk.KeymapBridge.menu is None:
                 return 0.5  # startup script hasn't registered yet
             state["tb"] = tb
             state["phase"] = "show"
             return 0.5
 
         if state["phase"] == "show":
-            tcl = state["tb"]._KeymapBridge.tcl
+            tcl = btk.KeymapBridge.menu
             ui = tcl.sb.loaded_ui.preferences
             ui.show()
             state["ui"] = ui

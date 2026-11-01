@@ -11,8 +11,8 @@ the hover harnesses this needs no flaky radial hover: it shows ``normals#submenu
 overlay (the same stacked submenu the gesture lands on), makes Blender's GHOST window hold OS
 foreground (the real state after a key-hold — the overlay is visible but may not be OS-active),
 then injects ONE real click on each named leaf and records whether its ``clicked`` fired. Runs
-with ``tcl_blender.enable_click_debug()`` on, so its trace log (managed scratch —
-``_ClickDebugger.log_path()``, printed by ``enable()``) captures what each click actually hit.
+with ``btk.ClickDebugger.enable()`` on, so its trace log (managed scratch —
+``btk.ClickDebugger.log_path()``, printed by ``enable()``) captures what each click actually hit.
 
 Steals foreground + moves the real mouse for a few seconds — throwaway instance only. Report to
 stdout and ``../temp_tests/normals_leaf_out.txt``.
@@ -36,8 +36,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -75,13 +75,14 @@ def _find(ui, name):
 
 
 def _test_leaf(app, tcl, tb, ghost, name, center):
+    import blendertk as btk
     from qtpy import QtWidgets
 
     # Park the cursor at screen-center BEFORE showing so the submenu anchors on-screen (a stale
     # cursor put the buttons at negative-Y / off-screen in the first pass), then re-show fresh.
     _u.SetCursorPos(*center)
     time.sleep(0.05)
-    tcl._on_activation_press()
+    tcl.activate()
     for _ in range(20):
         app.processEvents()
     tcl.show("normals#submenu", force=True)
@@ -109,7 +110,7 @@ def _test_leaf(app, tcl, tb, ghost, name, center):
     if not on_button:
         _log(f"  [{name}] SKIP — target not under cursor (harness positioning); not a product result")
         try:
-            tb._KeymapBridge.drive_release()
+            btk.KeymapBridge.drive_release()
         except Exception:
             pass
         return None
@@ -123,7 +124,7 @@ def _test_leaf(app, tcl, tb, ghost, name, center):
     needed = str(fired_on) if fired_on else ">3"
     _log(f"  [{name}] first_click_fired={fired_on == 1}  clicks_needed={needed}  (total clicked={fired['n']})")
     try:
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
     except Exception:
         pass
     for _ in range(15):
@@ -140,10 +141,11 @@ def _run():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     app = QtWidgets.QApplication.instance()
-    tb.enable_click_debug()
+    btk.ClickDebugger.enable()
     ghost = _input.main_ghost_hwnd()
     geo = QtWidgets.QApplication.primaryScreen().availableGeometry()
     center = (geo.center().x(), geo.center().y())
@@ -160,12 +162,12 @@ def _run():
         _log(traceback.format_exc())
     finally:
         try:
-            tb.disable_click_debug()
+            btk.ClickDebugger.disable()
         except Exception:
             pass
         # Tail the click-debug log so the captured events show up in this report too.
         try:
-            with open(tb._ClickDebugger.log_path(), encoding="utf-8") as f:
+            with open(btk.ClickDebugger.log_path(), encoding="utf-8") as f:
                 tail = f.read().splitlines()[-40:]
             _log("\n--- tentacle_click_debug.log (tail) ---")
             for ln in tail:

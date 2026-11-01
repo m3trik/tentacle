@@ -24,7 +24,7 @@ SOLVED (2026-07-18) — root cause and fix, after this harness's ~14 runs:
   ``InSendMessage()`` (NOSEND), deadline-bounded drain (BOUNDED),
   ``AA_PluginApplication`` (QT_PLUGINAPP), ``QT_ENABLE_HIGHDPI_SCALING=0`` (Qt6 no-op),
   QtDock child suspension (reverted separately — it added a blank-console failure mode).
-* THE FIX (``tcl_blender._QtHost.start_pump``): never dispatch native messages from the
+* THE FIX (``btk.QtRuntime.start_pump``): never dispatch native messages from the
   pump at all — ``QCoreApplication.sendPostedEvents()`` (+ an explicit DeferredDelete
   flush) delivers everything Qt cannot get from GHOST's own loop, which already
   dispatches every thread window's native messages. With it, ALL legs pass — including
@@ -433,8 +433,9 @@ def _gui_tick():
                 # Bisect: bare QApplication + a gated pump — NO tentacle windows,
                 # keymaps, or ownership. Does the mere Qt runtime kill the drag?
                 # Importing tcl_blender (WITHOUT launch()) provisions the Qt paths
-                # via its _QtBootstrap but creates no QApplication and no windows.
+                # via btk.QtBootstrap but creates no QApplication and no windows.
                 from tentacle import tcl_blender as _tb  # noqa: F401
+                import blendertk as btk  # noqa: E402
                 from qtpy import QtCore, QtWidgets
 
                 if os.environ.get("CONSOLE_DPI_QT_PLUGINAPP") == "1":
@@ -479,8 +480,9 @@ def _gui_tick():
                 R["qt_only"] = True
             else:
                 from tentacle import tcl_blender as tb
+                import blendertk as btk  # noqa: E402
 
-                if tb._KeymapBridge.tcl is None:
+                if btk.KeymapBridge.menu is None:
                     tb.launch()
             _ctx["launch_tentacle_done"] = True
         except Exception:

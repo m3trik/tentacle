@@ -742,6 +742,9 @@ Use the option box to split along U, V, or both.</string>
            <property name="text">
             <string>Assign Hole</string>
            </property>
+           <property name="requires" stdset="0">
+            <string>maya</string>
+           </property>
            <property name="iconSize">
             <size>
              <width>18</width>
@@ -835,9 +838,9 @@ Use the option box to split along U, V, or both.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Mirror selected mesh components across the topological symmetry axis.
+            <string>Mirror the selected mesh components across the symmetry axis.
 
-First select any components to mirror, then when prompted, select an edge to define an axis.</string>
+Maya: select the components to mirror, then, when prompted, the edge that defines the axis.</string>
            </property>
            <property name="text">
             <string>Symmetrize</string>
@@ -976,7 +979,7 @@ First select any components to mirror, then when prompted, select an edge to def
             </size>
            </property>
            <property name="toolTip">
-            <string>Connect vertices, edges, and faces interactively, using Maya's Connect tool.</string>
+            <string>Connect the selected vertices and edges across their faces with new edges (Maya: its interactive Connect tool).</string>
            </property>
            <property name="text">
             <string>Attach</string>

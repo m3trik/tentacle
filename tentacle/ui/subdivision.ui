@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Reduce the polygon count of the selected object(s), while preserving border, hard, crease, and UV edges.</string>
+            <string>Halve the polygon count of the selected mesh(es) or components (Maya also preserves border, hard, crease and UV edges).</string>
            </property>
            <property name="text">
             <string>Reduce</string>
@@ -247,7 +247,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Enter quad draw tool</string>
+            <string>Enter the Quad Draw retopology tool (Blender: Poly Build).</string>
            </property>
            <property name="text">
             <string>Quad Draw</string>
@@ -373,7 +373,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Smooth Preview: Division Level</string>
+            <string>Smooth Preview: Division Level (Blender: the Subdivision Surface viewport level).</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -416,7 +416,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Smooth Preview: Tessellation Level</string>
+            <string>Smooth Preview: Tessellation Level (Maya: the OpenSubdiv adaptive level; Blender: the Subdivision Surface render level).</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -456,7 +456,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Convert smooth mesh preview to polygons</string>
+            <string>Convert the smooth mesh preview to polygons (Blender: apply the Subdivision Surface modifier).</string>
            </property>
            <property name="text">
             <string>Convert Preview</string>

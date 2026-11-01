@@ -1,95 +1,180 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys
-
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.16.4"
+__version__ = "0.17.0"
 
 
 DEFAULT_INCLUDE = {
-    "tcl": "Tcl",  # host-detecting launcher — the documented entry point for every DCC
-    "tcl_blender": "TclBlender",
-    "tcl_max": "TclMax",
-    "tcl_maya": "TclMaya",
+    "tcl": "Tcl",  # the one launcher — the documented entry point for every DCC
     "slots._slots": "Slots",
-    "slots.maya._slots_maya": "SlotsMaya",
-    "slots.blender._slots_blender": "SlotsBlender",
-    # Per-panel shared mixins (slots/_<panel>.py). Registered so a concrete panel
-    # pulls its mixin and its DCC base from ONE package-namespace import
-    # (``from tentacle import SceneMixin, SlotsMaya``) instead of two deep module
-    # paths. They are deliberately NOT folded into the DCC bases: nearly every
-    # mixin defines widget-named slot methods (SceneMixin.tb002,
-    # MaterialsMixin.b003, PreferencesMixin.cmb004/cmb005), and those
-    # objectNames are reused across panels — 12 .ui files carry a ``tb002``,
-    # only 8 Maya slot files define one. Inherited from a shared base, the
-    # panels that DON'T define their own would silently bind their widget to
-    # another panel's slot. Mixing in per panel keeps each name owned by exactly
-    # the panels that opted in.
-    # AnimationMixin, too, now defines a widget-named slot (``list000_init``, the
-    # Tools list both forks build identically), so it is mixed in per panel for
-    # the same reason as the rest.
-    "slots._animation": "AnimationMixin",
-    "slots._display": "DisplayMixin",
-    "slots._duplicate": "DuplicateMixin",
-    "slots._edit": "EditMixin",
-    "slots._hud_warnings": "HudWarningsMixin",
-    "slots._lighting": "LightingMixin",
-    "slots._main": "MainMixin",
-    "slots._materials": "MaterialsMixin",
-    "slots._normals": "NormalsMixin",
-    "slots._nurbs": "NurbsMixin",
-    "slots._pivot": "PivotMixin",
-    "slots._preferences": "PreferencesMixin",
-    "slots._rendering": "RenderingMixin",
-    "slots._rigging": "RiggingMixin",
-    "slots._scene": "SceneMixin",
-    "slots._selection": "SelectionMixin",
-    "slots._settings": "SettingsMixin",
-    "slots._transform": "TransformMixin",
-    "slots._uv": "UvMixin",
+}
+
+#: Public names merged away (CODE_STANDARD section 5): no alias, so a read raises
+#: MovedNameError naming the new home. ``{name: (new home, version)}``; a category
+#: composed into one Slots class lists the mixin its forks shared.
+MOVED_NAMES = {
+    # uitk's parameter panel is no longer named for one use (2026-10-31).
+    "Slots.BridgeSlotsBase": ("tentacle.Slots.ParamPanelSlots", "0.17.0"),
+    "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),
+    "SlotsMaya": ("tentacle.Slots", "0.17.0"),
+    "SlotsBlender": ("tentacle.Slots", "0.17.0"),
+    "DisplayMixin": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DuplicateMixin": ("tentacle.slots.duplicate.DuplicateSlots", "0.17.0"),
+    "LightingMixin": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),
+    "HudWarningsMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "EditMixin": ("tentacle.slots.edit.EditSlots", "0.17.0"),
+    "MainMixin": ("tentacle.slots.main.MainSlots", "0.17.0"),
+    "PivotMixin": ("tentacle.slots.pivot.PivotSlots", "0.17.0"),
+    "PreferencesMixin": ("tentacle.slots.preferences.PreferencesSlots", "0.17.0"),
+    "SettingsMixin": ("tentacle.slots.settings.SettingsSlots", "0.17.0"),
+    "SelectionMixin": ("tentacle.slots.selection.SelectionSlots", "0.17.0"),
+    "NurbsMixin": ("tentacle.slots.nurbs.NurbsSlots", "0.17.0"),
+    "TransformMixin": ("tentacle.slots.transform.TransformSlots", "0.17.0"),
+    "RiggingMixin": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RenderingMixin": ("tentacle.slots.rendering.RenderingSlots", "0.17.0"),
+    "MaterialsMixin": ("tentacle.slots.materials.MaterialsSlots", "0.17.0"),
+    "SceneMixin": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
+    "UvMixin": ("tentacle.slots.uv.UvSlots", "0.17.0"),
+    "AnimationMixin": ("tentacle.slots.animation.AnimationSlots", "0.17.0"),
+    # The startup banner's formatter is the launcher's (``Tcl.banner``).
+    "greeting": ("tentacle.Tcl.greeting", "0.17.0"),
+    # Panels merged into one tool (``slots.tools.RENAMED_FROM``).
+    "BlenderBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
+    "MayaBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
+    "WorkspaceMapSlots": ("tentacle.slots.tools.workspaces.WorkspacesSlots", "0.17.0"),
+    "WorkspaceEditorSlots": (
+        "tentacle.slots.tools.workspaces.WorkspacesSlots",
+        "0.17.0",
+    ),
+    # The Unity Bridge panel folded into the one Unity app, extapps' Unity
+    # Workflow; the Scene menu opens it with the host's engine (``b016``).
+    "UnityBridgeSlots": ("extapps.UnityWorkflowSlots", "0.17.0"),
+    "UnityPanelMixin": ("extapps.UnityWorkflowSlots", "0.17.0"),
+    # The native-menu wrappers (slots/maya, slots/blender): the chord menu's pages
+    # need no Slots class; each host's UI handler builds its own menus.
+    "BlenderSlots": ("blendertk.BlenderUiHandler", "0.17.0"),
+    "ArnoldSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "CacheSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ConstrainSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ControlSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "CurvesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "DeformSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "EditMeshSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "EffectsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "FieldsSolversSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "FluidsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "GenerateSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "HelpSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "KeySlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "LightingShadingSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MashSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshDisplaySlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshToolsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NClothSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NConstraintSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NHairSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NParticlesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "PlaybackSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "RenderSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SelectSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SkeletonSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SkinSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "StereoSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SurfacesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "TexturingSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ToonSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "VisualizeSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "WindowsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    # The per-host Slots classes' handlers (slots/maya, slots/blender) composed
+    # into one Slots class per category (2026-10-28): each now serves both hosts
+    # from slots/<category>.py, or its widget left the panel.
+    "EditorsSlots.b006_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b007_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b008_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b012_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b013_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "HudSelectionMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "StatusMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "WarningsMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "LightingSlots.b002_init": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),
+    "MaterialsSlots.b_shader_editor": (
+        "tentacle.slots.materials.MaterialsSlots",
+        "0.17.0",
+    ),
+    "PolygonsSlots.b038_init": ("tentacle.slots.polygons.PolygonsSlots", "0.17.0"),
+    "SceneSlots.b008": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
+    "TransformSlots.tb004": ("tentacle.slots.transform.TransformSlots", "0.17.0"),
+    "DisplaySlots.b000": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b001": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b002": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b003": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b004": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b005": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b006": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b007": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b009": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b011": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b012": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b021": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b022": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b023": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b024": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "EditorsSlots.getEditorWidget": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "NurbsSlots.b016": ("tentacle.slots.nurbs.NurbsSlots", "0.17.0"),
+    "RiggingSlots.chk000": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.chk001": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.chk002": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.s000": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "SelectionSlots.chkxxx": ("tentacle.slots.selection.SelectionSlots", "0.17.0"),
+    "SelectionSlots.get_selection_tool": (
+        "tentacle.slots.selection.SelectionSlots",
+        "0.17.0",
+    ),
+    "SelectionSlots.set_selection_tool": (
+        "tentacle.slots.selection.SelectionSlots",
+        "0.17.0",
+    ),
+    "SubdivisionSlots.smoothProxy": (
+        "tentacle.slots.subdivision.SubdivisionSlots",
+        "0.17.0",
+    ),
+    "TransformSlots.setTransformSnap": (
+        "tentacle.slots.transform.TransformSlots",
+        "0.17.0",
+    ),
+    # Blender's Qt hosting is blendertk's (2026-10-31): the Qt bootstrap and runtime, the
+    # keymap bridge and its report, the native-window helpers, the click tracer.
+    "QtPlatformUnavailable": ("blendertk.QtPlatformUnavailable", "0.17.0"),
+    "Diagnostics": ("blendertk.ActivationDiagnostics", "0.17.0"),
+    # One launcher (2026-10-31): Tcl.build makes ONE uitk.MarkingMenu(host=...) for every
+    # host; host behavior is the toolkit's MarkingMenuHost adapter. 3ds Max is dropped.
+    "TclMaya": ("tentacle.Tcl.build", "0.17.0"),
+    "TclBlender": ("tentacle.Tcl.build", "0.17.0"),
+    "TclMax": ("tentacle.Tcl.build", "0.17.0"),
+    "Tcl.BLENDER_START_DELAY": (
+        "blendertk.BlenderMarkingMenuHost.START_DELAY",
+        "0.17.0",
+    ),
+    "ensure_qapp": ("blendertk.QtRuntime.ensure_qapp", "0.17.0"),
+    "ensure_blender_widget": ("blendertk.QtRuntime.ensure_widget", "0.17.0"),
+    "start_event_pump": ("blendertk.QtRuntime.start_pump", "0.17.0"),
+    "blender_native_window": ("blendertk.BlenderWindow.main_qwindow", "0.17.0"),
+    "enable_click_debug": ("blendertk.ClickDebugger.enable", "0.17.0"),
+    "disable_click_debug": ("blendertk.ClickDebugger.disable", "0.17.0"),
+    # One reload for every host (2026-11-01): the adapter releases what Blender holds
+    # (``btk.BlenderMarkingMenuHost.teardown``); ``tcl_blender.reload`` forwards to it.
+    "BlenderHost.reload": ("tentacle.Tcl.reload", "0.17.0"),
 }
 
 
 bootstrap_package(
     globals(),
     include=DEFAULT_INCLUDE,
+    moved=MOVED_NAMES,
 )
-
-
-def greeting(string, outputToConsole=True):
-    """Format a string using preset variables.
-
-    Parameters:
-        string (str): The greeting to format as a string with placeholders using the below keywords.
-                ex. 'Good {hr}! You are using {modver} with {pyver}.'
-                {hr} - Gives the current time of day (morning, afternoon, evening)
-                {pyver} - The python interpreter version.
-                {modver} - This modules version.
-        outputToConsole = Print the greeting.
-
-    Returns:
-        (str)
-
-    Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
-    """
-    import datetime
-
-    h = datetime.datetime.now().hour
-    hr = "morning" if 5 <= h < 12 else "afternoon" if h < 18 else "evening"
-
-    pyver = "python v{}.{}.{}".format(
-        sys.version_info[0], sys.version_info[1], sys.version_info[2]
-    )
-
-    modver = "tentacle v{}".format(__version__)
-
-    result = string.format(hr=hr, pyver=pyver, modver=modver)
-
-    if outputToConsole:
-        print(result)  # noqa: T201 -- greeting() prints only when asked to
-    return result
 
 
 # --------------------------------------------------------------------------------------------
@@ -103,4 +188,3 @@ def greeting(string, outputToConsole=True):
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-# Test: 222117

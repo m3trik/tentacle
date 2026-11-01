@@ -354,7 +354,7 @@ Use the option box to also center the pivot (on the mesh, or on all selected).</
      </size>
     </property>
     <property name="toolTip">
-     <string>Move selected object(s) to last selected.</string>
+     <string>Move the selected object(s) onto the last selected (Blender: the active object).</string>
     </property>
     <property name="text">
      <string>Move To</string>
@@ -406,7 +406,7 @@ Use the option box to also center the pivot (on the mesh, or on all selected).</
      </size>
     </property>
     <property name="toolTip">
-     <string>Match the first selected object to the combined bounding box scale of any additional selected objects.</string>
+     <string>Scale the first selected object (Blender: the active object) to the combined bounding box of the other selected objects.</string>
     </property>
     <property name="text">
      <string>Match Scale</string>

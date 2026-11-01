@@ -50,8 +50,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -375,17 +375,16 @@ def _go():
     os.environ.setdefault("QT_API", "pyside6")
     from qtpy import QtWidgets
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     app = QtWidgets.QApplication.instance()
     _shim_setup_as_popup(_log)
 
     # Neutralize the real slot BEFORE the panel is built: a fired b007 would
     # otherwise os.startfile an Explorer window mid-harness. The recorder
     # counts the button's own `clicked` — unaffected by this.
-    from blendertk.env_utils.scene_exporter.scene_exporter_slots import (
-        SceneExporterSlots,
-    )
+    from tentacle.slots.tools.scene_exporter import SceneExporterSlots
 
     SceneExporterSlots.b007 = lambda self: None
 

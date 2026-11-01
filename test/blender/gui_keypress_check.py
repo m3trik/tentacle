@@ -47,7 +47,8 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
     TestSandbox.activate()
 
 import bpy
-from tentacle import tcl_blender as tb
+from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6)
+import blendertk as btk  # noqa: E402
 
 _VK_F12 = 0x7B
 _KEYUP = 0x0002
@@ -62,8 +63,8 @@ _u = ctypes.windll.user32
 # RELEASE item — if it didn't, the live menu's mouse grab would stay stuck.
 _events = []
 _stub = NS(
-    _on_activation_press=lambda: _events.append("press"),
-    _on_activation_release=lambda: _events.append("release"),
+    activate=lambda buttons=None: _events.append("press"),
+    release=lambda: _events.append("release"),
     grabMouse=lambda: _events.append("grab"),
     raise_=lambda: None,
     activateWindow=lambda: None,
@@ -161,7 +162,7 @@ def _report_and_quit():
 
 
 def _go():
-    tb._KeymapBridge.install_keymap(_stub, "F12")  # no register() → no overlay → Blender keeps focus
+    btk.KeymapBridge.install_keymap(_stub, "F12")  # no register() → no overlay → Blender keeps focus
     hwnd = _ghost_hwnd()
     x, y = _screen_viewport_point(hwnd) if hwnd else (0, 0)  # main-thread bpy.context access
     threading.Thread(target=_press_f12, args=(hwnd, x, y), daemon=True).start()

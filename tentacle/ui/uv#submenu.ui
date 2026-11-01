@@ -300,7 +300,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Cut auto seams on cylinder / tube / turned meshes (cap rings + ~90° step rings + one lengthwise seam), then optionally unfold each section flat. Invert Seam moves the lengthwise seam to the opposite side.</string>
+     <string>Cut auto seams on cylinder / tube / turned meshes (cap rings + ~90° step rings + one lengthwise seam), then optionally unfold each section flat. Maya: Invert Seam moves the lengthwise seam to the opposite side.</string>
     </property>
     <property name="text">
      <string>Cut Cylinder</string>

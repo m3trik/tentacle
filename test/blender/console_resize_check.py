@@ -423,8 +423,9 @@ def _go():
             print(f"console_resize_check filler line {i}: " + "x" * 60)
 
         from tentacle import tcl_blender as tb
+        import blendertk as btk  # noqa: E402
 
-        if tb._KeymapBridge.tcl is None:
+        if btk.KeymapBridge.menu is None:
             tb.launch()
 
         hwnd = _input.main_ghost_hwnd()

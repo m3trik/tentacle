@@ -1,6 +1,6 @@
-"""Manual harness for the Blender tool-panel slots (mirror / duplicate_linear / duplicate_radial
-/ duplicate_grid / cut_on_axis / hdr_manager / curtain). The Reference Manager panel became a
-table mirror of mayatk's; its library round trip is ``blendertk/test/test_reference_manager.py``.
+"""Manual harness for the shared tool panels in a real Blender (mirror / duplicate_linear /
+duplicate_radial / duplicate_grid / cut_on_axis / hdr_manager / curtain). Reference Manager's
+library round trip is ``blendertk/test/test_reference_manager.py``.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -71,6 +71,8 @@ def panel_ui(cls, **overrides):
     path = Path(sys.modules[cls.__module__].__file__).with_suffix(".ui")
     if not path.exists():  # a tool subpackage pairs <tool>_slots.py with <tool>.ui
         path = path.with_name(path.name.replace("_slots.ui", ".ui"))
+    if not path.exists():  # tentacle's shared tools: slots/tools/<t>.py pairs ui/tools/<t>.ui
+        path = path.parents[2] / "ui" / "tools" / path.name
     fake = {}
     for w in ET.parse(path).iter("widget"):
         kind, name = w.get("class", ""), w.get("name", "")
@@ -98,6 +100,7 @@ def make_slot(cls, ui, axis=""):
     slot.sb = NS(
         message_box=lambda *a, **k: messages.append(" ".join(map(str, a))),
         get_axis_from_checkboxes=lambda *a, **k: axis,
+        tk=btk,  # a shared Slots class's host (Slots.tk)
     )
     slot.ui = ui
     return slot
@@ -106,14 +109,16 @@ def make_slot(cls, ui, axis=""):
 try:
     import bpy
 
-    # The tool-panel Slots now live co-located in blendertk (next to their engine + .ui),
-    # discovered by BlenderUiHandler — not in tentacle. Their Qt-only imports are deferred,
-    # so importing the Slots classes is Qt-free (no tcl_blender Qt-provisioning needed here).
-    from blendertk.edit_utils.mirror import MirrorSlots
-    from blendertk.edit_utils.cut_on_axis import CutOnAxisSlots
-    from blendertk.edit_utils.duplicate_linear import DuplicateLinearSlots
-    from blendertk.edit_utils.duplicate_radial import DuplicateRadialSlots
-    from blendertk.edit_utils.duplicate_grid import DuplicateGridSlots
+    import blendertk as btk
+
+    # Most tool-panel Slots still live co-located in blendertk (next to their engine + .ui),
+    # discovered by BlenderUiHandler; a moved tool's one Slots class is tentacle's
+    # (slots/tools/), shared with Maya, and reaches Blender through sb.tk (make_slot sets it).
+    from tentacle.slots.tools.mirror import MirrorSlots
+    from tentacle.slots.tools.cut_on_axis import CutOnAxisSlots
+    from tentacle.slots.tools.duplicate_linear import DuplicateLinearSlots
+    from tentacle.slots.tools.duplicate_radial import DuplicateRadialSlots
+    from tentacle.slots.tools.duplicate_grid import DuplicateGridSlots
 
     def reset():
         if (
@@ -295,12 +300,11 @@ try:
           f"n={len(copies)}")
 
     # ---- hdr_manager: folder scan + apply + live levels ------------------------------------
-    # Through the primitives the dropdown composes (_folder_hdrs / _set_environment /
+    # Through the primitives the dropdown composes (_folder_hdrs / _apply_path /
     # _apply_levels): cmb000's full path now re-syncs the whole panel from the scene
     # (_sync_ui_to_scene), which a stub ui cannot stand in for.
     import tempfile
-    import blendertk as btk
-    from blendertk.light_utils.hdr_manager import HdrManagerSlots
+    from tentacle.slots.tools.hdr_manager import HdrManagerSlots
 
     tmp_dir = tempfile.mkdtemp(prefix="tcl_hdr_")
     img = bpy.data.images.new("hdr_fixture", 8, 4, float_buffer=True)  # 2:1 lat-long
@@ -314,11 +318,14 @@ try:
     # toggle to visible -- the defaults the panel itself uses before they exist.
     ui = NS(
         cmb000=combo(data=None),
-        spn_intensity=spin(2.0), spn_exposure=spin(1.0), slider000=spin(90),
+        spn_intensity=spin(2.0), spn_exposure=spin(1.0),
+        slider000=NS(value=lambda: 90, sliderPosition=lambda: 90),
         spn_diffuse=spin(1.0), spn_specular=spin(1.0),
+        spn_resolution=spin(1024), spn_samples=spin(1),
     )
     slot = make_slot(HdrManagerSlots, ui)
-    slot._render_toggle = None
+    slot.manager = btk.HdrManager()
+    slot._render_toggle = slot._viewport_toggle = slot._rotation_value = None
 
     def _norm(path):
         return os.path.normcase(os.path.abspath(path))
@@ -332,13 +339,13 @@ try:
     check("hdr slot select with no map is a no-op", len(messages) == 0
           and btk.get_world_hdri() is None)
 
-    slot._set_environment(hdr_path)  # the apply a dropdown pick runs
+    slot._apply_path(hdr_path)  # the apply a dropdown pick runs
     state = btk.get_world_hdri()
     check("hdr slot applies intensity*2^exposure", state is not None
           and abs(state["strength"] - 4.0) < 1e-6 and abs(state["rotation"] - 90) < 1e-4,
           f"state={state}")
 
-    ui.slider000 = spin(180)  # live level update path
+    ui.slider000 = NS(value=lambda: 180, sliderPosition=lambda: 180)  # live level update
     slot.slider000(180, None)
     check("hdr slot live rotation update",
           abs(btk.get_world_hdri()["rotation"] - 180) < 1e-4)
@@ -348,7 +355,7 @@ try:
     os.rmdir(tmp_dir)
 
     # ---- curtain: generated rail + rail-from-curve through the real slot reader ---------
-    from blendertk.edit_utils.curtain import CurtainSlots
+    from tentacle.slots.tools.curtain import CurtainSlots
 
     def curtain_ui(**over):
         base = dict(
@@ -383,9 +390,9 @@ try:
           abs(min(xs) + 3.0) < 0.5 and abs(max(xs) - 3.0) < 0.5,
           f"x {min(xs):.2f}..{max(xs):.2f}")
 
-    bpy.ops.object.select_all(action="DESELECT")
-    slot._finalize()  # Select Result
-    check("curtain slot Select Result selects the curtain",
+    btk.CoreUtils.select([])
+    btk.Preview.apply_result_selection(chk(True), slot.last_curtain)  # Select Result
+    check("curtain Select Result selects the curtain",
           bpy.context.view_layer.objects.active == curtain
           and curtain.select_get())
 
@@ -403,5 +410,5 @@ except Exception:
     lines.append("FAIL unhandled exception")
 
 print("\n".join(lines))
-ok = all(l.startswith("OK") for l in lines) and lines
-print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for l in lines if l.startswith('OK'))}/{len(lines)})")
+ok = all(line.startswith("OK") for line in lines) and lines
+print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for line in lines if line.startswith('OK'))}/{len(lines)})")

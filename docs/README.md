@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-1216%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-1314%20passed-brightgreen.svg)](../test/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2C%20Linux-lightgrey.svg)
@@ -7,7 +7,7 @@
 
 A Qt marking-menu launcher for DCC apps.
 
-Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships ~60 Maya tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …) — a starting set you can build on, or replace wholesale with your own — a Blender integration slot library is in progress, and a thin 3ds Max wrapper exists to build on.
+Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships dozens of tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
@@ -24,20 +24,20 @@ The first start fetches `tentacletk` and the engine for your host (`mayatk` / `b
 
 **Update or uninstall:** drop the file in again (Maya) or open the add-on's preferences (Blender). Either applies at the next start if the menu is already running. In Blender use the add-on's own **Uninstall**: Blender's *Remove* button deletes only the add-on file and leaves the packages in `scripts/addons/modules/`. Settings brought over from an older Blender with *Load Previous Settings* can carry packages built for that version's Python. The first start on the new version reinstalls them, and so does **Update**.
 
-**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall` (exit code 1 when the verb failed, an install that did not take included). **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start.
+**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall` (exit code 1 when the verb failed, an install that did not take included). **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start. Add `apps` (`"tentacletk[maya,apps]"`) to install extapps' [standalone apps](#standalone-apps) with it.
 
 ## Activation key
 
 `Z` by default. Change it any time from the in-app **Preferences** panel.
 
-Starting Tentacle from your own startup script is two lines — `Tcl.launch` detects the host and defers startup however that host needs — and `key_show` names the default it starts with:
+Starting Tentacle from your own startup script is two lines — `Tcl.launch` detects the host and defers startup however that host needs — and `key_show` names the default it starts with (omitted, the `TENTACLE_KEY` environment variable names it, else `Z`):
 
 ```python
 from tentacle import Tcl
 Tcl.launch(key_show="Z")   # bare ("Z", "Space") or Qt-named ("Key_F11")
 ```
 
-Maya: `userSetup.py` (in `~/Documents/maya/<version>/scripts/`); Blender: `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`. `Tcl.launch` recognizes 3ds Max too and starts `TclMax` there — the menu opens, but its slot library isn't ported yet, so the panels have no behavior wired. See [Platform support](#platform-support).
+Maya: `userSetup.py` (in `~/Documents/maya/<version>/scripts/`); Blender: `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`. See [Platform support](#platform-support).
 
 ## Bindings
 
@@ -61,16 +61,18 @@ The table is built in [`tcl.py`](../tentacle/tcl.py); chord syntax, gesture mech
 
 ```mermaid
 flowchart LR
-    A[Tcl.launch → TclMaya] --> B[uitk.MarkingMenu]
+    A[Tcl.launch → Tcl.build] --> B["uitk.MarkingMenu(host=…)"]
     B --> C[uitk.Switchboard]
     C --> D[ui/*.ui]
-    C --> E[slots/maya/*.py]
+    C --> E[slots/*.py]
 ```
+
+`Tcl.launch` resolves the host's adapter from its toolkit (`Tcl.ADAPTERS`: `mtk.MayaMarkingMenuHost` / `btk.BlenderMarkingMenuHost`, each a `uitk.MarkingMenuHost` to the menu and a `uitk.MarkingMenuLaunchHost` to the launcher), defers through it, and `Tcl.build` makes the one `uitk.MarkingMenu(host=…)`: the host's main window, activation-key half, mouse and window stacking are the adapter's; the native-menu pages (`ui/<host>_menus`), the both-button chord's `<host>#startmenu` and the `{host}` context tag come from the host name.
 
 `uitk.Switchboard` pairs each `.ui` file with a slot module **of the same basename**, then connects each widget's `objectName` to a method of the same name on the slot class:
 
 ```
-ui/materials.ui          ──pairs with──►   slots/maya/materials.py
+ui/materials.ui          ──pairs with──►   slots/materials.py
   └─ widget objectName "b005"  ──calls──►    def b005(self): ...
   └─ widget objectName "b005"  ──setup──►    def b005_init(self, widget): ...  (optional)
 ```
@@ -81,7 +83,7 @@ Submenu routing: a widget's `accessibleName` (e.g. `"cameras#lower"`) names the 
 
 ## Customization
 
-`Tcl.launch` forwards anything extra to the DCC's entry class:
+`Tcl.launch` forwards anything extra to `Tcl.build` and the `uitk.MarkingMenu` it makes (a relative `slot_source` is relative to the `tentacle` package):
 
 ```python
 Tcl.launch(
@@ -97,19 +99,40 @@ Tcl.launch(
 
 User preferences (theme, repeat-last shortcut, etc.) live in the in-app **Preferences** panel.
 
+## Standalone apps
+
+The content-pipeline tools that need no DCC -- the Map Compositor, Map Converter,
+Map Packer and Mesh Converter, the Metashape / RealityCapture / Brush Splat
+photogrammetry workflows, the Substance, Marmoset and Unity workflows, the WebXR
+Preview and Look Match -- are [extapps](https://github.com/m3trik/extapps)', a
+separate product: each app's engine, panel and Slots class live there. In Maya or
+Blender the menus open nine of them by name through uitk's external-app handler,
+which finds them wherever extapps is installed: the Map Packer, Converter and
+Compositor and the three photogrammetry workflows (Materials), the Mesh Converter
+and the Unity Workflow (Scene) and the WebXR Preview (Rendering); the UI Browser
+lists them all. The Unity Workflow and the WebXR Preview get the host's engine
+(`mtk` / `btk` `UnityBridge`, `WebXrPreview`), so they send the scene as well as a
+file: the host exports, the app delivers. Outside
+a DCC, `extapps` (or `python -m extapps [app]`) opens them. tentacle does not
+depend on extapps; the `tentacletk[apps]` extra declares the extapps range it
+works with. With extapps missing, the first app opened installs it inside that
+range; one installed outside it is offered an update instead of launching.
+
 ## Project layout
 
 ```
 tentacle/
-├── tcl.py                 Tcl.launch — host detection + the shared activation-key/chord contract
-├── tcl_maya.py            TclMaya entry point
-├── tcl_max.py             TclMax  (wrapper, no slot library yet)
-├── tcl_blender.py         TclBlender entry point — Qt host + keymap bridge + launcher + add-on
+├── tcl.py                 Tcl.launch / Tcl.build — the one launcher: host detection, ONE
+│                          uitk.MarkingMenu(host=…) per host, the activation-key/chord contract
+├── tcl_blender.py         Blender add-on stub — bl_info, register/unregister, launch/reload/diagnose
+├── tentacle_installer.py  the one-file installer (Maya drop-in, Blender add-on): install/update/uninstall
 ├── slots/
-│   ├── _slots.py          Slots base — repeat-last-command shortcut
-│   ├── maya/              ~60 SlotsMaya subclasses
-│   └── blender/           SlotsBlender subclasses (Phase 3+)
-└── ui/                    .ui definitions; maya_menus/ + blender_menus/ hold DCC submenus
+│   ├── _slots.py          Slots base — self.tk (the host toolkit), requires / hide_unless,
+│   │                      launch_app, run_operation
+│   ├── <category>.py      one Slots class per marking-menu category, both hosts
+│   └── tools/             one Slots class per tool panel (Qt helpers in _<tool>/)
+└── ui/                    .ui definitions; tools/ the tool panels; maya_menus/ + blender_menus/ the
+                           chord menus' pages onto each host's own menus (navigation, no Slots class)
 ```
 
 ## Platform support
@@ -117,8 +140,7 @@ tentacle/
 | DCC         | Status                                                 |
 | ----------- | ------------------------------------------------------ |
 | Maya 2025+  | Full — entry point, slot library, all menus wired.     |
-| Blender     | Entry point + keymap activation live ([`TclBlender`](../tentacle/tcl_blender.py)); slot port in progress. |
-| 3ds Max     | Wrapper only ([`TclMax`](../tentacle/tcl_max.py)).         |
+| Blender     | Full — the same launcher, slot library and tool panels as Maya (a Maya-only tool is hidden); blendertk hosts Qt and bridges the activation key from the 3D View keymap ([`tcl_blender.py`](../tentacle/tcl_blender.py) is the add-on stub). |
 
 ## Development
 

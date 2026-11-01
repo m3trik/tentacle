@@ -100,9 +100,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Select objects that are an instance of the current selection.
+     <string>Select the selected objects together with their instances.
 
-If no user selection exists, function will select all instanced objects in the scene.</string>
+With 'All Instanced Objects' on (option box), select every instanced object in the scene.</string>
     </property>
     <property name="text">
      <string>Select Instances</string>
@@ -148,7 +148,7 @@ If no user selection exists, function will select all instanced objects in the s
      </size>
     </property>
     <property name="toolTip">
-     <string>Uninstance selected objects. (no selection is needed for 'all' flag)</string>
+     <string>Give each selected object its own copy of the shape (Maya) or data (Blender) it shares with its instances.</string>
     </property>
     <property name="text">
      <string>Un-Instance Selected</string>
@@ -194,7 +194,7 @@ If no user selection exists, function will select all instanced objects in the s
      </size>
     </property>
     <property name="toolTip">
-     <string>The first selected object will be instanced across all other selected objects.</string>
+     <string>Instance the source across all the other selected objects: the first selected object (Maya) or the active object (Blender).</string>
     </property>
     <property name="text">
      <string>Convert to Instances</string>

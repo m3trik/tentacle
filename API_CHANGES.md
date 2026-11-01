@@ -1,5 +1,2710 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ c55b8700)._
+_Diff vs the last release (origin/main @ 08708eb0)._
 
-No public API changes since the last release (origin/main @ c55b8700).
+## Moved out (211)
+
+- `__init__.py::greeting` → `tentacle.Tcl.greeting` (from 0.17.0)
+- `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
+- `slots/_animation.py::AnimationMixin.list000_init` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
+- `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_display.py::DisplayMixin.list000_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_duplicate.py::DuplicateMixin` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
+- `slots/_duplicate.py::DuplicateMixin.header_init` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cleanup_console_report` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cleanup_popup_html` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cmb000_init` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.mesh_cleanup_tooltip` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.report_cleanup_failure` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.evaluate_warnings` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.hudTextEdit_init` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_prev_command` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_warning_details` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_warning_icons` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_lighting.py::LightingMixin` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/_lighting.py::LightingMixin.kelvin_tooltip` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/_main.py::MainMixin` → `tentacle.slots.main.MainSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b003` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b006` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b006_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b014` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b028` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b029` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b030` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b031` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b032` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b033` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.header_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.lbl002` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.list001_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.tbl000_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.txt000_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
+- `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
+- `slots/_nurbs.py::NurbsMixin` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
+- `slots/_nurbs.py::NurbsMixin.list000_init` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b000` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b001` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b002` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.b011` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb004` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb004_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb005` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb005_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb006` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb006_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.header_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.tb000` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_rendering.py::RenderingMixin` → `tentacle.slots.rendering.RenderingSlots` (from 0.17.0)
+- `slots/_rigging.py::RiggingMixin` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.b019` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.list003_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb001` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb001_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb002` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb002_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb003` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin.list001_init` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin.tb004` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b020` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b021` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b022` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b023` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b024` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b_reset_bindings` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.check_for_update` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_default_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_left_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_left_right_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_middle_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_right_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.ecosystem_dists` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.header_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.tb000` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b000` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b000_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b029_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b030_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.cmb003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.get_map_size` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.s003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.active_object` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.effective_fps` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.ensure_edit_mode` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.ensure_object_mode` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.invoke_op` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.resolve_op` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.selected_objects` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.set_viewport_tool` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.transfer_from_active` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/blender.py::BlenderSlots` → `blendertk.BlenderUiHandler` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b006_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b007_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b008_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b012_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b013_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin.insert_component_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin.insert_selection_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::StatusMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::StatusMixin.insert_scene_status` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::WarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/lighting.py::LightingSlots.b002_init` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/blender/materials.py::MaterialsSlots.b_shader_editor` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/blender/polygons.py::PolygonsSlots.b038_init` → `tentacle.slots.polygons.PolygonsSlots` (from 0.17.0)
+- `slots/blender/scene.py::SceneSlots.b008` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/blender/transform.py::TransformSlots.tb004` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/maya/_slots_maya.py::SlotsMaya` → `tentacle.Slots` (from 0.17.0)
+- `slots/maya/_slots_maya.py::SlotsMaya.require_selection` → `tentacle.Slots` (from 0.17.0)
+- `slots/maya/arnold.py::ArnoldSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/cache.py::CacheSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/constrain.py::ConstrainSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/control.py::ControlSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/curves.py::CurvesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/deform.py::DeformSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b000` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b001` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b002` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b003` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b004` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b005` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b006` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b007` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b009` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b011` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b012` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b021` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b022` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b023` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b024` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/edit_mesh.py::EditMeshSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/editors.py::EditorsSlots.getEditorWidget` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/maya/effects.py::EffectsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/fields_solvers.py::FieldsSolversSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/fluids.py::FluidsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/generate.py::GenerateSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/help.py::HelpSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin.insert_component_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin.insert_selection_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::StatusMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::StatusMixin.insert_scene_status` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::WarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/key.py::KeySlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/lighting_shading.py::LightingShadingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mash.py::MashSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh.py::MeshSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh_display.py::MeshDisplaySlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh_tools.py::MeshToolsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/ncloth.py::NClothSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nconstraint.py::NConstraintSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nhair.py::NHairSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nparticles.py::NParticlesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nurbs.py::NurbsSlots.b016` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
+- `slots/maya/playback.py::PlaybackSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/render.py::RenderSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk000` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk001` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk002` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.s000` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/select.py::SelectSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.chkxxx` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.get_selection_tool` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.set_selection_tool` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/maya/skeleton.py::SkeletonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/skin.py::SkinSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/stereo.py::StereoSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` → `tentacle.slots.subdivision.SubdivisionSlots` (from 0.17.0)
+- `slots/maya/surfaces.py::SurfacesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/texturing.py::TexturingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/toon.py::ToonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/transform.py::TransformSlots.setTransformSnap` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/maya/visualize.py::VisualizeSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/windows.py::WindowsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `tcl.py::QtPlatformUnavailable` → `blendertk.QtPlatformUnavailable` (from 0.17.0)
+- `tcl_blender.py::BlenderHost.reload` → `tentacle.Tcl.reload` (from 0.17.0)
+- `tcl_blender.py::Diagnostics` → `blendertk.ActivationDiagnostics` (from 0.17.0)
+- `tcl_blender.py::Diagnostics.report` → `blendertk.ActivationDiagnostics` (from 0.17.0)
+- `tcl_blender.py::TclBlender` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.get_main_window` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.keyPressEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.keyReleaseEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.set_activation_key` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.showEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::blender_native_window` → `blendertk.BlenderWindow.main_qwindow` (from 0.17.0)
+- `tcl_blender.py::disable_click_debug` → `blendertk.ClickDebugger.disable` (from 0.17.0)
+- `tcl_blender.py::enable_click_debug` → `blendertk.ClickDebugger.enable` (from 0.17.0)
+- `tcl_blender.py::ensure_blender_widget` → `blendertk.QtRuntime.ensure_widget` (from 0.17.0)
+- `tcl_blender.py::ensure_qapp` → `blendertk.QtRuntime.ensure_qapp` (from 0.17.0)
+- `tcl_blender.py::start_event_pump` → `blendertk.QtRuntime.start_pump` (from 0.17.0)
+- `tcl_max.py::TclMax` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.get_main_window` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.hideEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.showEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_maya.py::TclMaya` → `tentacle.Tcl.build` (from 0.17.0)
+
+## Added (1660)
+
+- `__init__.py::MOVED_NAMES(constant)`
+- `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
+- `slots/_slots.py::Slots.hide_unless(self, widget, available) -> bool`
+- `slots/_slots.py::Slots.host_key(self, base: str) -> str`
+- `slots/_slots.py::Slots.launch_app(self, app, show=True)`
+- `slots/_slots.py::Slots.require_selection(self, message=None)`
+- `slots/_slots.py::Slots.requires(self, widget, host) -> bool`
+- `slots/_slots.py::Slots.run_operation(self, call, *args, empty=None, **kwargs)`
+- `slots/_slots.py::Slots.tk(self)`
+- `slots/animation.py::AnimationSlots(class)`
+- `slots/animation.py::AnimationSlots.b000(self)`
+- `slots/animation.py::AnimationSlots.b001(self)`
+- `slots/animation.py::AnimationSlots.b004(self)`
+- `slots/animation.py::AnimationSlots.b005(self)`
+- `slots/animation.py::AnimationSlots.b006(self)`
+- `slots/animation.py::AnimationSlots.list000(self, item)`
+- `slots/animation.py::AnimationSlots.list000_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb000(self, widget)`
+- `slots/animation.py::AnimationSlots.tb000_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb001(self, widget)`
+- `slots/animation.py::AnimationSlots.tb001_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb002(self, widget)`
+- `slots/animation.py::AnimationSlots.tb002_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb003(self, widget)`
+- `slots/animation.py::AnimationSlots.tb003_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb004(self, widget)`
+- `slots/animation.py::AnimationSlots.tb004_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb005(self, widget)`
+- `slots/animation.py::AnimationSlots.tb005_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb006(self, widget)`
+- `slots/animation.py::AnimationSlots.tb006_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb007(self, widget)`
+- `slots/animation.py::AnimationSlots.tb007_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb008(self, widget)`
+- `slots/animation.py::AnimationSlots.tb008_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb009(self, widget)`
+- `slots/animation.py::AnimationSlots.tb009_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb010(self, widget)`
+- `slots/animation.py::AnimationSlots.tb010_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb011(self, widget)`
+- `slots/animation.py::AnimationSlots.tb011_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb012(self, widget)`
+- `slots/animation.py::AnimationSlots.tb012_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb013(self, widget)`
+- `slots/animation.py::AnimationSlots.tb013_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb014(self, widget)`
+- `slots/animation.py::AnimationSlots.tb014_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb015(self, widget)`
+- `slots/animation.py::AnimationSlots.tb015_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb016(self, widget)`
+- `slots/animation.py::AnimationSlots.tb016_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb017(self, widget)`
+- `slots/animation.py::AnimationSlots.tb017_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb018(self, widget)`
+- `slots/animation.py::AnimationSlots.tb018_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb019(self, widget)`
+- `slots/animation.py::AnimationSlots.tb019_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb020(self, widget)`
+- `slots/animation.py::AnimationSlots.tb021(self, widget)`
+- `slots/animation.py::AnimationSlots.tb021_init(self, widget)`
+- `slots/cameras.py::CamerasSlots(class)`
+- `slots/cameras.py::CamerasSlots.b000(self)`
+- `slots/cameras.py::CamerasSlots.b001(self)`
+- `slots/cameras.py::CamerasSlots.b002(self)`
+- `slots/cameras.py::CamerasSlots.b003(self)`
+- `slots/cameras.py::CamerasSlots.b004(self)`
+- `slots/cameras.py::CamerasSlots.b005(self)`
+- `slots/cameras.py::CamerasSlots.b006(self)`
+- `slots/cameras.py::CamerasSlots.b007(self)`
+- `slots/cameras.py::CamerasSlots.b010(self)`
+- `slots/cameras.py::CamerasSlots.b011(self)`
+- `slots/cameras.py::CamerasSlots.b012(self)`
+- `slots/cameras.py::CamerasSlots.b013(self)`
+- `slots/cameras.py::CamerasSlots.list000(self, item)`
+- `slots/cameras.py::CamerasSlots.list000_init(self, widget)`
+- `slots/crease.py::CreaseSlots(class)`
+- `slots/crease.py::CreaseSlots.b002(self, widget)`
+- `slots/crease.py::CreaseSlots.tb000(self, widget)`
+- `slots/crease.py::CreaseSlots.tb000_init(self, widget)`
+- `slots/deformation.py::DeformationSlots(class)`
+- `slots/deformation.py::DeformationSlots.tb001(self, widget)`
+- `slots/deformation.py::DeformationSlots.tb001_init(self, widget)`
+- `slots/display.py::DisplaySlots(class)`
+- `slots/display.py::DisplaySlots.b013(self)`
+- `slots/display.py::DisplaySlots.b014(self)`
+- `slots/display.py::DisplaySlots.header_init(self, widget)`
+- `slots/display.py::DisplaySlots.list000(self, item)`
+- `slots/display.py::DisplaySlots.list000_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots(class)`
+- `slots/duplicate.py::DuplicateSlots.b000(self)`
+- `slots/duplicate.py::DuplicateSlots.b005(self)`
+- `slots/duplicate.py::DuplicateSlots.b006(self)`
+- `slots/duplicate.py::DuplicateSlots.b007(self)`
+- `slots/duplicate.py::DuplicateSlots.b008(self)`
+- `slots/duplicate.py::DuplicateSlots.header_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb000(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb000_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb001(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb001_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb002(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb002_init(self, widget)`
+- `slots/edit.py::EditSlots(class)`
+- `slots/edit.py::EditSlots.b000(self)`
+- `slots/edit.py::EditSlots.b_channels(self)`
+- `slots/edit.py::EditSlots.cleanup_console_report(self, title, lines)`
+- `slots/edit.py::EditSlots.cleanup_popup_html(header, rows)`
+- `slots/edit.py::EditSlots.cmb000(self, index, widget)`
+- `slots/edit.py::EditSlots.cmb000_init(self, widget)`
+- `slots/edit.py::EditSlots.header_init(self, widget)`
+- `slots/edit.py::EditSlots.list000(self, item)`
+- `slots/edit.py::EditSlots.list000_init(self, widget)`
+- `slots/edit.py::EditSlots.list001(self, item)`
+- `slots/edit.py::EditSlots.list001_init(self, widget)`
+- `slots/edit.py::EditSlots.mesh_cleanup_tooltip(self)`
+- `slots/edit.py::EditSlots.report_cleanup_failure(self, scope, mode, error)`
+- `slots/edit.py::EditSlots.tb000(self, widget)`
+- `slots/edit.py::EditSlots.tb000_init(self, widget)`
+- `slots/edit.py::EditSlots.tb001(self, widget)`
+- `slots/edit.py::EditSlots.tb001_init(self, widget)`
+- `slots/edit.py::EditSlots.tb002(self, widget)`
+- `slots/edit.py::EditSlots.tb004(self, widget)`
+- `slots/edit.py::EditSlots.tb004_init(self, widget)`
+- `slots/edit.py::EditSlots.tb005(self, widget)`
+- `slots/edit.py::EditSlots.tb005_init(self, widget)`
+- `slots/editors.py::EditorsSlots(class)`
+- `slots/editors.py::EditorsSlots.b000(self)`
+- `slots/editors.py::EditorsSlots.b001(self)`
+- `slots/editors.py::EditorsSlots.b002(self)`
+- `slots/editors.py::EditorsSlots.b003(self)`
+- `slots/editors.py::EditorsSlots.b004(self)`
+- `slots/editors.py::EditorsSlots.b005(self)`
+- `slots/editors.py::EditorsSlots.b006(self)`
+- `slots/editors.py::EditorsSlots.b007(self)`
+- `slots/editors.py::EditorsSlots.b008(self)`
+- `slots/editors.py::EditorsSlots.b009(self)`
+- `slots/editors.py::EditorsSlots.b010(self)`
+- `slots/editors.py::EditorsSlots.b011(self)`
+- `slots/editors.py::EditorsSlots.b012(self)`
+- `slots/editors.py::EditorsSlots.b013(self)`
+- `slots/editors.py::EditorsSlots.b014(self)`
+- `slots/editors.py::EditorsSlots.b015(self)`
+- `slots/editors.py::EditorsSlots.b016(self)`
+- `slots/editors.py::EditorsSlots.b017(self)`
+- `slots/editors.py::EditorsSlots.b018(self)`
+- `slots/editors.py::EditorsSlots.list000(self, item)`
+- `slots/editors.py::EditorsSlots.list000_init(self, widget)`
+- `slots/hud.py::HudSlots(class)`
+- `slots/hud.py::HudSlots.construct_hud(self) -> None`
+- `slots/hud.py::HudSlots.evaluate_warnings(self) -> list`
+- `slots/hud.py::HudSlots.hudTextEdit_init(self, widget) -> None`
+- `slots/hud.py::HudSlots.insert_component_info(self, hud, summary) -> None`
+- `slots/hud.py::HudSlots.insert_prev_command(self, hud, method) -> None`
+- `slots/hud.py::HudSlots.insert_scene_status(self, hud, status) -> None`
+- `slots/hud.py::HudSlots.insert_selection_info(self, hud, summary) -> None`
+- `slots/hud.py::HudSlots.insert_warning_details(self, hud, warnings) -> None`
+- `slots/hud.py::HudSlots.insert_warning_icons(self, hud, warnings) -> None`
+- `slots/hud.py::HudSlots.request_hud_build(self) -> None`
+- `slots/lighting.py::LightingSlots(class)`
+- `slots/lighting.py::LightingSlots.b000(self)`
+- `slots/lighting.py::LightingSlots.b001(self)`
+- `slots/lighting.py::LightingSlots.b002(self)`
+- `slots/lighting.py::LightingSlots.tb000(self, widget)`
+- `slots/lighting.py::LightingSlots.tb000_init(self, widget)`
+- `slots/main.py::MainSlots(class)`
+- `slots/main.py::MainSlots.list000(self, item)`
+- `slots/main.py::MainSlots.list000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots(class)`
+- `slots/materials.py::MaterialsSlots.b003(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b004(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b006(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b006_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.b007(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b008(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b009(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b010(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b011(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b013(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b014(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b015(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b016(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b018(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b019(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b020(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b021(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b022(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b023(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b024(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b025(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b026(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b027(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b028(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b029(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b030(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b031(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b032(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b033(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b034(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.header_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.lbl002(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.lbl004(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.lbl006(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.list000(self, item)`
+- `slots/materials.py::MaterialsSlots.list000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.list001(self, item)`
+- `slots/materials.py::MaterialsSlots.list001_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)`
+- `slots/materials.py::MaterialsSlots.tb001(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb001_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb002(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb002_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.tbl000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.txt000_init(self, widget)`
+- `slots/normals.py::NormalsSlots(class)`
+- `slots/normals.py::NormalsSlots.b000(self)`
+- `slots/normals.py::NormalsSlots.b001(self)`
+- `slots/normals.py::NormalsSlots.b002(self)`
+- `slots/normals.py::NormalsSlots.b004(self)`
+- `slots/normals.py::NormalsSlots.b006(self)`
+- `slots/normals.py::NormalsSlots.tb001(self, widget)`
+- `slots/normals.py::NormalsSlots.tb001_init(self, widget)`
+- `slots/normals.py::NormalsSlots.tb004(self, widget)`
+- `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
+- `slots/normals.py::NormalsSlots.tb010(self, widget)`
+- `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots(class)`
+- `slots/nurbs.py::NurbsSlots.b030(self)`
+- `slots/nurbs.py::NurbsSlots.b056(self)`
+- `slots/nurbs.py::NurbsSlots.b058(self)`
+- `slots/nurbs.py::NurbsSlots.list000(self, item)`
+- `slots/nurbs.py::NurbsSlots.list000_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb000(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb000_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb001(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb001_init(self, widget)`
+- `slots/pivot.py::PivotSlots(class)`
+- `slots/pivot.py::PivotSlots.b000(self)`
+- `slots/pivot.py::PivotSlots.b001(self)`
+- `slots/pivot.py::PivotSlots.b002(self, widget)`
+- `slots/pivot.py::PivotSlots.b004(self)`
+- `slots/pivot.py::PivotSlots.tb000(self, widget)`
+- `slots/pivot.py::PivotSlots.tb000_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb001(self, widget)`
+- `slots/pivot.py::PivotSlots.tb001_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb002(self, widget)`
+- `slots/pivot.py::PivotSlots.tb002_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb003(self, widget)`
+- `slots/pivot.py::PivotSlots.tb003_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots(class)`
+- `slots/polygons.py::PolygonsSlots.b000(self)`
+- `slots/polygons.py::PolygonsSlots.b001(self)`
+- `slots/polygons.py::PolygonsSlots.b003(self)`
+- `slots/polygons.py::PolygonsSlots.b005(self)`
+- `slots/polygons.py::PolygonsSlots.b006(self)`
+- `slots/polygons.py::PolygonsSlots.b007(self)`
+- `slots/polygons.py::PolygonsSlots.b008(self)`
+- `slots/polygons.py::PolygonsSlots.b009(self)`
+- `slots/polygons.py::PolygonsSlots.b011(self)`
+- `slots/polygons.py::PolygonsSlots.b012(self)`
+- `slots/polygons.py::PolygonsSlots.b022(self)`
+- `slots/polygons.py::PolygonsSlots.b032(self)`
+- `slots/polygons.py::PolygonsSlots.b034(self)`
+- `slots/polygons.py::PolygonsSlots.b038(self)`
+- `slots/polygons.py::PolygonsSlots.b043(self)`
+- `slots/polygons.py::PolygonsSlots.b047(self)`
+- `slots/polygons.py::PolygonsSlots.b049(self)`
+- `slots/polygons.py::PolygonsSlots.b051(self)`
+- `slots/polygons.py::PolygonsSlots.b053(self)`
+- `slots/polygons.py::PolygonsSlots.chk008(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.chk009(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.chk010(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.header_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb000(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb000_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb002(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb002_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb003(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb003_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb004(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb004_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb005(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb005_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb006(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb006_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb007(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb007_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb008(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb008_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb009(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb009_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots(class)`
+- `slots/preferences.py::PreferencesSlots.b001(self)`
+- `slots/preferences.py::PreferencesSlots.b008(self)`
+- `slots/preferences.py::PreferencesSlots.b009(self)`
+- `slots/preferences.py::PreferencesSlots.b010(self)`
+- `slots/preferences.py::PreferencesSlots.b011(self)`
+- `slots/preferences.py::PreferencesSlots.cmb001(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb001_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb002(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb002_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb003(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb003_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb004(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb004_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb005(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb005_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb006(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb006_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.header_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.s000_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.s001_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.tb000(self)`
+- `slots/rendering.py::RenderingSlots(class)`
+- `slots/rendering.py::RenderingSlots.b000(self, widget)`
+- `slots/rendering.py::RenderingSlots.b001(self)`
+- `slots/rendering.py::RenderingSlots.b003(self)`
+- `slots/rendering.py::RenderingSlots.b004(self)`
+- `slots/rendering.py::RenderingSlots.tb000(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb000_init(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb001(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots(class)`
+- `slots/rigging.py::RiggingSlots.b004(self)`
+- `slots/rigging.py::RiggingSlots.b020(self)`
+- `slots/rigging.py::RiggingSlots.cmb001(self, index, widget)`
+- `slots/rigging.py::RiggingSlots.cmb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.cmb002(self, index, widget)`
+- `slots/rigging.py::RiggingSlots.cmb002_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.header_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb000(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb000_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb001(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb003(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb003_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb004(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb004_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb005(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb005_init(self, widget)`
+- `slots/scene.py::SceneSlots(class)`
+- `slots/scene.py::SceneSlots.b001(self)`
+- `slots/scene.py::SceneSlots.b003(self)`
+- `slots/scene.py::SceneSlots.b004(self)`
+- `slots/scene.py::SceneSlots.b005(self)`
+- `slots/scene.py::SceneSlots.b006(self)`
+- `slots/scene.py::SceneSlots.b009(self)`
+- `slots/scene.py::SceneSlots.b010(self)`
+- `slots/scene.py::SceneSlots.b011(self)`
+- `slots/scene.py::SceneSlots.b012(self)`
+- `slots/scene.py::SceneSlots.b013(self)`
+- `slots/scene.py::SceneSlots.b014(self)`
+- `slots/scene.py::SceneSlots.b014_init(self, widget)`
+- `slots/scene.py::SceneSlots.b015(self)`
+- `slots/scene.py::SceneSlots.b016(self)`
+- `slots/scene.py::SceneSlots.b017(self)`
+- `slots/scene.py::SceneSlots.b018(self)`
+- `slots/scene.py::SceneSlots.b019(self)`
+- `slots/scene.py::SceneSlots.b_cleanup(self)`
+- `slots/scene.py::SceneSlots.cmb002(self, index, widget)`
+- `slots/scene.py::SceneSlots.cmb002_init(self, widget)`
+- `slots/scene.py::SceneSlots.list000(self, item)`
+- `slots/scene.py::SceneSlots.list000_init(self, widget)`
+- `slots/scene.py::SceneSlots.list001(self, item)`
+- `slots/scene.py::SceneSlots.list001_init(self, widget)`
+- `slots/scene.py::SceneSlots.list002(self, item)`
+- `slots/scene.py::SceneSlots.list002_init(self, widget)`
+- `slots/scene.py::SceneSlots.list003(self, item)`
+- `slots/scene.py::SceneSlots.list003_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb001(self, widget)`
+- `slots/scene.py::SceneSlots.tb001_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb002(self, widget)`
+- `slots/scene.py::SceneSlots.tb002_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb003(self, widget)`
+- `slots/scene.py::SceneSlots.tb003_init(self, widget)`
+- `slots/selection.py::SelectionSlots(class)`
+- `slots/selection.py::SelectionSlots.b001(self)`
+- `slots/selection.py::SelectionSlots.b002(self, widget)`
+- `slots/selection.py::SelectionSlots.b002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b003(self, widget)`
+- `slots/selection.py::SelectionSlots.b003_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b004(self, widget)`
+- `slots/selection.py::SelectionSlots.b004_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b005(self, widget)`
+- `slots/selection.py::SelectionSlots.b005_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b006(self, widget)`
+- `slots/selection.py::SelectionSlots.b006_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b007(self, widget)`
+- `slots/selection.py::SelectionSlots.b007_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk000(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk001(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk002(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk004(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk004_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk005(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk005_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk006(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk006_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk007(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk007_init(self, widget)`
+- `slots/selection.py::SelectionSlots.cmb001(self, index, widget)`
+- `slots/selection.py::SelectionSlots.cmb001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.cmb002(self, index, widget)`
+- `slots/selection.py::SelectionSlots.cmb002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.list000(self, item)`
+- `slots/selection.py::SelectionSlots.list000_init(self, widget)`
+- `slots/selection.py::SelectionSlots.list001(self, item)`
+- `slots/selection.py::SelectionSlots.list001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb000(self, widget)`
+- `slots/selection.py::SelectionSlots.tb000_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb001(self, widget)`
+- `slots/selection.py::SelectionSlots.tb001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb002(self, widget)`
+- `slots/selection.py::SelectionSlots.tb002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb003(self, widget)`
+- `slots/selection.py::SelectionSlots.tb003_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb004(self, widget)`
+- `slots/selection.py::SelectionSlots.tb004_init(self, widget)`
+- `slots/settings.py::SettingsSlots(class)`
+- `slots/settings.py::SettingsSlots.b020(self)`
+- `slots/settings.py::SettingsSlots.b021(self)`
+- `slots/settings.py::SettingsSlots.b022(self)`
+- `slots/settings.py::SettingsSlots.b023(self)`
+- `slots/settings.py::SettingsSlots.b024(self)`
+- `slots/settings.py::SettingsSlots.b_reset_bindings(self)`
+- `slots/settings.py::SettingsSlots.check_for_update(self)`
+- `slots/settings.py::SettingsSlots.cmb_bind_default_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_left_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_left_right_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_middle_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_right_init(self, widget)`
+- `slots/settings.py::SettingsSlots.ecosystem_dists(cls, installed=None)`
+- `slots/settings.py::SettingsSlots.header_init(self, widget)`
+- `slots/settings.py::SettingsSlots.tb000(self)`
+- `slots/settings.py::SettingsSlots.tb001(self)`
+- `slots/subdivision.py::SubdivisionSlots(class)`
+- `slots/subdivision.py::SubdivisionSlots.b000(self)`
+- `slots/subdivision.py::SubdivisionSlots.b001(self)`
+- `slots/subdivision.py::SubdivisionSlots.b005(self)`
+- `slots/subdivision.py::SubdivisionSlots.b008(self)`
+- `slots/subdivision.py::SubdivisionSlots.b011(self)`
+- `slots/subdivision.py::SubdivisionSlots.b028(self)`
+- `slots/subdivision.py::SubdivisionSlots.s000(self, value: int, widget: object) -> None`
+- `slots/subdivision.py::SubdivisionSlots.s000_init(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.s001(self, value: int, widget: object) -> None`
+- `slots/subdivision.py::SubdivisionSlots.s001_init(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.tb000(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.tb000_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots(class)`
+- `slots/symmetry.py::SymmetrySlots.chk000(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk000_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk001(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk001_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk002(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk002_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk004(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk004_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk005(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk005_init(self, widget)`
+- `slots/tools/__init__.py::HOSTS(constant)`
+- `slots/tools/__init__.py::RENAMED_FROM(constant)`
+- `slots/tools/__init__.py::RENAMED_HOSTS(constant)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge(class)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.PRESETS_ROOT(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.bridge_class(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.clear_bake_source(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.list_template_modes(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.live_param_tooltip_blocks(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.make_bridge(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.params_module(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.resolve_scope_objects(self, scope: str)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.scoped_objects(self, params, warn: bool = True)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.select_bake_source(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.set_bake_source_from_selection(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.template_dir(self)`
+- `slots/tools/_blendshape_animator/sort_item.py::NumericSortItem(class)`
+- `slots/tools/_channels/attribute_form.py::AttributeForm(class)`
+- `slots/tools/_channels/attribute_form.py::AttributeForm.show(cls, sb, parent, types, on_create, keyable=True)`
+- `slots/tools/_channels/enum_cell.py::EnumCell(class)`
+- `slots/tools/_channels/enum_cell.py::EnumCell.build(cls, sb, attr_name, labels, indices, current, on_activated, on_action)`
+- `slots/tools/_channels/enum_cell.py::EnumCell.show_index(combo, index)`
+- `slots/tools/_channels/inline_rename.py::FooterRename(class)`
+- `slots/tools/_channels/inline_rename.py::FooterRename.edit(self)`
+- `slots/tools/_channels/inline_rename.py::InlineRename(class)`
+- `slots/tools/_channels/inline_rename.py::InlineRename.eventFilter(self, watched, event) -> bool`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController(class)`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_analysis(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_ignored_paths(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.diff_records(missing, extra, reparented, fuzzy_matches) -> List[ptk.HierarchyDifference]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.diff_result(self) -> Optional[dict]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.effective_diff(self) -> Dict[str, list]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.get_recent_reference_scenes(self) -> List[str]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.ignored_set(self, tree_widget) -> set`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.is_path_ignored(self, tree_widget, path: str) -> bool`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.log_diff_results(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.on_window_hidden(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.populate_reference_tree(self, tree_widget, reference_path: str = None) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.recent_references(self)`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.reference_path(self) -> str`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_styling(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_trees(self, restore_selection: bool = True) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.update_header_tooltips(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.write_diff_report(cls, missing, extra, reparented, fuzzy_matches) -> Optional[str]`
+- `slots/tools/_hierarchy_sync/controller.py::LEGACY_RECENT_KEY(constant)`
+- `slots/tools/_hierarchy_sync/controller.py::LOG_LIMIT(constant)`
+- `slots/tools/_hierarchy_sync/controller.py::RECENT_LIMIT(constant)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::PLACEHOLDERS(constant)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher(class)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.build_tree_index(self, widget) -> Tuple[dict, dict, Dict[str, list]]`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.find_path_matches(self, target_path: str, by_full: dict, by_clean_full: dict, by_last: dict, prefer_cleaned: bool = False, strict: bool = False) -> Tuple[List[Any], str]`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.item_key(self, item) -> str`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.iter_items(widget)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.log_matching_debug(self, path, candidates, strategy, prefix='') -> None`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.raw_item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::BROWSE_PLACEHOLDER(constant)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer(class)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_diff_options(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_difference_formatting(self, tree001, tree000) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_ignore_styling(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.build_item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.clear_tree_colors(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.condense_to_roots(paths) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.count_tree_items(tree_widget) -> int`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.filter_to_leaves(paths) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.format_tree_differences(self, tree_widget, tree_type, matcher, by_full, by_clean, by_last) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.get_selected_tree_items(self, tree_widget) -> list`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.get_tree_structure(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.matcher(self) -> TreePathMatcher`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_current_scene_tree(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_reference_tree(self, tree_widget, nodes, reference_name='Reference Scene') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_tree_with_hierarchy(self, tree_widget, nodes, tree_type='current')`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.restore_tree_selection(self, tree_widget, selected_paths) -> int`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.selected_item_keys(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.session(self)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.show_reference_error(self, tree_widget, reference_name='Reference Scene', message='File Not Found') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.show_reference_placeholder(self, tree_widget, reference_name='Reference Scene') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.store_tree_selection(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::OPEN_SCENE_PLACEHOLDER(constant)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::ORIG_TOOLTIP_ROLE(constant)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController(class)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.apply_notes_column_visibility(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.capture_context_row(self, pos)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.context_row(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.editor_closed(self, *_args)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.error_box(self, lead: str, name: str, error) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.filter_menu(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.footer_status(self, text, level='warning')`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.foreign_route(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.format_table_item(self, item, file_path, is_current)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.handle_item_selection(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.header_menu(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.include_type_checked_by_default(self, include_type) -> bool`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.include_type_tooltip(self, include_type) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.included_extensions(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.is_importable(self, path) -> bool`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.item_changed(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.item_double_clicked(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.label_open_action(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.message(self, text, *buttons)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.migrate_settings_notes(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.naming_options(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.norm(path) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.note(self, path) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.prepare_item_for_edit(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.refilter_on_naming_change(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.refresh_file_list(self, invalidate=False)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.report(self, message: str) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.restore_item_display(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.role(self, offset: int)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.row_path(self, row)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.row_references(self, path) -> list`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.scene_notes(self) -> 'ptk.SceneNotes'`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.select_item_silently(self, item, selected: bool) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.set_note(self, path, text) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.sync_reference_icons(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.sync_selection_to_references(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.table_signals_blocked(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.tk(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.type_extensions(cls, include_type)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_listing_footer(self, listed: int, referenced: int)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_table(self, file_names, file_list)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions(class)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.add_unlink_namespace_action(self, button)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.ask_scene_data(self, summary, namespace)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.convert_to_assembly(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.cycle_display_mode_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.toggle_reference_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_all(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_import_row(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_namespace_mode(self) -> str`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_references(self, namespaces)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unreference_all(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles(class)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.bake_foreign_path(self, path, project=None)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.close_scene(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.confirm_discard_unsaved(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.conversion_progress(self, text)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.copy_path(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.delete_scene(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.folder_structure_preview(self) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.import_paths(self, paths)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.normalize_structure_pattern(self, pattern: str) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_file_location(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_path(self, path) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_scene_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.rename_path(self, old_path, new_path, folder=None, item=None) -> Optional[str]`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.rename_scene(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_conversion(self, path)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_rig_mode(self, path)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_save_target(self, name, case_style, suffix, pattern) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_current_scene(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_scene_preview(self) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_to_workspace(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.wire_structure_tooltip(self, menu) -> None`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser(class)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.flash_footer(self, text, level='success')`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.mark_workspace(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.new_workspace(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.open_root_dir(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.restore_workspace_index(self, widget) -> bool`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.root_dir(self) -> str`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.save_workspace_selection(self, root_dir: str, workspace_name: str)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.select_workspace(self, path)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_project(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_root_to_current(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_workspace(self, workspace_path: str, invalidate: bool = True) -> bool`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_current_dir(self, text: Optional[str] = None)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_workspace_combo(self, root_dir=None)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_workspace_footer(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.workspace_dir(self) -> str`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
+- `slots/tools/_shot_manifest/export_preview.py::ExportPreviewMixin(class)`
+- `slots/tools/_shot_manifest/export_preview.py::ExportPreviewMixin.export(self) -> None`
+- `slots/tools/_shot_manifest/header_menu.py::HeaderMenuMixin(class)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_BEHAVIORS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_DESC(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_END(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_SECTION(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_START(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_STEP(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::ERROR_COLOR(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::HEADERS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData(class)`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.fmt_behavior(name: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.format_behavior_html(behaviors, broken=(), status_color=None, stale=(), disabled=(), marked=()) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.glyph_html(status: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.issues_html(issues: Iterable[Tuple[str, str]]) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.level(status: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.status_color(status: str) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.worst(statuses: Iterable[str]) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_data.py::PASTEL_STATUS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::SETTINGS_NS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::STEP_ICON_COLOR(constant)`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor(class)`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_header_options(self, menu) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_menu_actions(self, menu, item, selected: List[str] = ()) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_shot(self, shot, after: str) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_step(self, after: str) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.apply(self, steps: List[ptk.BuilderStep]) -> List[ptk.BuilderStep]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.begin_edit(self, item, column: int) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.commit_edit(self, item, column: int) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.decorate(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.edits_mode(self) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.enabled(self) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.hide_object(self, home: str, sheet_name: str, hidden: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.hide_steps(self, step_ids: List[str], hidden: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.load(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.move_object(self, step, obj, target) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refresh(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refuse_locked(self, step) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refuse_viewing(self, to: str = 'edit') -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.remove_step(self, step) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.rename_all(self, name: str, new: Optional[str] = None) -> int`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.reset(self, confirm: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.revert_object(self, home: str, sheet_name: str, name: str = '') -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.revert_step(self, step) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.save(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.set_behaviors(self, step_id: str, obj, behaviors: List[str]) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.show_hidden_objects(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.source_key(self) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.stale(self) -> List[str]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.unlocked_hidden_objects(self) -> List[Tuple[str, str]]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.view_original(self, on: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_source.py::ManifestSourceMixin(class)`
+- `slots/tools/_shot_manifest/manifest_source.py::ManifestSourceMixin.detect(self, gap: Optional[float] = None) -> None`
+- `slots/tools/_shot_manifest/mapping_picker.py::MappingPickerMixin(class)`
+- `slots/tools/_shot_manifest/range_column.py::RangeColumnMixin(class)`
+- `slots/tools/_shot_manifest/row_menus.py::RowMenusMixin(class)`
+- `slots/tools/_shot_manifest/store_follow.py::StoreFollowMixin(class)`
+- `slots/tools/_shot_manifest/store_follow.py::StoreFollowMixin.remove_callbacks(self) -> None`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin(class)`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
+- `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin(class)`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin.on_clip_menu(self, menu, clip_id: int) -> None`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin.on_gap_menu(self, menu, gap_start: float, gap_end: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin(class)`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clip_moved(self, clip_id: int, new_start: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clip_resized(self, clip_id: int, new_start: float, new_duration: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clips_batch_moved(self, moves) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clips_batch_resized(self, resizes) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_batch_moved(self, groups) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_deleted(self, clip_id: int, times: list) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_moved(self, clip_id: int, changes: list) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::FLOAT_ZERO_EPS(constant)`
+- `slots/tools/_shot_sequencer/clip_motion.py::KEY_MATCH_EPS(constant)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController(class)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.active_shot_id(self) -> Optional[int]`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.host(self)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.sequencer(self)`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin(class)`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_left_resized(self, original_prev_end: float, new_prev_end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_lock_all(self) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_lock_changed(self, gap_start: float, gap_end: float, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_moved(self, old_start: float, old_end: float, new_start: float, new_end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_resized(self, original_next_start: float, new_next_start: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_unlock_all(self) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_range_highlight_changed(self, start: float, end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::TIME_SNAP_EPS(constant)`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin(class)`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.on_key_menu(self, menu, key_groups: list) -> None`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.on_keys_tangent_dragged(self, groups: list, side: str, broken: bool) -> None`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.register_key_targets(self, editor_name: str, source) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin(class)`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_added(self, marker_id: int, time: float) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_changed(self, marker_id: int) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_moved(self, marker_id: int, new_time: float) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_removed(self, marker_id: int) -> None`
+- `slots/tools/_shot_sequencer/scene_callbacks.py::SceneCallbacksMixin(class)`
+- `slots/tools/_shot_sequencer/scene_callbacks.py::SceneCallbacksMixin.remove_callbacks(self) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin(class)`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.delete_track(self, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.hide_track(self, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_clip_locked(self, clip_id: int, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_clip_renamed(self, clip_id: int, new_label: str) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_header_menu(self, menu) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_key_selection_changed(self, key_groups: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_selection_changed(self, clip_ids: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_sub_track_selected(self, rows: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_track_menu(self, menu, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_track_selected(self, track_names: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.show_track(self, track_name: str) -> None`
+- `slots/tools/_shot_sequencer/shot_edit_dialog.py::ShotEditDialog(class)`
+- `slots/tools/_shot_sequencer/shot_edit_dialog.py::ShotEditDialog.show(parent=None, name: str = '', start: float = 1.0, end: float = 100.0, description: str = '', title: str = 'Shot', validate=None)`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin(class)`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.delete_shot(self, shot_id: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.delete_shots(self, scope: str = 'stale') -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.merge_shot_with(self, shot_id: int, other_id: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.move_shot_to_position(self, shot_id: int, position: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.on_zone_context_menu(self, zone: str, time: float, global_pos) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.split_shot_at(self, shot_id: int, time: float) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay(class)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.boundingRect(self) -> QtCore.QRectF`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.contextMenuEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverEnterEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverLeaveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverMoveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.item_class(cls, sb)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mouseMoveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mousePressEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mouseReleaseEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.paint(self, painter: QtGui.QPainter, option, widget=None)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer(class)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.add_gap_overlay(self, start: float, end: float, color: str = '#555555', alpha: int = 120, locked: bool = False, tail: bool = False, head: bool = False) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.claims_press(self, scene_pos) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear_gap_overlays(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear_shot_blocks(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.context_entries(self, time: float, entries: list) -> list`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.gesture_group_at(self, viewport_pos) -> Optional[str]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.legend(self, editor: str, rows: Tuple) -> Tuple`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.menu_zone(self, zone: str, time: float) -> str`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_move(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_press(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_release(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.of(cls, sequencer, sb)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.paint_lane(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.relayout(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.selected_shot(self) -> Optional[dict]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.set_all_gap_overlays_locked(self, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.set_shot_blocks(self, blocks: list) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.shot_block_at(self, time: float) -> Optional[dict]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.show_gap_overlays(self) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.time_bounds(self) -> Optional[Tuple[float, float]]`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin(class)`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin.on_shot_block_clicked(self, shot_name: str) -> None`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin.select_shot(self, shot_id: int) -> None`
+- `slots/tools/_shot_sequencer/transport.py::TransportMixin(class)`
+- `slots/tools/_shot_sequencer/transport.py::TransportMixin.on_playhead_moved(self, frame: float) -> None`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin(class)`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin.on_redo(self) -> None`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin.on_undo(self) -> None`
+- `slots/tools/_shot_sequencer/widget_sync.py::WidgetSyncMixin(class)`
+- `slots/tools/_shot_sequencer/widget_sync.py::WidgetSyncMixin.refresh(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController(class)`
+- `slots/tools/_shots/controller.py::ShotsController.confirm_removal(self, shots, scope: str = 'stale') -> bool`
+- `slots/tools/_shots/controller.py::ShotsController.delete_scope(self) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.label_apply_gap(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_delete_shots(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_shift_all(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_swap_shot(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_add_space(self, edge: str = 'leading') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_delete_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_delete_shots(self, scope: str = 'stale') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_detection_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_detection_mode_changed(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_drop_stale_shots_changed(self, checked: bool) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_fit_mode_changed(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_gap_changed(self, value, scope: str = 'all', respect_locks: bool = True) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_initial_length_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_move_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_navigate_shot(self, delta: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_new_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shift_all_shots(self, start: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_desc_changed(self, text: str) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_end_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_name_changed(self, text: str) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_selected(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_start_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_snap_whole_frames_changed(self, checked: bool) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_swap_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_trim_all_shots(self, edge: str = 'both') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_trim_empty(self, edge: str = 'both') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.refresh_state(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.remove_callbacks(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.shot_label(shot) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.swap_mode(self) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.swap_retain(self) -> list`
+- `slots/tools/_shots/controller.py::ShotsController.swap_target(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode(class)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.capture_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.clear_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_lightmaps(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_resolution(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_source(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_targets(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_transfer(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_uv_sets(self, src, dst) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_note(self, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.overwrite_note(cls, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.refusal_text(self, result, auto_note='', source_note='') -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.report(self, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.run(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.select_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_note(self, mode) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_tooltip(self) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.sync(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.terms(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.texture_note(self, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.tk(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.ui(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.uv_note(result) -> str`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable(class)`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.clear(self) -> None`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.destination_text(self, row) -> str`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.pending(self) -> bool`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.pick(self, key, path: str) -> None`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.show(self, rows, dest_dir: str, mode: str, replan) -> None`
+- `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.status_text(self, row, kept=None) -> str`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart(class)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.add_rule(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.clear_rules(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.create_project(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.header_init(self, widget)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.help_spec() -> dict`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.open_folder(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.remove_row(self, row)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.reset_row(self, row)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.reset_rules(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.tbl000_init(self, widget)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.tk(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.txt002_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart(class)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b000(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b001(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b002(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.btn_explore_folder(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.btn_open_workspace(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.chk000(self, checked) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.filter_workspaces(self, text) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.header_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.help_spec() -> dict`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.mark_root(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.new_project(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.populate_tree(self, tree_data: Dict) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.refresh_tree(self, invalidate: bool = False) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.save_template(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.selected_workspace(self) -> Optional[Dict]`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.set_to_workspace(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.tk(self)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.tree000_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.txt000_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.txt001_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.update_current_dir(self, text: Optional[str] = None) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.update_tree(self, filter_text: Optional[str] = None) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots(class)`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b000(self) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b001(self) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.header_init(self, widget) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.select_bridged(self) -> None`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots(class)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_analyze(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_build(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_clear_limits(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_fold(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_grab(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_ik_fk(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_ik_fk_init(self, widget)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_insert(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_limits_from_pose(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_rebuild(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_remove(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_rest(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.header_init(self, widget)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.match_end_control(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.parse_limits(text: str, channels: Sequence[str]) -> Dict[str, Tuple[Optional[float], Optional[float]]]`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.refresh_table(self)`
+- `slots/tools/audio_clips.py::AudioClipsSlots(class)`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b003(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b004(self, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b004_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_add_tracks(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_channels(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_cleanup_unused(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_export(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_remove_audio(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_remove_selected(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_rename_track(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_replace_track(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_select_carrier(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_sync_audio(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.cmb000(self, index, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.header_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.noun(self) -> str`
+- `slots/tools/audio_clips.py::AudioClipsSlots.s000_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.s001_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.select_track(self, name: str) -> bool`
+- `slots/tools/audio_clips.py::AudioClipsSlots.tb001(self, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.tb001_init(self, widget) -> None`
+- `slots/tools/bevel.py::BevelSlots(class)`
+- `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
+- `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots(class)`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b001(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b001_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b003(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b004(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b004_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b005(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b006(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b006_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b007(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b008(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b008_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.header_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.le000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.le001_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::COL_FRAME(constant)`
+- `slots/tools/blendshape_animator.py::COL_NAME(constant)`
+- `slots/tools/blendshape_animator.py::COL_STATUS(constant)`
+- `slots/tools/blendshape_animator.py::COL_TOPOLOGY(constant)`
+- `slots/tools/blendshape_animator.py::COL_WEIGHT(constant)`
+- `slots/tools/blendshape_animator.py::MODE_FRAME(constant)`
+- `slots/tools/blendshape_animator.py::MODE_WEIGHT(constant)`
+- `slots/tools/blendshape_animator.py::STATUS_KEYS(constant)`
+- `slots/tools/bridge.py::BridgeSlots(class)`
+- `slots/tools/bridge.py::BridgeSlots.header_init(self, widget)`
+- `slots/tools/bridge.py::BridgeSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/calculator.py::CalculatorSlots(class)`
+- `slots/tools/calculator.py::CalculatorSlots.frames_to_sec(self)`
+- `slots/tools/calculator.py::CalculatorSlots.get_current_time(self)`
+- `slots/tools/calculator.py::CalculatorSlots.get_fps(self)`
+- `slots/tools/calculator.py::CalculatorSlots.header_init(self, widget)`
+- `slots/tools/calculator.py::CalculatorSlots.on_backspace(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_clear(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_convert_units(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_equal(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_input(self, text)`
+- `slots/tools/calculator.py::CalculatorSlots.sec_to_frames(self)`
+- `slots/tools/channels.py::ChannelsSlots(class)`
+- `slots/tools/channels.py::ChannelsSlots.apply_launch_config(self, targets=None, filter=None, search=None)`
+- `slots/tools/channels.py::ChannelsSlots.cleanup_scene_callbacks(self)`
+- `slots/tools/channels.py::ChannelsSlots.cmb000(self, index)`
+- `slots/tools/channels.py::ChannelsSlots.cmb000_init(self, widget)`
+- `slots/tools/channels.py::ChannelsSlots.header_init(self, widget)`
+- `slots/tools/channels.py::ChannelsSlots.launch(sb, targets=None, filter=None, search=None)`
+- `slots/tools/channels.py::ChannelsSlots.show_create_menu(self, *args)`
+- `slots/tools/channels.py::ChannelsSlots.tbl000_init(self, widget)`
+- `slots/tools/color_id.py::ColorIdSlots(class)`
+- `slots/tools/color_id.py::ColorIdSlots.b000(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b001(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b002(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b003(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.header_init(self, widget)`
+- `slots/tools/color_id.py::ColorIdSlots.selected_button(self)`
+- `slots/tools/color_id.py::ColorIdSlots.target_color(self)`
+- `slots/tools/curtain.py::CurtainSlots(class)`
+- `slots/tools/curtain.py::CurtainSlots.b001_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.b002(self)`
+- `slots/tools/curtain.py::CurtainSlots.cmb000_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.header_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots(class)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.b001_init(self, widget)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.header_init(self, widget)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots(class)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.header_init(self, widget)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.toggle_weight_ui(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots(class)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.PRESETS_ROOT(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.b000(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.bridge_class(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.help_spec(self) -> dict`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.target_app(self) -> str`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots(class)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.header_init(self, widget)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots(class)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.header_init(self, widget)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.toggle_weight_ui(self)`
+- `slots/tools/duplicate_linear.py::INTERPOLATION_MODES(constant)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots(class)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.header_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.regroup_copies(self)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s015_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s016_init(self, widget)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots(class)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots.b000(self)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots.header_init(self, widget)`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots(class)`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b000(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b001(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b002(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b003(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.compact_slots(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.header_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.key_weights(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.make_weights_keyable(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.remove_group(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.republish_export(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.select_members(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tb000(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tb000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tbl000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.txt000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_off(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_on(self) -> None`
+- `slots/tools/exploded_view.py::ExplodedViewSlots(class)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b000(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b001(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b002(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b003(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.header_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots(class)`
+- `slots/tools/game_shader.py::GameShaderSlots.b000(self)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb002_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb003_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb004_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.header_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.lbl_graph_material(self)`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_name(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_prefix(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_suffix(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.normal_map_type(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.opacity_mode(self) -> Optional[str]`
+- `slots/tools/game_shader.py::GameShaderSlots.output_extension(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.shader_type(self) -> Optional[str]`
+- `slots/tools/game_shader.py::GameShaderSlots.txt000_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.txt002_init(self, widget)`
+- `slots/tools/hdr_manager.py::HdrManagerSlots(class)`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.add_hdr(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.clear_network(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.cmb000(self, index, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_reveal_in_explorer(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_file_node(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_skydome(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_transform(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map(self) -> Optional[str]`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map_preview(self) -> bool`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map_visibility(self) -> bool`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.header_init(self, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.open_sourceimages(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.slider000(self, value, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_diffuse(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_exposure(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_intensity(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_resolution(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_samples(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_specular(self, value) -> None`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots(class)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b003(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b005(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b006(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b007(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b008(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b009(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b011(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b012(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b013(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b014(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b015(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b016(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b017(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b018(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.cmb_diff_options_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.cmb_pull_options_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.header_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.session(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb001(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb002(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb002_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb003(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb003_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tree000_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tree001_init(self, widget)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots(class)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b000(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b001(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b002(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b004(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.header_init(self, widget)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.txt_suffix_init(self, widget)`
+- `slots/tools/image_tracer.py::ImageTracerSlots(class)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b002(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b003(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b004(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b005(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.blue_pencil_button(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.chk000(self, state)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.header_init(self, widget)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.txt000_init(self, widget)`
+- `slots/tools/key_stash.py::KeyStashSlots(class)`
+- `slots/tools/key_stash.py::KeyStashSlots.b000(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.b001(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.b003(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.chk001(self, checked: bool) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.header_init(self, widget) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.refresh(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.refresh_from_scene(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.store(self)`
+- `slots/tools/light_rig.py::LightRigSlots(class)`
+- `slots/tools/light_rig.py::LightRigSlots.b000(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.b001(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.cmb000(self, index, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.header_init(self, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.open_rig_folder(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.prompt_save(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.refresh(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots(class)`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.b000(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.btn_reset_defaults_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.clear_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.clear_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb002_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_device_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_page(self, index) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_page_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_resolution_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_scope_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.combine_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.fix_all(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.header_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.open_map_folder(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.open_output(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.rebake_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.revert_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_by_state(self, kind: str) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_exclusions_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_isolation_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.show_bake_state(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_bounces_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_gi_samples_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_samples_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.tbl_maps_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.track_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt000_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt_output_dir_init(self, widget) -> None`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots(class)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.b000(self)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.bridge_class(self)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.select_initial_template_index(self, pairs)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots(class)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.b001(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.cmb001_init(self, widget)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.header_init(self, widget)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.logger(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.move_to_folder(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.selection_mode(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.shader_type(self)`
+- `slots/tools/mirror.py::MirrorSlots(class)`
+- `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
+- `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/mirror.py::MirrorSlots.prepare_operation(self, objects)`
+- `slots/tools/naming.py::NamingSlots(class)`
+- `slots/tools/naming.py::NamingSlots.base_names(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.cmb_scope_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.dry_run(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.file_scope(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.header_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.logger(self)`
+- `slots/tools/naming.py::NamingSlots.scope(self) -> str`
+- `slots/tools/naming.py::NamingSlots.tb000(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb000_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb001(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb001_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb002(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb002_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb003(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb003_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt000(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt000_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt001(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt001_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.valid_suffixes(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots(class)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b000(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b001(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b006(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_convert_assembly(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_copy_path(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_delete_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_mark_workspace(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_new_workspace(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_open_file_location(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_open_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_rename_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_toggle_reference(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_unlink_import(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_unlink_import_all(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk000(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk003(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_filter_folder_structure(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_filter_suffix(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_hide_extension(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_hide_suffix(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_ignore_case(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_show_notes_column(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb000(self, index, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb_filter_target(self, index, widget=None)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.header_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.tbl000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt001(self, text)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt001_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt_subfolder_structure(self, text)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt_suffix(self, text)`
+- `slots/tools/render_effects.py::RenderEffectsSlots(class)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.b000(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_remove(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_webxr(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_webxr_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.cmb_effect(self, index, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.cmb_effect_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.focus(self, channel, objects, title='', apply=None, apply_text='')`
+- `slots/tools/render_effects.py::RenderEffectsSlots.header_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.stk_effects_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.ui_field(self, name)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.unfocus(self, *_args) -> None`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots(class)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.b000(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.bridge_class(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.list_template_modes(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.open_uv_editor(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.params_module(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.template_dir(self)`
+- `slots/tools/scene_exporter.py::SceneExporterSlots(class)`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b000(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b006(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b007(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b008(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b010(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b012(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb001_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb002_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb004_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb005_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb007_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb008_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.confirm(self, question: str) -> bool`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.decide_check_failure(self, check: str, messages: List[str], remaining: List[str]) -> str`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.export_data_node_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.header_init(self, widget)`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.ignore_groups_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.output_name_preview(self) -> str`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.save_output_dir(self, output_dir: str) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.save_output_name(self, output_name: str) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.txt000_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.txt001_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.workspace(self) -> str`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots(class)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b000(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b001(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b002(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.cmb002_init(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.header_init(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl000(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl001(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl002(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl_graph_material(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl_open_templates_dir(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.refresh_templates(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.rename_template_safe(self, widget, new_name)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.source_images_dir(self) -> str`
+- `slots/tools/shadow_rig.py::ShadowRigSlots(class)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.apply_source(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b001_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b002(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b002_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b003(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b003_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b009(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b009_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b010(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_follow(self, checked)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_follow_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_horizon_preview(self, checked)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_horizon_preview_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.cmb_type_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.detach_to_plane(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.header_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.prepare_operation(self, objects)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.rebuild_rig(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.reproject_sources(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.restore_expression(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s001(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s001_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s002(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s003(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.source_from_selection(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.txt_source_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots(class)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_avg(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_max(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_min(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_avg(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_max(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_min(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b023(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b024(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b025(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b026(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b034(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b035(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b036(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b037(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.cmb_move_scope_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.gather_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.gather_to_udim(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.header_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.linear_align(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.open_uv_editor(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.orient_edges(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.orient_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.randomize_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.s041(self, value, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb005(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb005_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb006(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb006_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb008(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb008_init(self, widget)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots(class)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b002(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b003(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b004(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.btn_settings(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.header_init(self, widget)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots(class)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_colors(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_shortcuts(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_shot_settings(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.cmb_shot(self, index)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.header_init(self, widget)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.spn_snap(self, value)`
+- `slots/tools/shots.py::ShotsSlots(class)`
+- `slots/tools/shots.py::ShotsSlots.b000(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_add_leading_space(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_add_trailing_space(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_apply_gap(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_delete_shots(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_move_shot(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_shift_all(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_swap_shot(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_both(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_leading(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_trailing(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_both(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_empty(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_leading(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_trailing(self)`
+- `slots/tools/shots.py::ShotsSlots.chk_drop_stale_shots(self, checked)`
+- `slots/tools/shots.py::ShotsSlots.chk_snap_whole_frames(self, checked)`
+- `slots/tools/shots.py::ShotsSlots.cmb_delete_scope(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_detection_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_fit_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_shot_select(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_swap_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_swap_with(self, index)`
+- `slots/tools/shots.py::ShotsSlots.header_init(self, widget)`
+- `slots/tools/shots.py::ShotsSlots.spn_detection(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_initial_length(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_shot_end(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_shot_start(self, value)`
+- `slots/tools/shots.py::ShotsSlots.txt_shot_desc(self, text=None)`
+- `slots/tools/shots.py::ShotsSlots.txt_shot_name(self, text=None)`
+- `slots/tools/smart_bake.py::SmartBakeSlots(class)`
+- `slots/tools/smart_bake.py::SmartBakeSlots.b000(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.b001(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.cmb_backup_init(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.cmb_scope_init(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.header_init(self, widget) -> None`
+- `slots/tools/snap.py::SnapSlots(class)`
+- `slots/tools/snap.py::SnapSlots.b000(self)`
+- `slots/tools/snap.py::SnapSlots.b000_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.b001(self)`
+- `slots/tools/snap.py::SnapSlots.b001_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.b002(self)`
+- `slots/tools/snap.py::SnapSlots.b002_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.header_init(self, widget)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots(class)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.b000(self)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.bridge_class(self)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.select_initial_template_index(self, pairs)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots(class)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.remove_rig(self)`
+- `slots/tools/texture_combine.py::TextureCombineSlots(class)`
+- `slots/tools/texture_combine.py::TextureCombineSlots.assign_options(self) -> Dict[str, Any]`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b000(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b001(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b002(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_assign_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_lightmaps_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_rotate_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_tt_lightmaps_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_atlas_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_mode_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_normalize_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_quality_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_set_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_shader_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_sizing_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_resolution_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_source_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_targets_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_transfer_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.combine(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.forget_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.header_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.material_affix(self)`
+- `slots/tools/texture_combine.py::TextureCombineSlots.open_output_folder(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.overwrites_target(self) -> bool`
+- `slots/tools/texture_combine.py::TextureCombineSlots.parse_scale(text: str) -> Optional[float]`
+- `slots/tools/texture_combine.py::TextureCombineSlots.recombine_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.record_name(self, name: str) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.remove_override(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.reset_scales(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.restore_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.s_padding_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.s_spacing_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.select_row_members(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.select_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.status(self, text: str) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.sync_shared(self, textures: bool = True) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_affix_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_name_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_output_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_tt_dst_uvset_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.tbl_sources_init(self, widget) -> None`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots(class)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.cleanup_scene_callbacks(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.collect_scene_textures(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.delete_file_node(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.handle_cell_edit(self, row: int, col: int)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.header_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.labels(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.make_paths_absolute(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.open_source_images(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.refresh_texture_table(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.reload_scene_textures(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_browse_for_file(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_rename_file(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_show_in_hypershade(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_absolute_paths(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_broken_paths(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_file_node(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_material(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_textures_for_objects(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.setup_formatting(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_find_and_copy_textures(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_normalize_paths(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_normalize_paths_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_resolve_missing_textures(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_resolve_missing_textures_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_set_texture_directory(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_set_texture_directory_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tbl000_init(self, widget)`
+- `slots/tools/tube_rig.py::TubeRigSlots(class)`
+- `slots/tools/tube_rig.py::TubeRigSlots.apply_mode(self, index: int)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b000(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b001(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b002(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b003(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b004(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b005(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b006(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b007(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.get_mode(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.get_strategy(self) -> str`
+- `slots/tools/tube_rig.py::TubeRigSlots.header_init(self, widget)`
+- `slots/tools/tube_rig.py::TubeRigSlots.txt000_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots(class)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.b000(self)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.header_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.movement_axis(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.rig_name(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.rotation_axis(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.s000_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.set_wheel_height(self)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.txt000_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.update_rig_name_placeholder(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots(class)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b000(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b001(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b002(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_add_rule(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_clear(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_create(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_explore_folder(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_open_workspace(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_reset(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.chk000(self, checked)`
+- `slots/tools/workspaces.py::WorkspacesSlots.chk_raw_names(self, checked)`
+- `slots/tools/workspaces.py::WorkspacesSlots.header_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.mark_root(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.new_project(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.parts(self) -> list`
+- `slots/tools/workspaces.py::WorkspacesSlots.save_template(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.set_to_workspace(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.tbl000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.tree000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt001_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt002_init(self, widget)`
+- `slots/transform.py::TransformSlots(class)`
+- `slots/transform.py::TransformSlots.b001(self)`
+- `slots/transform.py::TransformSlots.b002(self, widget)`
+- `slots/transform.py::TransformSlots.b002_init(self, widget)`
+- `slots/transform.py::TransformSlots.b_restore_axes(self)`
+- `slots/transform.py::TransformSlots.b_snap_ts(self)`
+- `slots/transform.py::TransformSlots.chk021(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk021_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk022(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk022_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk023(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk023_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk024(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk024_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk025(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk025_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk026(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk026_init(self, widget)`
+- `slots/transform.py::TransformSlots.cmb002(self, index, widget)`
+- `slots/transform.py::TransformSlots.cmb002_init(self, widget)`
+- `slots/transform.py::TransformSlots.fix_non_ortho_axes(self)`
+- `slots/transform.py::TransformSlots.header_init(self, widget)`
+- `slots/transform.py::TransformSlots.s021(self, value, widget)`
+- `slots/transform.py::TransformSlots.s021_init(self, widget)`
+- `slots/transform.py::TransformSlots.s022(self, value, widget)`
+- `slots/transform.py::TransformSlots.s022_init(self, widget)`
+- `slots/transform.py::TransformSlots.s023(self, value, widget)`
+- `slots/transform.py::TransformSlots.s023_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb000(self, widget)`
+- `slots/transform.py::TransformSlots.tb000_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb001(self, widget)`
+- `slots/transform.py::TransformSlots.tb001_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb002(self, widget)`
+- `slots/transform.py::TransformSlots.tb002_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb003_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb004_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb005(self, widget)`
+- `slots/transform.py::TransformSlots.tb005_init(self, widget)`
+- `slots/utilities.py::UtilitiesSlots(class)`
+- `slots/utilities.py::UtilitiesSlots.b000(self)`
+- `slots/utilities.py::UtilitiesSlots.b001(self)`
+- `slots/utilities.py::UtilitiesSlots.b002(self)`
+- `slots/utilities.py::UtilitiesSlots.b003(self)`
+- `slots/uv.py::UvSlots(class)`
+- `slots/uv.py::UvSlots.b000(self)`
+- `slots/uv.py::UvSlots.b000_init(self, widget)`
+- `slots/uv.py::UvSlots.b003(self)`
+- `slots/uv.py::UvSlots.b004(self)`
+- `slots/uv.py::UvSlots.b005(self)`
+- `slots/uv.py::UvSlots.b011(self)`
+- `slots/uv.py::UvSlots.b021(self, widget)`
+- `slots/uv.py::UvSlots.b029(self, widget)`
+- `slots/uv.py::UvSlots.b029_init(self, widget)`
+- `slots/uv.py::UvSlots.b030(self, widget)`
+- `slots/uv.py::UvSlots.b030_init(self, widget)`
+- `slots/uv.py::UvSlots.b031(self)`
+- `slots/uv.py::UvSlots.b032(self)`
+- `slots/uv.py::UvSlots.b033(self)`
+- `slots/uv.py::UvSlots.cmb003(self, index, widget)`
+- `slots/uv.py::UvSlots.get_map_size(self)`
+- `slots/uv.py::UvSlots.header_init(self, widget)`
+- `slots/uv.py::UvSlots.s003(self, value, widget)`
+- `slots/uv.py::UvSlots.tb000(self, widget)`
+- `slots/uv.py::UvSlots.tb000_init(self, widget)`
+- `slots/uv.py::UvSlots.tb001(self, widget)`
+- `slots/uv.py::UvSlots.tb001_init(self, widget)`
+- `slots/uv.py::UvSlots.tb004(self, widget)`
+- `slots/uv.py::UvSlots.tb004_init(self, widget)`
+- `slots/uv.py::UvSlots.tb007(self, widget)`
+- `slots/uv.py::UvSlots.tb007_init(self, widget)`
+- `slots/uv.py::UvSlots.tb009(self, widget)`
+- `slots/uv.py::UvSlots.tb009_init(self, widget)`
+- `slots/uv.py::UvSlots.tb022(self, widget)`
+- `slots/uv.py::UvSlots.tb022_init(self, widget)`
+- `slots/uv.py::UvSlots.uv_editor(self)`
+- `slots/uv.py::UvSlots.uv_snapshot(self)`
+- `tcl.py::Tcl.build(cls, host=None, adapter=None, key_show=None, **kwargs)`
+- `tcl.py::Tcl.greeting(string, outputToConsole=True)`
+- `tcl.py::Tcl.headless(cls, host=None)`
+- `tcl.py::Tcl.host_adapter(cls, host=None, toolkit=None)`
+- `tcl.py::Tcl.register_apps(cls, switchboard) -> None`
+- `tcl.py::Tcl.register_shared(switchboard)`
+- `tcl.py::Tcl.reload(cls)`
+- `tcl.py::Tcl.toolkit(cls, host=None)`
+- `tcl.py::Tcl.unserved_tools(context_tags=None)`
+
+## Moved (825)
+
+_Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
+
+- `slots/blender/animation.py::AnimationSlots`
+- `slots/blender/animation.py::AnimationSlots.b000`
+- `slots/blender/animation.py::AnimationSlots.b004`
+- `slots/blender/animation.py::AnimationSlots.b005`
+- `slots/blender/animation.py::AnimationSlots.b006`
+- `slots/blender/animation.py::AnimationSlots.list000`
+- `slots/blender/animation.py::AnimationSlots.tb000`
+- `slots/blender/animation.py::AnimationSlots.tb000_init`
+- `slots/blender/animation.py::AnimationSlots.tb001`
+- `slots/blender/animation.py::AnimationSlots.tb001_init`
+- `slots/blender/animation.py::AnimationSlots.tb002`
+- `slots/blender/animation.py::AnimationSlots.tb002_init`
+- `slots/blender/animation.py::AnimationSlots.tb003`
+- `slots/blender/animation.py::AnimationSlots.tb003_init`
+- `slots/blender/animation.py::AnimationSlots.tb004`
+- `slots/blender/animation.py::AnimationSlots.tb004_init`
+- `slots/blender/animation.py::AnimationSlots.tb005`
+- `slots/blender/animation.py::AnimationSlots.tb005_init`
+- `slots/blender/animation.py::AnimationSlots.tb006`
+- `slots/blender/animation.py::AnimationSlots.tb006_init`
+- `slots/blender/animation.py::AnimationSlots.tb007`
+- `slots/blender/animation.py::AnimationSlots.tb007_init`
+- `slots/blender/animation.py::AnimationSlots.tb008`
+- `slots/blender/animation.py::AnimationSlots.tb008_init`
+- `slots/blender/animation.py::AnimationSlots.tb009`
+- `slots/blender/animation.py::AnimationSlots.tb009_init`
+- `slots/blender/animation.py::AnimationSlots.tb010`
+- `slots/blender/animation.py::AnimationSlots.tb010_init`
+- `slots/blender/animation.py::AnimationSlots.tb011`
+- `slots/blender/animation.py::AnimationSlots.tb011_init`
+- `slots/blender/animation.py::AnimationSlots.tb012`
+- `slots/blender/animation.py::AnimationSlots.tb012_init`
+- `slots/blender/animation.py::AnimationSlots.tb013`
+- `slots/blender/animation.py::AnimationSlots.tb013_init`
+- `slots/blender/animation.py::AnimationSlots.tb014`
+- `slots/blender/animation.py::AnimationSlots.tb014_init`
+- `slots/blender/animation.py::AnimationSlots.tb015`
+- `slots/blender/animation.py::AnimationSlots.tb015_init`
+- `slots/blender/animation.py::AnimationSlots.tb016`
+- `slots/blender/animation.py::AnimationSlots.tb016_init`
+- `slots/blender/animation.py::AnimationSlots.tb017`
+- `slots/blender/animation.py::AnimationSlots.tb017_init`
+- `slots/blender/animation.py::AnimationSlots.tb018`
+- `slots/blender/animation.py::AnimationSlots.tb018_init`
+- `slots/blender/animation.py::AnimationSlots.tb019`
+- `slots/blender/animation.py::AnimationSlots.tb019_init`
+- `slots/blender/animation.py::AnimationSlots.tb020`
+- `slots/blender/animation.py::AnimationSlots.tb021`
+- `slots/blender/animation.py::AnimationSlots.tb021_init`
+- `slots/blender/cameras.py::CamerasSlots`
+- `slots/blender/cameras.py::CamerasSlots.b000`
+- `slots/blender/cameras.py::CamerasSlots.b001`
+- `slots/blender/cameras.py::CamerasSlots.b002`
+- `slots/blender/cameras.py::CamerasSlots.b003`
+- `slots/blender/cameras.py::CamerasSlots.b004`
+- `slots/blender/cameras.py::CamerasSlots.b005`
+- `slots/blender/cameras.py::CamerasSlots.b006`
+- `slots/blender/cameras.py::CamerasSlots.b007`
+- `slots/blender/cameras.py::CamerasSlots.b010`
+- `slots/blender/cameras.py::CamerasSlots.b011`
+- `slots/blender/cameras.py::CamerasSlots.b012`
+- `slots/blender/cameras.py::CamerasSlots.b013`
+- `slots/blender/cameras.py::CamerasSlots.list000`
+- `slots/blender/cameras.py::CamerasSlots.list000_init`
+- `slots/blender/crease.py::CreaseSlots`
+- `slots/blender/crease.py::CreaseSlots.b002`
+- `slots/blender/crease.py::CreaseSlots.tb000`
+- `slots/blender/crease.py::CreaseSlots.tb000_init`
+- `slots/blender/deformation.py::DeformationSlots`
+- `slots/blender/deformation.py::DeformationSlots.tb001`
+- `slots/blender/deformation.py::DeformationSlots.tb001_init`
+- `slots/blender/display.py::DisplaySlots`
+- `slots/blender/display.py::DisplaySlots.b013`
+- `slots/blender/display.py::DisplaySlots.b014`
+- `slots/blender/display.py::DisplaySlots.list000`
+- `slots/blender/duplicate.py::DuplicateSlots`
+- `slots/blender/duplicate.py::DuplicateSlots.b000`
+- `slots/blender/duplicate.py::DuplicateSlots.b005`
+- `slots/blender/duplicate.py::DuplicateSlots.b006`
+- `slots/blender/duplicate.py::DuplicateSlots.b007`
+- `slots/blender/duplicate.py::DuplicateSlots.b008`
+- `slots/blender/duplicate.py::DuplicateSlots.tb000`
+- `slots/blender/duplicate.py::DuplicateSlots.tb000_init`
+- `slots/blender/duplicate.py::DuplicateSlots.tb001`
+- `slots/blender/duplicate.py::DuplicateSlots.tb001_init`
+- `slots/blender/duplicate.py::DuplicateSlots.tb002`
+- `slots/blender/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/blender/edit.py::EditSlots`
+- `slots/blender/edit.py::EditSlots.b000`
+- `slots/blender/edit.py::EditSlots.b_channels`
+- `slots/blender/edit.py::EditSlots.cmb000`
+- `slots/blender/edit.py::EditSlots.header_init`
+- `slots/blender/edit.py::EditSlots.list000`
+- `slots/blender/edit.py::EditSlots.list000_init`
+- `slots/blender/edit.py::EditSlots.list001`
+- `slots/blender/edit.py::EditSlots.list001_init`
+- `slots/blender/edit.py::EditSlots.tb000`
+- `slots/blender/edit.py::EditSlots.tb000_init`
+- `slots/blender/edit.py::EditSlots.tb001`
+- `slots/blender/edit.py::EditSlots.tb001_init`
+- `slots/blender/edit.py::EditSlots.tb002`
+- `slots/blender/edit.py::EditSlots.tb004`
+- `slots/blender/edit.py::EditSlots.tb004_init`
+- `slots/blender/editors.py::EditorsSlots`
+- `slots/blender/editors.py::EditorsSlots.b000`
+- `slots/blender/editors.py::EditorsSlots.b001`
+- `slots/blender/editors.py::EditorsSlots.b002`
+- `slots/blender/editors.py::EditorsSlots.b003`
+- `slots/blender/editors.py::EditorsSlots.b004`
+- `slots/blender/editors.py::EditorsSlots.b005`
+- `slots/blender/editors.py::EditorsSlots.b006`
+- `slots/blender/editors.py::EditorsSlots.b007`
+- `slots/blender/editors.py::EditorsSlots.b008`
+- `slots/blender/editors.py::EditorsSlots.b009`
+- `slots/blender/editors.py::EditorsSlots.b010`
+- `slots/blender/editors.py::EditorsSlots.b011`
+- `slots/blender/editors.py::EditorsSlots.b012`
+- `slots/blender/editors.py::EditorsSlots.b013`
+- `slots/blender/editors.py::EditorsSlots.list000`
+- `slots/blender/editors.py::EditorsSlots.list000_init`
+- `slots/blender/hud.py::HudSlots`
+- `slots/blender/hud.py::HudSlots.construct_hud`
+- `slots/blender/hud.py::HudSlots.request_hud_build`
+- `slots/blender/lighting.py::LightingSlots`
+- `slots/blender/lighting.py::LightingSlots.b000`
+- `slots/blender/lighting.py::LightingSlots.b001`
+- `slots/blender/lighting.py::LightingSlots.b002`
+- `slots/blender/lighting.py::LightingSlots.tb000`
+- `slots/blender/lighting.py::LightingSlots.tb000_init`
+- `slots/blender/main.py::MainSlots`
+- `slots/blender/main.py::MainSlots.list000`
+- `slots/blender/main.py::MainSlots.list000_init`
+- `slots/blender/materials.py::MaterialsSlots`
+- `slots/blender/materials.py::MaterialsSlots.b004`
+- `slots/blender/materials.py::MaterialsSlots.b008`
+- `slots/blender/materials.py::MaterialsSlots.b009`
+- `slots/blender/materials.py::MaterialsSlots.b010`
+- `slots/blender/materials.py::MaterialsSlots.b011`
+- `slots/blender/materials.py::MaterialsSlots.b013`
+- `slots/blender/materials.py::MaterialsSlots.b015`
+- `slots/blender/materials.py::MaterialsSlots.b016`
+- `slots/blender/materials.py::MaterialsSlots.b018`
+- `slots/blender/materials.py::MaterialsSlots.b019`
+- `slots/blender/materials.py::MaterialsSlots.b020`
+- `slots/blender/materials.py::MaterialsSlots.b021`
+- `slots/blender/materials.py::MaterialsSlots.b022`
+- `slots/blender/materials.py::MaterialsSlots.b023`
+- `slots/blender/materials.py::MaterialsSlots.b024`
+- `slots/blender/materials.py::MaterialsSlots.b025`
+- `slots/blender/materials.py::MaterialsSlots.b027`
+- `slots/blender/materials.py::MaterialsSlots.lbl004`
+- `slots/blender/materials.py::MaterialsSlots.lbl006`
+- `slots/blender/materials.py::MaterialsSlots.list000`
+- `slots/blender/materials.py::MaterialsSlots.list000_init`
+- `slots/blender/materials.py::MaterialsSlots.list001`
+- `slots/blender/materials.py::MaterialsSlots.select_by_mat`
+- `slots/blender/materials.py::MaterialsSlots.tb001`
+- `slots/blender/materials.py::MaterialsSlots.tb001_init`
+- `slots/blender/normals.py::NormalsSlots`
+- `slots/blender/normals.py::NormalsSlots.b000`
+- `slots/blender/normals.py::NormalsSlots.b001`
+- `slots/blender/normals.py::NormalsSlots.b002`
+- `slots/blender/normals.py::NormalsSlots.b004`
+- `slots/blender/normals.py::NormalsSlots.b006`
+- `slots/blender/normals.py::NormalsSlots.tb001`
+- `slots/blender/normals.py::NormalsSlots.tb001_init`
+- `slots/blender/normals.py::NormalsSlots.tb004`
+- `slots/blender/normals.py::NormalsSlots.tb004_init`
+- `slots/blender/normals.py::NormalsSlots.tb010`
+- `slots/blender/nurbs.py::NurbsSlots`
+- `slots/blender/nurbs.py::NurbsSlots.b030`
+- `slots/blender/nurbs.py::NurbsSlots.b056`
+- `slots/blender/nurbs.py::NurbsSlots.b058`
+- `slots/blender/nurbs.py::NurbsSlots.list000`
+- `slots/blender/nurbs.py::NurbsSlots.tb000`
+- `slots/blender/nurbs.py::NurbsSlots.tb000_init`
+- `slots/blender/nurbs.py::NurbsSlots.tb001`
+- `slots/blender/nurbs.py::NurbsSlots.tb001_init`
+- `slots/blender/pivot.py::PivotSlots`
+- `slots/blender/pivot.py::PivotSlots.b004`
+- `slots/blender/pivot.py::PivotSlots.tb000`
+- `slots/blender/pivot.py::PivotSlots.tb000_init`
+- `slots/blender/pivot.py::PivotSlots.tb001`
+- `slots/blender/pivot.py::PivotSlots.tb001_init`
+- `slots/blender/pivot.py::PivotSlots.tb002`
+- `slots/blender/pivot.py::PivotSlots.tb002_init`
+- `slots/blender/pivot.py::PivotSlots.tb003`
+- `slots/blender/pivot.py::PivotSlots.tb003_init`
+- `slots/blender/polygons.py::PolygonsSlots`
+- `slots/blender/polygons.py::PolygonsSlots.b000`
+- `slots/blender/polygons.py::PolygonsSlots.b001`
+- `slots/blender/polygons.py::PolygonsSlots.b003`
+- `slots/blender/polygons.py::PolygonsSlots.b005`
+- `slots/blender/polygons.py::PolygonsSlots.b006`
+- `slots/blender/polygons.py::PolygonsSlots.b007`
+- `slots/blender/polygons.py::PolygonsSlots.b008`
+- `slots/blender/polygons.py::PolygonsSlots.b009`
+- `slots/blender/polygons.py::PolygonsSlots.b011`
+- `slots/blender/polygons.py::PolygonsSlots.b012`
+- `slots/blender/polygons.py::PolygonsSlots.b022`
+- `slots/blender/polygons.py::PolygonsSlots.b032`
+- `slots/blender/polygons.py::PolygonsSlots.b034`
+- `slots/blender/polygons.py::PolygonsSlots.b038`
+- `slots/blender/polygons.py::PolygonsSlots.b043`
+- `slots/blender/polygons.py::PolygonsSlots.b047`
+- `slots/blender/polygons.py::PolygonsSlots.b049`
+- `slots/blender/polygons.py::PolygonsSlots.b051`
+- `slots/blender/polygons.py::PolygonsSlots.b053`
+- `slots/blender/polygons.py::PolygonsSlots.header_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb000`
+- `slots/blender/polygons.py::PolygonsSlots.tb000_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb002`
+- `slots/blender/polygons.py::PolygonsSlots.tb002_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb003`
+- `slots/blender/polygons.py::PolygonsSlots.tb003_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb004`
+- `slots/blender/polygons.py::PolygonsSlots.tb004_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb005`
+- `slots/blender/polygons.py::PolygonsSlots.tb005_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb006`
+- `slots/blender/polygons.py::PolygonsSlots.tb006_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb007`
+- `slots/blender/polygons.py::PolygonsSlots.tb007_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb008`
+- `slots/blender/polygons.py::PolygonsSlots.tb008_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb009`
+- `slots/blender/polygons.py::PolygonsSlots.tb009_init`
+- `slots/blender/preferences.py::PreferencesSlots`
+- `slots/blender/preferences.py::PreferencesSlots.b001`
+- `slots/blender/preferences.py::PreferencesSlots.b008`
+- `slots/blender/preferences.py::PreferencesSlots.b009`
+- `slots/blender/preferences.py::PreferencesSlots.b010`
+- `slots/blender/preferences.py::PreferencesSlots.cmb001`
+- `slots/blender/preferences.py::PreferencesSlots.cmb001_init`
+- `slots/blender/preferences.py::PreferencesSlots.cmb002`
+- `slots/blender/preferences.py::PreferencesSlots.cmb002_init`
+- `slots/blender/preferences.py::PreferencesSlots.cmb003`
+- `slots/blender/preferences.py::PreferencesSlots.cmb003_init`
+- `slots/blender/preferences.py::PreferencesSlots.s000_init`
+- `slots/blender/preferences.py::PreferencesSlots.s001_init`
+- `slots/blender/rendering.py::RenderingSlots`
+- `slots/blender/rendering.py::RenderingSlots.b000`
+- `slots/blender/rendering.py::RenderingSlots.b001`
+- `slots/blender/rendering.py::RenderingSlots.b003`
+- `slots/blender/rendering.py::RenderingSlots.b004`
+- `slots/blender/rendering.py::RenderingSlots.tb000`
+- `slots/blender/rendering.py::RenderingSlots.tb000_init`
+- `slots/blender/rendering.py::RenderingSlots.tb001`
+- `slots/blender/rendering.py::RenderingSlots.tb001_init`
+- `slots/blender/rigging.py::RiggingSlots`
+- `slots/blender/rigging.py::RiggingSlots.b004`
+- `slots/blender/rigging.py::RiggingSlots.b020`
+- `slots/blender/rigging.py::RiggingSlots.cmb001`
+- `slots/blender/rigging.py::RiggingSlots.cmb001_init`
+- `slots/blender/rigging.py::RiggingSlots.cmb002`
+- `slots/blender/rigging.py::RiggingSlots.cmb002_init`
+- `slots/blender/rigging.py::RiggingSlots.header_init`
+- `slots/blender/rigging.py::RiggingSlots.tb000`
+- `slots/blender/rigging.py::RiggingSlots.tb000_init`
+- `slots/blender/rigging.py::RiggingSlots.tb001`
+- `slots/blender/rigging.py::RiggingSlots.tb001_init`
+- `slots/blender/rigging.py::RiggingSlots.tb003`
+- `slots/blender/rigging.py::RiggingSlots.tb003_init`
+- `slots/blender/rigging.py::RiggingSlots.tb004`
+- `slots/blender/rigging.py::RiggingSlots.tb004_init`
+- `slots/blender/rigging.py::RiggingSlots.tb005`
+- `slots/blender/rigging.py::RiggingSlots.tb005_init`
+- `slots/blender/scene.py::SceneSlots`
+- `slots/blender/scene.py::SceneSlots.b001`
+- `slots/blender/scene.py::SceneSlots.b003`
+- `slots/blender/scene.py::SceneSlots.b004`
+- `slots/blender/scene.py::SceneSlots.b005`
+- `slots/blender/scene.py::SceneSlots.b010`
+- `slots/blender/scene.py::SceneSlots.b011`
+- `slots/blender/scene.py::SceneSlots.b013`
+- `slots/blender/scene.py::SceneSlots.b015`
+- `slots/blender/scene.py::SceneSlots.b016`
+- `slots/blender/scene.py::SceneSlots.b017`
+- `slots/blender/scene.py::SceneSlots.b_cleanup`
+- `slots/blender/scene.py::SceneSlots.cmb002`
+- `slots/blender/scene.py::SceneSlots.cmb002_init`
+- `slots/blender/scene.py::SceneSlots.list000`
+- `slots/blender/scene.py::SceneSlots.list000_init`
+- `slots/blender/scene.py::SceneSlots.list001`
+- `slots/blender/scene.py::SceneSlots.list001_init`
+- `slots/blender/scene.py::SceneSlots.list002`
+- `slots/blender/scene.py::SceneSlots.list002_init`
+- `slots/blender/scene.py::SceneSlots.list003`
+- `slots/blender/scene.py::SceneSlots.tb003_init`
+- `slots/blender/selection.py::SelectionSlots`
+- `slots/blender/selection.py::SelectionSlots.b001`
+- `slots/blender/selection.py::SelectionSlots.b002`
+- `slots/blender/selection.py::SelectionSlots.b002_init`
+- `slots/blender/selection.py::SelectionSlots.b003`
+- `slots/blender/selection.py::SelectionSlots.b003_init`
+- `slots/blender/selection.py::SelectionSlots.b004`
+- `slots/blender/selection.py::SelectionSlots.b004_init`
+- `slots/blender/selection.py::SelectionSlots.b005`
+- `slots/blender/selection.py::SelectionSlots.b005_init`
+- `slots/blender/selection.py::SelectionSlots.b006`
+- `slots/blender/selection.py::SelectionSlots.b006_init`
+- `slots/blender/selection.py::SelectionSlots.b007`
+- `slots/blender/selection.py::SelectionSlots.b007_init`
+- `slots/blender/selection.py::SelectionSlots.chk004`
+- `slots/blender/selection.py::SelectionSlots.chk004_init`
+- `slots/blender/selection.py::SelectionSlots.chk005`
+- `slots/blender/selection.py::SelectionSlots.chk005_init`
+- `slots/blender/selection.py::SelectionSlots.chk006`
+- `slots/blender/selection.py::SelectionSlots.chk006_init`
+- `slots/blender/selection.py::SelectionSlots.chk007`
+- `slots/blender/selection.py::SelectionSlots.chk007_init`
+- `slots/blender/selection.py::SelectionSlots.cmb001`
+- `slots/blender/selection.py::SelectionSlots.cmb001_init`
+- `slots/blender/selection.py::SelectionSlots.cmb002`
+- `slots/blender/selection.py::SelectionSlots.cmb002_init`
+- `slots/blender/selection.py::SelectionSlots.list000`
+- `slots/blender/selection.py::SelectionSlots.list000_init`
+- `slots/blender/selection.py::SelectionSlots.list001`
+- `slots/blender/selection.py::SelectionSlots.tb000`
+- `slots/blender/selection.py::SelectionSlots.tb000_init`
+- `slots/blender/selection.py::SelectionSlots.tb001`
+- `slots/blender/selection.py::SelectionSlots.tb001_init`
+- `slots/blender/selection.py::SelectionSlots.tb002`
+- `slots/blender/selection.py::SelectionSlots.tb002_init`
+- `slots/blender/selection.py::SelectionSlots.tb003`
+- `slots/blender/selection.py::SelectionSlots.tb003_init`
+- `slots/blender/selection.py::SelectionSlots.tb004_init`
+- `slots/blender/settings.py::SettingsSlots`
+- `slots/blender/settings.py::SettingsSlots.tb001`
+- `slots/blender/subdivision.py::SubdivisionSlots`
+- `slots/blender/subdivision.py::SubdivisionSlots.b000`
+- `slots/blender/subdivision.py::SubdivisionSlots.b001`
+- `slots/blender/subdivision.py::SubdivisionSlots.b005`
+- `slots/blender/subdivision.py::SubdivisionSlots.b008`
+- `slots/blender/subdivision.py::SubdivisionSlots.b011`
+- `slots/blender/subdivision.py::SubdivisionSlots.b028`
+- `slots/blender/subdivision.py::SubdivisionSlots.s000`
+- `slots/blender/subdivision.py::SubdivisionSlots.s000_init`
+- `slots/blender/subdivision.py::SubdivisionSlots.s001`
+- `slots/blender/subdivision.py::SubdivisionSlots.s001_init`
+- `slots/blender/subdivision.py::SubdivisionSlots.tb000`
+- `slots/blender/subdivision.py::SubdivisionSlots.tb000_init`
+- `slots/blender/symmetry.py::SymmetrySlots`
+- `slots/blender/symmetry.py::SymmetrySlots.chk000`
+- `slots/blender/symmetry.py::SymmetrySlots.chk000_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk001`
+- `slots/blender/symmetry.py::SymmetrySlots.chk001_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk002`
+- `slots/blender/symmetry.py::SymmetrySlots.chk002_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk004`
+- `slots/blender/symmetry.py::SymmetrySlots.chk004_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk005`
+- `slots/blender/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/blender/transform.py::TransformSlots`
+- `slots/blender/transform.py::TransformSlots.b001`
+- `slots/blender/transform.py::TransformSlots.b002`
+- `slots/blender/transform.py::TransformSlots.b002_init`
+- `slots/blender/transform.py::TransformSlots.b_restore_axes`
+- `slots/blender/transform.py::TransformSlots.b_snap_ts`
+- `slots/blender/transform.py::TransformSlots.chk023`
+- `slots/blender/transform.py::TransformSlots.chk023_init`
+- `slots/blender/transform.py::TransformSlots.chk024`
+- `slots/blender/transform.py::TransformSlots.chk025`
+- `slots/blender/transform.py::TransformSlots.chk026`
+- `slots/blender/transform.py::TransformSlots.cmb002`
+- `slots/blender/transform.py::TransformSlots.cmb002_init`
+- `slots/blender/transform.py::TransformSlots.fix_non_ortho_axes`
+- `slots/blender/transform.py::TransformSlots.header_init`
+- `slots/blender/transform.py::TransformSlots.s023`
+- `slots/blender/transform.py::TransformSlots.tb000`
+- `slots/blender/transform.py::TransformSlots.tb000_init`
+- `slots/blender/transform.py::TransformSlots.tb001`
+- `slots/blender/transform.py::TransformSlots.tb002`
+- `slots/blender/transform.py::TransformSlots.tb002_init`
+- `slots/blender/transform.py::TransformSlots.tb003_init`
+- `slots/blender/transform.py::TransformSlots.tb004_init`
+- `slots/blender/transform.py::TransformSlots.tb005`
+- `slots/blender/transform.py::TransformSlots.tb005_init`
+- `slots/blender/utilities.py::UtilitiesSlots`
+- `slots/blender/utilities.py::UtilitiesSlots.b000`
+- `slots/blender/utilities.py::UtilitiesSlots.b001`
+- `slots/blender/utilities.py::UtilitiesSlots.b002`
+- `slots/blender/utilities.py::UtilitiesSlots.b003`
+- `slots/blender/uv.py::UvSlots`
+- `slots/blender/uv.py::UvSlots.b003`
+- `slots/blender/uv.py::UvSlots.b004`
+- `slots/blender/uv.py::UvSlots.b005`
+- `slots/blender/uv.py::UvSlots.b011`
+- `slots/blender/uv.py::UvSlots.b021`
+- `slots/blender/uv.py::UvSlots.b029`
+- `slots/blender/uv.py::UvSlots.b030`
+- `slots/blender/uv.py::UvSlots.b031`
+- `slots/blender/uv.py::UvSlots.b032`
+- `slots/blender/uv.py::UvSlots.b033`
+- `slots/blender/uv.py::UvSlots.header_init`
+- `slots/blender/uv.py::UvSlots.tb000`
+- `slots/blender/uv.py::UvSlots.tb000_init`
+- `slots/blender/uv.py::UvSlots.tb001`
+- `slots/blender/uv.py::UvSlots.tb001_init`
+- `slots/blender/uv.py::UvSlots.tb004`
+- `slots/blender/uv.py::UvSlots.tb004_init`
+- `slots/blender/uv.py::UvSlots.tb007`
+- `slots/blender/uv.py::UvSlots.tb007_init`
+- `slots/blender/uv.py::UvSlots.tb009`
+- `slots/blender/uv.py::UvSlots.tb009_init`
+- `slots/blender/uv.py::UvSlots.tb022`
+- `slots/blender/uv.py::UvSlots.tb022_init`
+- `slots/blender/uv.py::UvSlots.uv_snapshot`
+- `slots/maya/animation.py::AnimationSlots`
+- `slots/maya/animation.py::AnimationSlots.b000`
+- `slots/maya/animation.py::AnimationSlots.b001`
+- `slots/maya/animation.py::AnimationSlots.b004`
+- `slots/maya/animation.py::AnimationSlots.b005`
+- `slots/maya/animation.py::AnimationSlots.b006`
+- `slots/maya/animation.py::AnimationSlots.list000`
+- `slots/maya/animation.py::AnimationSlots.tb000`
+- `slots/maya/animation.py::AnimationSlots.tb000_init`
+- `slots/maya/animation.py::AnimationSlots.tb001`
+- `slots/maya/animation.py::AnimationSlots.tb001_init`
+- `slots/maya/animation.py::AnimationSlots.tb002`
+- `slots/maya/animation.py::AnimationSlots.tb002_init`
+- `slots/maya/animation.py::AnimationSlots.tb003`
+- `slots/maya/animation.py::AnimationSlots.tb003_init`
+- `slots/maya/animation.py::AnimationSlots.tb004`
+- `slots/maya/animation.py::AnimationSlots.tb004_init`
+- `slots/maya/animation.py::AnimationSlots.tb005`
+- `slots/maya/animation.py::AnimationSlots.tb005_init`
+- `slots/maya/animation.py::AnimationSlots.tb006`
+- `slots/maya/animation.py::AnimationSlots.tb006_init`
+- `slots/maya/animation.py::AnimationSlots.tb007`
+- `slots/maya/animation.py::AnimationSlots.tb007_init`
+- `slots/maya/animation.py::AnimationSlots.tb008`
+- `slots/maya/animation.py::AnimationSlots.tb008_init`
+- `slots/maya/animation.py::AnimationSlots.tb009`
+- `slots/maya/animation.py::AnimationSlots.tb009_init`
+- `slots/maya/animation.py::AnimationSlots.tb010`
+- `slots/maya/animation.py::AnimationSlots.tb010_init`
+- `slots/maya/animation.py::AnimationSlots.tb011`
+- `slots/maya/animation.py::AnimationSlots.tb011_init`
+- `slots/maya/animation.py::AnimationSlots.tb012`
+- `slots/maya/animation.py::AnimationSlots.tb012_init`
+- `slots/maya/animation.py::AnimationSlots.tb013`
+- `slots/maya/animation.py::AnimationSlots.tb013_init`
+- `slots/maya/animation.py::AnimationSlots.tb014`
+- `slots/maya/animation.py::AnimationSlots.tb014_init`
+- `slots/maya/animation.py::AnimationSlots.tb015`
+- `slots/maya/animation.py::AnimationSlots.tb015_init`
+- `slots/maya/animation.py::AnimationSlots.tb016`
+- `slots/maya/animation.py::AnimationSlots.tb016_init`
+- `slots/maya/animation.py::AnimationSlots.tb017`
+- `slots/maya/animation.py::AnimationSlots.tb017_init`
+- `slots/maya/animation.py::AnimationSlots.tb018`
+- `slots/maya/animation.py::AnimationSlots.tb018_init`
+- `slots/maya/animation.py::AnimationSlots.tb019`
+- `slots/maya/animation.py::AnimationSlots.tb019_init`
+- `slots/maya/animation.py::AnimationSlots.tb020`
+- `slots/maya/animation.py::AnimationSlots.tb021`
+- `slots/maya/animation.py::AnimationSlots.tb021_init`
+- `slots/maya/cameras.py::CamerasSlots`
+- `slots/maya/cameras.py::CamerasSlots.b000`
+- `slots/maya/cameras.py::CamerasSlots.b001`
+- `slots/maya/cameras.py::CamerasSlots.b002`
+- `slots/maya/cameras.py::CamerasSlots.b003`
+- `slots/maya/cameras.py::CamerasSlots.b004`
+- `slots/maya/cameras.py::CamerasSlots.b005`
+- `slots/maya/cameras.py::CamerasSlots.b006`
+- `slots/maya/cameras.py::CamerasSlots.b007`
+- `slots/maya/cameras.py::CamerasSlots.b010`
+- `slots/maya/cameras.py::CamerasSlots.b011`
+- `slots/maya/cameras.py::CamerasSlots.b012`
+- `slots/maya/cameras.py::CamerasSlots.b013`
+- `slots/maya/cameras.py::CamerasSlots.list000`
+- `slots/maya/cameras.py::CamerasSlots.list000_init`
+- `slots/maya/crease.py::CreaseSlots`
+- `slots/maya/crease.py::CreaseSlots.b002`
+- `slots/maya/crease.py::CreaseSlots.tb000`
+- `slots/maya/crease.py::CreaseSlots.tb000_init`
+- `slots/maya/deformation.py::DeformationSlots`
+- `slots/maya/deformation.py::DeformationSlots.tb001`
+- `slots/maya/deformation.py::DeformationSlots.tb001_init`
+- `slots/maya/display.py::DisplaySlots`
+- `slots/maya/display.py::DisplaySlots.b013`
+- `slots/maya/display.py::DisplaySlots.b014`
+- `slots/maya/display.py::DisplaySlots.list000`
+- `slots/maya/duplicate.py::DuplicateSlots`
+- `slots/maya/duplicate.py::DuplicateSlots.b000`
+- `slots/maya/duplicate.py::DuplicateSlots.b005`
+- `slots/maya/duplicate.py::DuplicateSlots.b006`
+- `slots/maya/duplicate.py::DuplicateSlots.b007`
+- `slots/maya/duplicate.py::DuplicateSlots.b008`
+- `slots/maya/duplicate.py::DuplicateSlots.tb000`
+- `slots/maya/duplicate.py::DuplicateSlots.tb000_init`
+- `slots/maya/duplicate.py::DuplicateSlots.tb001`
+- `slots/maya/duplicate.py::DuplicateSlots.tb001_init`
+- `slots/maya/duplicate.py::DuplicateSlots.tb002`
+- `slots/maya/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/maya/edit.py::EditSlots`
+- `slots/maya/edit.py::EditSlots.b000`
+- `slots/maya/edit.py::EditSlots.b_channels`
+- `slots/maya/edit.py::EditSlots.cmb000`
+- `slots/maya/edit.py::EditSlots.header_init`
+- `slots/maya/edit.py::EditSlots.list000`
+- `slots/maya/edit.py::EditSlots.list000_init`
+- `slots/maya/edit.py::EditSlots.list001`
+- `slots/maya/edit.py::EditSlots.list001_init`
+- `slots/maya/edit.py::EditSlots.tb000`
+- `slots/maya/edit.py::EditSlots.tb000_init`
+- `slots/maya/edit.py::EditSlots.tb001`
+- `slots/maya/edit.py::EditSlots.tb001_init`
+- `slots/maya/edit.py::EditSlots.tb002`
+- `slots/maya/edit.py::EditSlots.tb004`
+- `slots/maya/edit.py::EditSlots.tb004_init`
+- `slots/maya/editors.py::EditorsSlots`
+- `slots/maya/editors.py::EditorsSlots.b000`
+- `slots/maya/editors.py::EditorsSlots.b001`
+- `slots/maya/editors.py::EditorsSlots.b002`
+- `slots/maya/editors.py::EditorsSlots.b003`
+- `slots/maya/editors.py::EditorsSlots.b004`
+- `slots/maya/editors.py::EditorsSlots.b005`
+- `slots/maya/editors.py::EditorsSlots.b006`
+- `slots/maya/editors.py::EditorsSlots.b007`
+- `slots/maya/editors.py::EditorsSlots.b008`
+- `slots/maya/editors.py::EditorsSlots.b009`
+- `slots/maya/editors.py::EditorsSlots.b010`
+- `slots/maya/editors.py::EditorsSlots.b011`
+- `slots/maya/editors.py::EditorsSlots.b012`
+- `slots/maya/editors.py::EditorsSlots.b013`
+- `slots/maya/editors.py::EditorsSlots.list000`
+- `slots/maya/editors.py::EditorsSlots.list000_init`
+- `slots/maya/hud.py::HudSlots`
+- `slots/maya/hud.py::HudSlots.construct_hud`
+- `slots/maya/hud.py::HudSlots.request_hud_build`
+- `slots/maya/lighting.py::LightingSlots`
+- `slots/maya/lighting.py::LightingSlots.b000`
+- `slots/maya/lighting.py::LightingSlots.b001`
+- `slots/maya/lighting.py::LightingSlots.b002`
+- `slots/maya/lighting.py::LightingSlots.tb000`
+- `slots/maya/lighting.py::LightingSlots.tb000_init`
+- `slots/maya/main.py::MainSlots`
+- `slots/maya/main.py::MainSlots.list000`
+- `slots/maya/main.py::MainSlots.list000_init`
+- `slots/maya/materials.py::MaterialsSlots`
+- `slots/maya/materials.py::MaterialsSlots.b004`
+- `slots/maya/materials.py::MaterialsSlots.b007`
+- `slots/maya/materials.py::MaterialsSlots.b008`
+- `slots/maya/materials.py::MaterialsSlots.b009`
+- `slots/maya/materials.py::MaterialsSlots.b010`
+- `slots/maya/materials.py::MaterialsSlots.b011`
+- `slots/maya/materials.py::MaterialsSlots.b013`
+- `slots/maya/materials.py::MaterialsSlots.b015`
+- `slots/maya/materials.py::MaterialsSlots.b016`
+- `slots/maya/materials.py::MaterialsSlots.b018`
+- `slots/maya/materials.py::MaterialsSlots.b019`
+- `slots/maya/materials.py::MaterialsSlots.b020`
+- `slots/maya/materials.py::MaterialsSlots.b021`
+- `slots/maya/materials.py::MaterialsSlots.b022`
+- `slots/maya/materials.py::MaterialsSlots.b023`
+- `slots/maya/materials.py::MaterialsSlots.b024`
+- `slots/maya/materials.py::MaterialsSlots.b025`
+- `slots/maya/materials.py::MaterialsSlots.b026`
+- `slots/maya/materials.py::MaterialsSlots.b027`
+- `slots/maya/materials.py::MaterialsSlots.lbl004`
+- `slots/maya/materials.py::MaterialsSlots.lbl006`
+- `slots/maya/materials.py::MaterialsSlots.list000`
+- `slots/maya/materials.py::MaterialsSlots.list000_init`
+- `slots/maya/materials.py::MaterialsSlots.list001`
+- `slots/maya/materials.py::MaterialsSlots.select_by_mat`
+- `slots/maya/materials.py::MaterialsSlots.tb001`
+- `slots/maya/materials.py::MaterialsSlots.tb001_init`
+- `slots/maya/materials.py::MaterialsSlots.tb002`
+- `slots/maya/materials.py::MaterialsSlots.tb002_init`
+- `slots/maya/normals.py::NormalsSlots`
+- `slots/maya/normals.py::NormalsSlots.b000`
+- `slots/maya/normals.py::NormalsSlots.b001`
+- `slots/maya/normals.py::NormalsSlots.b002`
+- `slots/maya/normals.py::NormalsSlots.b004`
+- `slots/maya/normals.py::NormalsSlots.b006`
+- `slots/maya/normals.py::NormalsSlots.tb001`
+- `slots/maya/normals.py::NormalsSlots.tb001_init`
+- `slots/maya/normals.py::NormalsSlots.tb004`
+- `slots/maya/normals.py::NormalsSlots.tb004_init`
+- `slots/maya/normals.py::NormalsSlots.tb010`
+- `slots/maya/nurbs.py::NurbsSlots`
+- `slots/maya/nurbs.py::NurbsSlots.b030`
+- `slots/maya/nurbs.py::NurbsSlots.b056`
+- `slots/maya/nurbs.py::NurbsSlots.b058`
+- `slots/maya/nurbs.py::NurbsSlots.list000`
+- `slots/maya/nurbs.py::NurbsSlots.tb000`
+- `slots/maya/nurbs.py::NurbsSlots.tb000_init`
+- `slots/maya/nurbs.py::NurbsSlots.tb001`
+- `slots/maya/nurbs.py::NurbsSlots.tb001_init`
+- `slots/maya/pivot.py::PivotSlots`
+- `slots/maya/pivot.py::PivotSlots.b004`
+- `slots/maya/pivot.py::PivotSlots.tb000`
+- `slots/maya/pivot.py::PivotSlots.tb000_init`
+- `slots/maya/pivot.py::PivotSlots.tb001`
+- `slots/maya/pivot.py::PivotSlots.tb001_init`
+- `slots/maya/pivot.py::PivotSlots.tb002`
+- `slots/maya/pivot.py::PivotSlots.tb002_init`
+- `slots/maya/pivot.py::PivotSlots.tb003`
+- `slots/maya/pivot.py::PivotSlots.tb003_init`
+- `slots/maya/polygons.py::PolygonsSlots`
+- `slots/maya/polygons.py::PolygonsSlots.b000`
+- `slots/maya/polygons.py::PolygonsSlots.b001`
+- `slots/maya/polygons.py::PolygonsSlots.b003`
+- `slots/maya/polygons.py::PolygonsSlots.b005`
+- `slots/maya/polygons.py::PolygonsSlots.b006`
+- `slots/maya/polygons.py::PolygonsSlots.b007`
+- `slots/maya/polygons.py::PolygonsSlots.b008`
+- `slots/maya/polygons.py::PolygonsSlots.b009`
+- `slots/maya/polygons.py::PolygonsSlots.b011`
+- `slots/maya/polygons.py::PolygonsSlots.b012`
+- `slots/maya/polygons.py::PolygonsSlots.b022`
+- `slots/maya/polygons.py::PolygonsSlots.b032`
+- `slots/maya/polygons.py::PolygonsSlots.b034`
+- `slots/maya/polygons.py::PolygonsSlots.b038`
+- `slots/maya/polygons.py::PolygonsSlots.b043`
+- `slots/maya/polygons.py::PolygonsSlots.b047`
+- `slots/maya/polygons.py::PolygonsSlots.b049`
+- `slots/maya/polygons.py::PolygonsSlots.b051`
+- `slots/maya/polygons.py::PolygonsSlots.b053`
+- `slots/maya/polygons.py::PolygonsSlots.chk008`
+- `slots/maya/polygons.py::PolygonsSlots.chk009`
+- `slots/maya/polygons.py::PolygonsSlots.chk010`
+- `slots/maya/polygons.py::PolygonsSlots.header_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb000`
+- `slots/maya/polygons.py::PolygonsSlots.tb000_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb002`
+- `slots/maya/polygons.py::PolygonsSlots.tb002_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb003`
+- `slots/maya/polygons.py::PolygonsSlots.tb003_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb004`
+- `slots/maya/polygons.py::PolygonsSlots.tb004_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb005`
+- `slots/maya/polygons.py::PolygonsSlots.tb005_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb006`
+- `slots/maya/polygons.py::PolygonsSlots.tb006_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb007`
+- `slots/maya/polygons.py::PolygonsSlots.tb007_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb008`
+- `slots/maya/polygons.py::PolygonsSlots.tb008_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb009`
+- `slots/maya/polygons.py::PolygonsSlots.tb009_init`
+- `slots/maya/preferences.py::PreferencesSlots`
+- `slots/maya/preferences.py::PreferencesSlots.b001`
+- `slots/maya/preferences.py::PreferencesSlots.b008`
+- `slots/maya/preferences.py::PreferencesSlots.b009`
+- `slots/maya/preferences.py::PreferencesSlots.b010`
+- `slots/maya/preferences.py::PreferencesSlots.cmb001`
+- `slots/maya/preferences.py::PreferencesSlots.cmb001_init`
+- `slots/maya/preferences.py::PreferencesSlots.cmb002`
+- `slots/maya/preferences.py::PreferencesSlots.cmb002_init`
+- `slots/maya/preferences.py::PreferencesSlots.cmb003`
+- `slots/maya/preferences.py::PreferencesSlots.cmb003_init`
+- `slots/maya/preferences.py::PreferencesSlots.s000_init`
+- `slots/maya/preferences.py::PreferencesSlots.s001_init`
+- `slots/maya/rendering.py::RenderingSlots`
+- `slots/maya/rendering.py::RenderingSlots.b000`
+- `slots/maya/rendering.py::RenderingSlots.b001`
+- `slots/maya/rendering.py::RenderingSlots.b003`
+- `slots/maya/rendering.py::RenderingSlots.b004`
+- `slots/maya/rendering.py::RenderingSlots.tb000`
+- `slots/maya/rendering.py::RenderingSlots.tb000_init`
+- `slots/maya/rendering.py::RenderingSlots.tb001`
+- `slots/maya/rendering.py::RenderingSlots.tb001_init`
+- `slots/maya/rigging.py::RiggingSlots`
+- `slots/maya/rigging.py::RiggingSlots.b004`
+- `slots/maya/rigging.py::RiggingSlots.b020`
+- `slots/maya/rigging.py::RiggingSlots.cmb001`
+- `slots/maya/rigging.py::RiggingSlots.cmb001_init`
+- `slots/maya/rigging.py::RiggingSlots.cmb002`
+- `slots/maya/rigging.py::RiggingSlots.cmb002_init`
+- `slots/maya/rigging.py::RiggingSlots.header_init`
+- `slots/maya/rigging.py::RiggingSlots.tb000`
+- `slots/maya/rigging.py::RiggingSlots.tb000_init`
+- `slots/maya/rigging.py::RiggingSlots.tb001`
+- `slots/maya/rigging.py::RiggingSlots.tb001_init`
+- `slots/maya/rigging.py::RiggingSlots.tb003`
+- `slots/maya/rigging.py::RiggingSlots.tb003_init`
+- `slots/maya/rigging.py::RiggingSlots.tb004`
+- `slots/maya/rigging.py::RiggingSlots.tb004_init`
+- `slots/maya/rigging.py::RiggingSlots.tb005`
+- `slots/maya/rigging.py::RiggingSlots.tb005_init`
+- `slots/maya/scene.py::SceneSlots`
+- `slots/maya/scene.py::SceneSlots.b001`
+- `slots/maya/scene.py::SceneSlots.b004`
+- `slots/maya/scene.py::SceneSlots.b005`
+- `slots/maya/scene.py::SceneSlots.b006`
+- `slots/maya/scene.py::SceneSlots.b009`
+- `slots/maya/scene.py::SceneSlots.b010`
+- `slots/maya/scene.py::SceneSlots.b011`
+- `slots/maya/scene.py::SceneSlots.b012`
+- `slots/maya/scene.py::SceneSlots.b013`
+- `slots/maya/scene.py::SceneSlots.b014`
+- `slots/maya/scene.py::SceneSlots.b014_init`
+- `slots/maya/scene.py::SceneSlots.b016`
+- `slots/maya/scene.py::SceneSlots.b017`
+- `slots/maya/scene.py::SceneSlots.b018`
+- `slots/maya/scene.py::SceneSlots.cmb002`
+- `slots/maya/scene.py::SceneSlots.cmb002_init`
+- `slots/maya/scene.py::SceneSlots.list000`
+- `slots/maya/scene.py::SceneSlots.list000_init`
+- `slots/maya/scene.py::SceneSlots.list001`
+- `slots/maya/scene.py::SceneSlots.list001_init`
+- `slots/maya/scene.py::SceneSlots.list002`
+- `slots/maya/scene.py::SceneSlots.list002_init`
+- `slots/maya/scene.py::SceneSlots.list003`
+- `slots/maya/scene.py::SceneSlots.tb003_init`
+- `slots/maya/selection.py::SelectionSlots`
+- `slots/maya/selection.py::SelectionSlots.b001`
+- `slots/maya/selection.py::SelectionSlots.b002`
+- `slots/maya/selection.py::SelectionSlots.b002_init`
+- `slots/maya/selection.py::SelectionSlots.b003`
+- `slots/maya/selection.py::SelectionSlots.b003_init`
+- `slots/maya/selection.py::SelectionSlots.b004`
+- `slots/maya/selection.py::SelectionSlots.b004_init`
+- `slots/maya/selection.py::SelectionSlots.b005`
+- `slots/maya/selection.py::SelectionSlots.b005_init`
+- `slots/maya/selection.py::SelectionSlots.b006`
+- `slots/maya/selection.py::SelectionSlots.b006_init`
+- `slots/maya/selection.py::SelectionSlots.b007`
+- `slots/maya/selection.py::SelectionSlots.b007_init`
+- `slots/maya/selection.py::SelectionSlots.chk000`
+- `slots/maya/selection.py::SelectionSlots.chk001`
+- `slots/maya/selection.py::SelectionSlots.chk002`
+- `slots/maya/selection.py::SelectionSlots.chk004`
+- `slots/maya/selection.py::SelectionSlots.chk005`
+- `slots/maya/selection.py::SelectionSlots.chk005_init`
+- `slots/maya/selection.py::SelectionSlots.chk006`
+- `slots/maya/selection.py::SelectionSlots.chk007`
+- `slots/maya/selection.py::SelectionSlots.cmb001`
+- `slots/maya/selection.py::SelectionSlots.cmb001_init`
+- `slots/maya/selection.py::SelectionSlots.cmb002`
+- `slots/maya/selection.py::SelectionSlots.cmb002_init`
+- `slots/maya/selection.py::SelectionSlots.list000`
+- `slots/maya/selection.py::SelectionSlots.list000_init`
+- `slots/maya/selection.py::SelectionSlots.list001`
+- `slots/maya/selection.py::SelectionSlots.tb000`
+- `slots/maya/selection.py::SelectionSlots.tb000_init`
+- `slots/maya/selection.py::SelectionSlots.tb001`
+- `slots/maya/selection.py::SelectionSlots.tb001_init`
+- `slots/maya/selection.py::SelectionSlots.tb002`
+- `slots/maya/selection.py::SelectionSlots.tb002_init`
+- `slots/maya/selection.py::SelectionSlots.tb003`
+- `slots/maya/selection.py::SelectionSlots.tb003_init`
+- `slots/maya/selection.py::SelectionSlots.tb004_init`
+- `slots/maya/settings.py::SettingsSlots`
+- `slots/maya/settings.py::SettingsSlots.tb001`
+- `slots/maya/subdivision.py::SubdivisionSlots`
+- `slots/maya/subdivision.py::SubdivisionSlots.b000`
+- `slots/maya/subdivision.py::SubdivisionSlots.b001`
+- `slots/maya/subdivision.py::SubdivisionSlots.b005`
+- `slots/maya/subdivision.py::SubdivisionSlots.b008`
+- `slots/maya/subdivision.py::SubdivisionSlots.b011`
+- `slots/maya/subdivision.py::SubdivisionSlots.b028`
+- `slots/maya/subdivision.py::SubdivisionSlots.s000`
+- `slots/maya/subdivision.py::SubdivisionSlots.s000_init`
+- `slots/maya/subdivision.py::SubdivisionSlots.s001`
+- `slots/maya/subdivision.py::SubdivisionSlots.s001_init`
+- `slots/maya/subdivision.py::SubdivisionSlots.tb000`
+- `slots/maya/subdivision.py::SubdivisionSlots.tb000_init`
+- `slots/maya/symmetry.py::SymmetrySlots`
+- `slots/maya/symmetry.py::SymmetrySlots.chk000`
+- `slots/maya/symmetry.py::SymmetrySlots.chk000_init`
+- `slots/maya/symmetry.py::SymmetrySlots.chk001`
+- `slots/maya/symmetry.py::SymmetrySlots.chk002`
+- `slots/maya/symmetry.py::SymmetrySlots.chk004`
+- `slots/maya/symmetry.py::SymmetrySlots.chk005`
+- `slots/maya/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/maya/transform.py::TransformSlots`
+- `slots/maya/transform.py::TransformSlots.b001`
+- `slots/maya/transform.py::TransformSlots.b002`
+- `slots/maya/transform.py::TransformSlots.b002_init`
+- `slots/maya/transform.py::TransformSlots.b_restore_axes`
+- `slots/maya/transform.py::TransformSlots.b_snap_ts`
+- `slots/maya/transform.py::TransformSlots.chk021`
+- `slots/maya/transform.py::TransformSlots.chk022`
+- `slots/maya/transform.py::TransformSlots.chk023`
+- `slots/maya/transform.py::TransformSlots.chk024`
+- `slots/maya/transform.py::TransformSlots.chk025`
+- `slots/maya/transform.py::TransformSlots.chk026`
+- `slots/maya/transform.py::TransformSlots.cmb002`
+- `slots/maya/transform.py::TransformSlots.cmb002_init`
+- `slots/maya/transform.py::TransformSlots.header_init`
+- `slots/maya/transform.py::TransformSlots.s021`
+- `slots/maya/transform.py::TransformSlots.s022`
+- `slots/maya/transform.py::TransformSlots.s023`
+- `slots/maya/transform.py::TransformSlots.tb000`
+- `slots/maya/transform.py::TransformSlots.tb000_init`
+- `slots/maya/transform.py::TransformSlots.tb001`
+- `slots/maya/transform.py::TransformSlots.tb002`
+- `slots/maya/transform.py::TransformSlots.tb002_init`
+- `slots/maya/transform.py::TransformSlots.tb003_init`
+- `slots/maya/transform.py::TransformSlots.tb004_init`
+- `slots/maya/transform.py::TransformSlots.tb005`
+- `slots/maya/transform.py::TransformSlots.tb005_init`
+- `slots/maya/utilities.py::UtilitiesSlots`
+- `slots/maya/utilities.py::UtilitiesSlots.b000`
+- `slots/maya/utilities.py::UtilitiesSlots.b001`
+- `slots/maya/utilities.py::UtilitiesSlots.b002`
+- `slots/maya/utilities.py::UtilitiesSlots.b003`
+- `slots/maya/uv.py::UvSlots`
+- `slots/maya/uv.py::UvSlots.b003`
+- `slots/maya/uv.py::UvSlots.b004`
+- `slots/maya/uv.py::UvSlots.b005`
+- `slots/maya/uv.py::UvSlots.b011`
+- `slots/maya/uv.py::UvSlots.b021`
+- `slots/maya/uv.py::UvSlots.b029`
+- `slots/maya/uv.py::UvSlots.b030`
+- `slots/maya/uv.py::UvSlots.b031`
+- `slots/maya/uv.py::UvSlots.b032`
+- `slots/maya/uv.py::UvSlots.b033`
+- `slots/maya/uv.py::UvSlots.header_init`
+- `slots/maya/uv.py::UvSlots.tb000`
+- `slots/maya/uv.py::UvSlots.tb000_init`
+- `slots/maya/uv.py::UvSlots.tb001`
+- `slots/maya/uv.py::UvSlots.tb001_init`
+- `slots/maya/uv.py::UvSlots.tb004`
+- `slots/maya/uv.py::UvSlots.tb004_init`
+- `slots/maya/uv.py::UvSlots.tb007`
+- `slots/maya/uv.py::UvSlots.tb007_init`
+- `slots/maya/uv.py::UvSlots.tb009`
+- `slots/maya/uv.py::UvSlots.tb009_init`
+- `slots/maya/uv.py::UvSlots.tb022`
+- `slots/maya/uv.py::UvSlots.tb022_init`

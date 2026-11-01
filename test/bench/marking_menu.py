@@ -1,18 +1,18 @@
 """Tentacle-side marking-menu init bench.
 
 Subclass of :class:`bench.marking_menu_init.MarkingMenuInitBench`
-that drives the **real** tentacle entry point — :class:`TclMaya` — so
+that drives the **real** tentacle entry point — ``Tcl.build("maya")`` — so
 the measurement reflects what a user actually feels when the menu first
 appears on F12.
 
-``TclMaya.__init__`` builds its own :class:`Switchboard` internally
+``Maya's marking menu.__init__`` builds its own :class:`Switchboard` internally
 (it does not accept a ``switchboard=`` kwarg), so :meth:`setup_switchboard`
 returns ``None`` and the full Switchboard + MarkingMenu cost is bundled
 into ``03_marking_menu_construct``.  The base class reads ``mm.sb`` after
 construction and the rest of the lifecycle phases work unchanged.
 
 The startmenu defaults to ``hud#startmenu`` — the activation-key default
-in :file:`tentacle/tcl_maya.py`.  The submenu is autodetected from the
+in :file:`tentacle/tcl.py`.  The submenu is autodetected from the
 first ``i`` button in the loaded startmenu, which mirrors what the user
 hits when they hover.
 
@@ -34,7 +34,7 @@ from bench.marking_menu_runtime import MarkingMenuRuntimeBench
 
 
 class TentacleMarkingMenuBench(MarkingMenuInitBench):
-    #: Activation-key default in :file:`tentacle/tcl_maya.py`.
+    #: Activation-key default in :file:`tentacle/tcl.py`.
     STARTMENU_UI = "hud#startmenu"
 
     #: ``None`` → autodetect via :meth:`find_submenu_name` (first ``i``
@@ -43,7 +43,7 @@ class TentacleMarkingMenuBench(MarkingMenuInitBench):
     SUBMENU_UI: Optional[str] = None
 
     def setup_switchboard(self):
-        # ``TclMaya`` builds its own Switchboard internally — it does
+        # ``Tcl.build("maya")`` builds its own Switchboard internally — it does
         # not accept a ``switchboard=`` kwarg and does not forward
         # ``**kwargs`` to ``MarkingMenu.__init__``.  Returning ``None``
         # tells the base bench to absorb the construction cost into
@@ -56,17 +56,17 @@ class TentacleMarkingMenuBench(MarkingMenuInitBench):
         # Imports happen inside the method so this module can be
         # imported outside Maya (e.g. for static analysis) without
         # exploding on ``import maya.cmds``.
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
-        # ``parent=None`` → ``TclMaya`` auto-resolves to
+        # ``parent=None`` → ``Tcl.build("maya")`` auto-resolves to
         # ``mtk.get_main_window()``, which matches how a user invokes
         # tentacle.  The global F12 shortcut wires up against the Maya
         # main window; cmds.quit at end-of-bench tears it down.
-        return TclMaya(log_level="WARNING")
+        return Tcl.build("maya", log_level="WARNING")
 
 
 class TentacleMarkingMenuRuntimeBench(MarkingMenuRuntimeBench):
-    """Per-gesture runtime costs against the real :class:`TclMaya`.
+    """Per-gesture runtime costs against the real ``Tcl.build("maya")``.
 
     Drives the same entry point as :class:`TentacleMarkingMenuBench`, then
     times what every later activation pays (press, chord switches, drag
@@ -79,6 +79,6 @@ class TentacleMarkingMenuRuntimeBench(MarkingMenuRuntimeBench):
     """
 
     def setup_marking_menu(self):
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
-        return TclMaya(log_level="WARNING")
+        return Tcl.build("maya", log_level="WARNING")

@@ -23,7 +23,7 @@
    <bool>true</bool>
   </property>
   <property name="accessibleDescription">
-   <string>Delete components or history, repair mesh topology, transfer data and lock nodes.</string>
+   <string>Delete selections, history or unused data, repair mesh topology, transfer data and lock objects.</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
@@ -163,9 +163,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Delete the selected component(s) — or the selected object(s) whole, if none of their components are selected.
+            <string>Delete the selected components, or the selected objects whole.
 
-Joints are removed via Maya's Remove Joint, reconnecting the hierarchy around the gap.</string>
+Maya: an object with selected components keeps the rest of itself; joints are removed with Remove Joint, reconnecting the hierarchy around the gap.
+Blender: in Edit Mode, the selected components of the active select mode.</string>
            </property>
            <property name="layoutDirection">
             <enum>Qt::LeftToRight</enum>
@@ -196,16 +197,54 @@ Joints are removed via Maya's Remove Joint, reconnecting the hierarchy around th
             </size>
            </property>
            <property name="toolTip">
-            <string>Delete construction history</string>
+            <string>Delete construction history (Maya).
+
+Use the option box to choose the scope and the scene cleanups that run with it.</string>
            </property>
            <property name="text">
             <string>Delete History</string>
+           </property>
+           <property name="requires" stdset="0">
+            <string>maya</string>
            </property>
            <property name="iconSize">
             <size>
              <width>18</width>
              <height>18</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb005">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Purge unused data-blocks: meshes, materials, images and the rest that nothing uses (Blender's File &gt; Clean Up &gt; Purge Unused Data).
+
+Use the option box for recursive and linked data.</string>
+           </property>
+           <property name="text">
+            <string>Optimize</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="requires" stdset="0">
+            <string>blender</string>
            </property>
           </widget>
          </item>
@@ -320,9 +359,9 @@ Use the option box to choose scope, mode, and which checks run.</string>
             <bool>false</bool>
            </property>
            <property name="toolTip">
-            <string>Transfer maps, attribute values, shading, or vertex order between selected objects (source first, then target(s)).
+            <string>Transfer from a source object to the other selected objects: the source is the first selected (Maya) or the active object (Blender).
 
-Choose the operation from the dropdown.</string>
+Choose what to transfer from the dropdown.</string>
            </property>
            <item>
             <property name="text">
@@ -343,7 +382,7 @@ Choose the operation from the dropdown.</string>
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Nodes</string>
+         <string>Locking</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <property name="spacing">
@@ -376,12 +415,14 @@ Choose the operation from the dropdown.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Lock or unlock the selected nodes — or every node in the scene, if nothing is selected.
+            <string>Lock or unlock, against accidental edits.
+Maya: the selected nodes, or every node in the scene when nothing is selected.
+Blender: Lock makes the selected objects unselectable; Unlock clears it on every object.
 
 Use the option box to choose Lock or Unlock.</string>
            </property>
            <property name="text">
-            <string>UnLock Nodes</string>
+            <string>Unlock</string>
            </property>
            <property name="iconSize">
             <size>

@@ -31,7 +31,6 @@ import sys
 import os
 import traceback
 from pathlib import Path
-from types import SimpleNamespace as NS
 
 MONO = Path(__file__).resolve().parents[3]
 for pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
@@ -140,7 +139,11 @@ try:
             bpy.data.objects.remove(o, do_unlink=True)
 
     # ================================================================ selection
-    from tentacle.slots.blender.selection import SelectionSlots
+    from tentacle.slots.selection import SelectionSlots
+    import blendertk as btk
+
+    # The composed slots reach Blender through ``self.tk``: every recorder carries it.
+    _Recorder.tk = btk
 
     # -- chk005-007 Select Style: the reported bug --
     ui = _Ui(chk005=chk(), chk006=chk(), chk007=chk())
@@ -209,7 +212,11 @@ try:
     check("selection b002-b007: init fires no slot", not ui.fired, f"{ui.fired}")
 
     # ================================================================ symmetry
-    from tentacle.slots.blender.symmetry import SymmetrySlots
+    from tentacle.slots.symmetry import SymmetrySlots
+    import blendertk as btk
+
+    # The composed slots reach Blender through ``self.tk``: every recorder carries it.
+    _Recorder.tk = btk
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()
@@ -282,7 +289,7 @@ try:
             )
 
     # ================================================================ subdivision
-    from tentacle.slots.blender.subdivision import SubdivisionSlots
+    from tentacle.slots.subdivision import SubdivisionSlots  # composed: over sb.tk
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()
@@ -309,7 +316,7 @@ try:
     assert_quiet_init("subdivision (no SUBSURF modifier)", slot, ui, ("s000", "s001"))
 
     # ================================================================ transform
-    from tentacle.slots.blender.transform import TransformSlots as Transform
+    from tentacle.slots.transform import TransformSlots as Transform  # composed: over sb.tk
 
     for snap in (True, False):
         # chk023 mirrors the EFFECTIVE state: snapping on AND the rotate kind.
@@ -326,26 +333,33 @@ try:
         assert_quiet_init(f"transform chk023 (snap={snap})", slot, ui, ("chk023",))
 
     # ================================================================ preferences
-    from tentacle.slots.blender.preferences import PreferencesSlots
+    import blendertk as btk
+    from tentacle.slots.preferences import PreferencesSlots
 
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.length_unit = "CENTIMETERS"
     bpy.context.scene.render.fps = 30
+    bpy.context.scene.render.fps_base = 1.0
 
     ui = _Ui(cmb001=ComboBox(), cmb002=ComboBox())  # real widget — see the cmb005 note
+    for _combo in (ui.cmb001, ui.cmb002):
+        _combo.is_initialized = False  # set at registration; the shared init reads it
     slot = make_slot(PreferencesSlots, ui)
+    slot.sb.tk = btk  # the composed class reaches Blender through the toolkit
     slot.cmb001_init(ui.cmb001)
     slot.cmb002_init(ui.cmb002)
     check(
-        "preferences cmb001: seeds the scene's live length unit (CENTIMETERS)",
-        ui.cmb001.currentData() == "CENTIMETERS",
+        "preferences cmb001: seeds the scene's live length unit (centimeter)",
+        ui.cmb001.currentData() == "centimeter",
         f"got {ui.cmb001.currentData()!r}",
     )
     check(
-        "preferences cmb002: seeds the scene's live fps (30)",
-        int(ui.cmb002.currentData() or 0) == 30,
+        "preferences cmb002: seeds the scene's live fps (30: ntsc)",
+        ui.cmb002.currentData() == "ntsc",
         f"got {ui.cmb002.currentData()!r}",
     )
+    for _combo in (ui.cmb001, ui.cmb002):  # the live-sync subscriptions the init made
+        btk.ScriptJobManager.instance().unsubscribe_all(_combo)
     # Both combos are POPULATED inside the init, and `add` emits currentIndexChanged on its
     # own — so this also pins that populating is done under the seed's blocked scope.
     assert_quiet_init("preferences cmb001/cmb002", slot, ui, ("cmb001", "cmb002"))

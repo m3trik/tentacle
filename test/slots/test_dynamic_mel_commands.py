@@ -3,8 +3,8 @@
 """MEL strings stored in module/class-level constant containers also resolve.
 
 Several slots build dispatch tables of MEL snippets and pass them through
-``mel.eval(cmd)`` at runtime — for example
-``tentacle/slots/maya/edit.py:_CONVERT_COMMANDS``. The constant-string
+``mel.eval(cmd)`` at runtime (edit's conversion table did, until it moved to
+mayatk's ``EditUtils._CONVERSIONS``). The constant-string
 ``mel.eval(...)`` scanner can't see those values because the call site
 takes a variable, not a literal. A typo in such a table only surfaces
 when the user clicks the corresponding menu item.

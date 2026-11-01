@@ -1,25 +1,24 @@
-"""Manual harness for tentacle.slots.blender.duplicate — the linked-duplicate ("instance") tools.
+"""Manual harness for tentacle.slots.duplicate (the composed Duplicate page) in
+Blender -- the linked-duplicate ("instance") tools over the real ``btk``.
 
-Requires a real Blender binary (``duplicate.py`` imports ``bpy`` at module scope), so it is
-**not** a CI/unittest target — the ``blender/`` subdir + non-``test_`` name keep it out of
-auto-discovery (same convention as ``panel_slots_check.py``). Run against a *fresh*
-Blender (never an existing session)::
+Requires a real Blender binary, so it is **not** a CI/unittest target -- the
+``blender/`` subdir + non-``test_`` name keep it out of auto-discovery (same
+convention as ``panel_slots_check.py``). Run against a *fresh* Blender (never
+an existing session)::
 
     blender --background --factory-startup --python tentacle/test/blender/duplicate_check.py
 
-Mirrors ``test/test_duplicate.py`` (the Maya-side regression suite, real ``maya.cmds``) with
-real ``bpy.data`` objects and fake option-box widgets — no Qt needed, since ``DuplicateSlots.__new__``
-bypasses ``__init__`` (the same trick the Maya tests use).
+Mirrors ``test/test_duplicate.py`` (whose Maya class drives the real ``mtk``)
+with real ``bpy.data`` objects and fake option-box widgets -- no Qt needed,
+since ``DuplicateSlots.__new__`` bypasses ``__init__`` and ``sb.tk`` is ``btk``.
 
-The tb001 cases exist to prove, against real ``bpy``, the exact bug class fixed on the Maya
-side (``tentacle/slots/maya/duplicate.py``): "Select Instanced Objects" must keep the
-originally selected object(s) in the final selection alongside their instances, not just the
-instances. ``blendertk.get_instances`` already includes the query objects by construction
-(unlike ``mayatk.get_instances``, which excludes them by default) — this confirms the tentacle
-slot layer doesn't accidentally filter them back out on the Blender side either.
+The tb001 cases prove, against real ``bpy``, the bug class once fixed on the
+Maya side: "Select Instanced Objects" must keep the originally selected
+object(s) in the final selection alongside their instances.
 """
 import sys
 import os
+import logging
 import traceback
 from pathlib import Path
 from types import SimpleNamespace as NS
@@ -48,8 +47,7 @@ def check(name, cond, detail=""):
 
 
 def fake_menu(**widgets):
-    """chk* -> isChecked() stand-in, s* -> value() stand-in (mirrors test_duplicate.py's
-    Maya-side _FakeMenu/_FakeChk/_FakeSpin)."""
+    """chk* -> isChecked() stand-in, s* -> value() stand-in."""
     ns = NS()
     for name, value in widgets.items():
         attr = "value" if name.startswith("s") else "isChecked"
@@ -65,12 +63,18 @@ try:
     import bpy
     import blendertk as btk
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for slot imports
-    from tentacle.slots.blender.duplicate import DuplicateSlots
+    from tentacle.slots.duplicate import DuplicateSlots
 
     def make_slot():
         slot = DuplicateSlots.__new__(DuplicateSlots)
         captured = []
-        slot.sb = NS(message_box=lambda *a, **k: captured.append((a, k)), messages=captured)
+        slot.sb = NS(
+            message_box=lambda *a, **k: captured.append((a, k)),
+            messages=captured,
+            tk=btk,
+            # Auto Instance reports through the switchboard's logger.
+            logger=logging.getLogger("duplicate_check"),
+        )
         return slot
 
     def reset():
@@ -85,30 +89,30 @@ try:
         return o
 
     def select_only(*objs):
-        bpy.ops.object.select_all(action="DESELECT")
-        for o in objs:
-            o.select_set(True)
-        if objs:
-            bpy.context.view_layer.objects.active = objs[0]
+        btk.CoreUtils.select(list(objs))
+
+    TB000 = dict(chk000=False, chk001=True, chk002=True, chk012=False, chk013=False)
 
     # ---- tb000: Convert to Instances — gating + real linked-duplicate result ----
     reset()
     slot = make_slot()
-    widget = fake_widget(chk000=False, chk002=True, chk012=False, chk013=False)
+    slot.tb000(fake_widget(**TB000))
+    check("tb000: nothing selected warns", bool(slot.sb.messages))
 
+    slot = make_slot()
     a = cube("tb000_a", (0, 0, 0))
     select_only(a)
-    slot.tb000(widget)
-    check("tb000: single selection warns", bool(slot.sb.messages))
+    slot.tb000(fake_widget(**TB000))
+    check("tb000: single selection warns", bool(slot.sb.messages), str(slot.sb.messages))
     check("tb000: single selection creates no instance", a.data.users == 1)
 
-    slot = make_slot()  # fresh sb.messages — the prior warn must not leak into this case
+    slot = make_slot()  # fresh sb.messages: the prior warning must not leak in
     b = cube("tb000_b", (3, 0, 0))
-    select_only(a, b)
-    bpy.context.view_layer.objects.active = a  # a = source
-    slot.tb000(widget)
-    check("tb000: 2 objects, no warning", not slot.sb.messages)
-    check("tb000: target now shares source data", b.data is a.data)
+    select_only(b, a)
+    bpy.context.view_layer.objects.active = a  # a = source (the active object)
+    slot.tb000(fake_widget(**TB000))
+    check("tb000: 2 objects, no warning", not slot.sb.messages, str(slot.sb.messages))
+    check("tb000: target now shares the active object's data", b.data == a.data)
 
     # chk012 (Retain Relative Scale) / chk013 (Non-Uniform) reach the engine.
     reset()
@@ -121,7 +125,7 @@ try:
     bpy.context.view_layer.update()
     select_only(src, tgt)
     bpy.context.view_layer.objects.active = src
-    slot.tb000(fake_widget(chk000=False, chk002=False, chk012=True, chk013=True))
+    slot.tb000(fake_widget(**dict(TB000, chk002=False, chk012=True, chk013=True)))
     check("tb000: chk012+chk013 -> non-uniform retained scale",
           abs(tgt.scale.y / tgt.scale.x - 2.0) < 1e-3
           and abs(tgt.scale.z / tgt.scale.x - 2.0) < 1e-3,
@@ -151,7 +155,7 @@ try:
     slot.tb001(fake_widget(chk003=False))
     check("tb001: non-instanced selection warns", bool(slot.sb.messages))
 
-    # All Instanced Objects -> scene-wide, ignores current selection.
+    # All Instanced Objects -> scene-wide, ignores the current selection.
     reset()
     slot = make_slot()
     x = cube("tb001_scene_x", (0, 0, 0))
@@ -167,51 +171,37 @@ try:
         f"selected={sorted(o.name for o in selected)}",
     )
 
-    # ---- tb002: Auto Instance — forwards option-box values; selects survivors ----
-    # AutoInstancer's own matching algorithm is covered by blendertk's
-    # test_auto_instancer.py; this only pins the slot-layer forwarding/result
-    # handling, so btk.AutoInstancer.run_once is monkeypatched (mirrors the
-    # Maya-side TestTb002AutoInstanceRouting fix — that class was found broken
-    # while writing this test, patching the removed mtk.auto_instance instead
-    # of mtk.AutoInstancer.run_once; same shape here, done right from the start).
+    # ---- tb002: Auto Instance — forwards the option box; the engine selects ----
+    # AutoInstancer's matching (and run_once's select=True) is covered by
+    # blendertk's test_auto_instancer.py; this pins the slot-layer forwarding
+    # and messages, so btk.AutoInstancer.run_once is monkeypatched.
     reset()
     slot = make_slot()
     captured = []
-    fake_result = {"value": []}
 
     def fake_run_once(nodes, **kwargs):
         captured.append((nodes, kwargs))
-        if kwargs.get("return_summary"):
-            return fake_result["value"], btk.AutoInstancer.default_summary()
-        return fake_result["value"]
+        return [], btk.AutoInstancer.default_summary()
 
     original_run_once = btk.AutoInstancer.run_once
     btk.AutoInstancer.run_once = fake_run_once
     try:
-        tb002_widget = fake_widget(
+        slot.tb002(fake_widget(
             s000=0.001, chk004=True, chk005=False, chk006=False, chk007=False,
             chk008=False, chk009=True, chk010=True, chk011=True, s001=10000.0,
-        )
-        slot.tb002(tb002_widget)
+        ))
         check(
-            "tb002: forwards nodes=None + option-box values",
-            len(captured) == 1 and captured[0][0] is None and captured[0][1]["tolerance"] == 0.001,
+            "tb002: forwards nodes=None + the option box + select=True",
+            len(captured) == 1 and captured[0][0] is None
+            and captured[0][1]["tolerance"] == 0.001
+            and captured[0][1]["select"] is True
+            and captured[0][1]["return_summary"] is True,
             str(captured),
         )
         check(
-            "tb002: no matches warns instead of silent no-op",
+            "tb002: no matches warns instead of a silent no-op",
             bool(slot.sb.messages) and "No matching geometry found" in str(slot.sb.messages[-1]),
             str(slot.sb.messages),
-        )
-
-        survivor = cube("tb002_survivor", (0, 0, 0))
-        fake_result["value"] = [survivor]
-        slot2 = make_slot()
-        select_only()
-        slot2.tb002(tb002_widget)
-        check(
-            "tb002: selects surviving result",
-            set(bpy.context.view_layer.objects.selected) == {survivor},
         )
     finally:
         btk.AutoInstancer.run_once = original_run_once
@@ -224,10 +214,10 @@ try:
     other2.data = src2.data
     select_only(other2)
     slot.b005()
-    check("b005: uninstance makes data single-user", other2.data is not src2.data)
+    check("b005: uninstance makes data single-user", other2.data != src2.data)
 
     print("\n".join(lines))
-    ok = sum(1 for l in lines if l.startswith("OK"))
+    ok = sum(1 for line in lines if line.startswith("OK"))
     print(f"===RESULT: {'PASS' if ok == len(lines) else 'FAIL'}=== ({ok}/{len(lines)})")
 
 except Exception:
