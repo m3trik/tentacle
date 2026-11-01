@@ -1156,14 +1156,18 @@ class TestFindAndCopyForm(_PanelCase):
             "nothing would move", validate({"source_dir": "C:/x", "dest_dir": "C:/x"})
         )
         self.assertIn(
-            "nothing would move",
-            validate({"source_dir": "C:\\X".lower(), "dest_dir": "c:/x/"}),
-        )
-        self.assertIn(
             "destination", validate({"source_dir": "C:/x", "dest_dir": ""}).lower()
         )
         self.assertEqual(validate({"source_dir": "C:/x", "dest_dir": "C:/y"}), "")
         self.assertEqual(validate({"source_dir": "", "dest_dir": "C:/y"}), "")
+
+    @unittest.skipUnless(os.name == "nt", "only Windows folds case and slash style")
+    def test_the_validator_reads_one_folder_however_windows_spells_it(self):
+        validate = TexturePathEditorSlots._validate_find_and_copy
+        self.assertIn(
+            "nothing would move",
+            validate({"source_dir": "C:\\X".lower(), "dest_dir": "c:/x/"}),
+        )
 
 
 #: A previewed plan row as the engine's ``plan_find_and_copy`` returns one.

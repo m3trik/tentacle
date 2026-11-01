@@ -250,7 +250,9 @@ class DescribeReadFailureTest(unittest.TestCase):
         # Pin the converted figure + drive, not just the literal "MB free" (that
         # is in the format string regardless, so it wouldn't catch a unit bug).
         self.assertIn("786 mb free", msg)
-        self.assertIn("x:", msg)
+        # The drive as the host names it: no drive letters off Windows.
+        drive = os.path.splitdrive(os.path.abspath("X:/seq/m.csv"))[0] or "the drive"
+        self.assertIn(f"{drive.lower()} has only", msg)
         self.assertIn("disk may be full", msg)  # still enumerated, not asserted
         # Must NOT revert to the old "make available offline" misdiagnosis.
         self.assertNotIn("available offline", msg)

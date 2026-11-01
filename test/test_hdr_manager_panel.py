@@ -962,10 +962,12 @@ class TestHdrManagerPanelMirror(_PanelCase):
         slots._select_active_in_combo()
         self.assertEqual(sb.loaded_ui.hdr_manager.cmb000.currentData(), "C:/ext/linked.hdr")
 
+    @unittest.skipUnless(os.name == "nt", "mixed slash styles come from Windows' os.path.join")
     def test_paths_match_across_slash_styles(self):
         """Regression (2026-06-16): the combo holds os.path.join on Maya's
         forward-slash workspace (``C:/proj/sourceimages\\x.hdr``), a caller a
-        normpath, so an exact findData missed the added map."""
+        normpath, so an exact findData missed the added map. Elsewhere a
+        backslash is no separator, and os.path.join never writes one."""
         mixed = "C:/proj/sourceimages\\machine_shop.hdr"
         slots, sb = _panel(ui=_StubUi(_StubCombo([mixed])))
         target = os.path.normpath("C:/proj/sourceimages/machine_shop.hdr")

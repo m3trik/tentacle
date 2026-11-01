@@ -16,6 +16,7 @@ words pythontk's (``test_shot_report.py``).
 
 import ast
 import contextlib
+import importlib.util
 import inspect
 import os
 import sys
@@ -690,11 +691,20 @@ def _refusing_engine_calls():
     """
     paths = [Path(inspect.getsourcefile(ptk.ShotSequencer))]
     for pkg in ("mayatk", "blendertk"):
-        engine = (
-            MONO / pkg / pkg / "anim_utils" / "shots" / "shot_sequencer" / "_shot_sequencer.py"
-        )
-        if engine.is_file():
-            paths.append(engine)
+        # The sibling checkout, else the installed package (CI installs mayatk
+        # through the [maya] extra); found, never imported.
+        roots = [MONO / pkg / pkg]
+        spec = importlib.util.find_spec(pkg)
+        if spec is not None and spec.origin is not None:
+            roots.append(Path(spec.origin).parent)
+        for root in roots:
+            engine = root / "anim_utils" / "shots" / "shot_sequencer" / "_shot_sequencer.py"
+            if engine.is_file():
+                paths.append(engine)
+                break
+    if len(paths) == 1:
+        # pythontk's orchestration alone never reaches a host's own refusals.
+        raise unittest.SkipTest("no host's shot-sequencer engine on disk (mayatk or blendertk)")
     graph = {}
     for path in paths:
         tree = ast.parse(path.read_text(encoding="utf-8"))

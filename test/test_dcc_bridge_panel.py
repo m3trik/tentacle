@@ -30,7 +30,7 @@ from pathlib import Path
 from unittest import mock
 
 import tentacle
-from _host import MAYA_AVAILABLE, maya_module
+from _host import MAYA_AVAILABLE, blendertk_on_path, maya_module
 from tentacle.slots.tools._app_bridge.host_bridge import HostBridge
 from tentacle.slots.tools.dcc_bridge import DccBridgeSlots
 
@@ -246,17 +246,24 @@ class TestDccBridgeAsksItsHost(unittest.TestCase):
         libraries: each name callable on ``mtk.EnvUtils`` and ``btk.EnvUtils``
         (both import without their host)."""
         mono = Path(tentacle.__file__).resolve().parents[2]
-        for repo in ("mayatk", "blendertk"):
-            path = str(mono / repo)
-            if path not in sys.path:
-                sys.path.insert(0, path)
-        import blendertk
+        mayatk_repo = str(mono / "mayatk")
+        if os.path.isdir(mayatk_repo) and mayatk_repo not in sys.path:
+            sys.path.insert(0, mayatk_repo)
         import mayatk
 
-        for lib in (mayatk, blendertk):
+        libs = [mayatk]
+        has_blendertk = blendertk_on_path()
+        if has_blendertk:
+            import blendertk
+
+            libs.append(blendertk)
+        for lib in libs:
             for name in ENV_UTILS_ASKED:
                 with self.subTest(lib=lib.__name__, name=name):
                     self.assertTrue(callable(getattr(lib.EnvUtils, name, None)))
+        if not has_blendertk:
+            # CI checks out tentacle alone and installs mayatk only ([maya]).
+            self.skipTest("mayatk checked; blendertk is not on the path (a monorepo checkout)")
 
     def test_presets_stay_where_each_host_kept_them(self):
         """Under the per-host panel names the bridges had before they merged."""
