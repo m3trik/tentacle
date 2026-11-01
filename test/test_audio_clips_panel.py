@@ -328,9 +328,14 @@ class TestAudioClipsPanelSetup(_PanelCase):
                 # Snap To Frame is the scene's recipe, where the host has one.
                 self.assertEqual(sb.ModelBinding.called, maya)
                 if maya:
+                    # The engine hands back its unwatch; the panel ends the
+                    # watch with its own widget.
                     engine.watch_snap.assert_called_once_with(
-                        sb.ModelBinding.return_value.refresh, widget=ui
+                        sb.ModelBinding.return_value.refresh
                     )
+                    (ended,), _ = ui.destroyed.connect.call_args
+                    ended()
+                    engine.watch_snap.return_value.assert_called_once_with()
                 # Built once: a second init only relabels.
                 slots.tb001_init(widget)
                 self.assertEqual(widget.setText.call_count, 2)

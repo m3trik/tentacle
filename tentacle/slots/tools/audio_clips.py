@@ -720,7 +720,9 @@ class AudioClipsSlots(Slots):
         )
         binding.bind("audio_snap", checkbox)
         binding.refresh()
-        self.engine.watch_snap(binding.refresh, widget=self.ui)
+        unwatch = self.engine.watch_snap(binding.refresh)
+        if unwatch is not None:
+            self.ui.destroyed.connect(lambda *_: unwatch())
 
     def _write_snap(self, _field, value) -> None:
         try:
