@@ -7,7 +7,7 @@
 
 A Qt marking-menu launcher for DCC apps.
 
-Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships 60+ tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name.
+Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships dozens of tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
@@ -24,13 +24,13 @@ The first start fetches `tentacletk` and the engine for your host (`mayatk` / `b
 
 **Update or uninstall:** drop the file in again (Maya) or open the add-on's preferences (Blender). Either applies at the next start if the menu is already running. In Blender use the add-on's own **Uninstall**: Blender's *Remove* button deletes only the add-on file and leaves the packages in `scripts/addons/modules/`. Settings brought over from an older Blender with *Load Previous Settings* can carry packages built for that version's Python. The first start on the new version reinstalls them, and so does **Update**.
 
-**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall` (exit code 1 when the verb failed, an install that did not take included). **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start.
+**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall` (exit code 1 when the verb failed, an install that did not take included). **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start. Add `apps` (`"tentacletk[maya,apps]"`) to install extapps' [standalone apps](#standalone-apps) with it.
 
 ## Activation key
 
 `Z` by default. Change it any time from the in-app **Preferences** panel.
 
-Starting Tentacle from your own startup script is two lines — `Tcl.launch` detects the host and defers startup however that host needs — and `key_show` names the default it starts with:
+Starting Tentacle from your own startup script is two lines — `Tcl.launch` detects the host and defers startup however that host needs — and `key_show` names the default it starts with (omitted, the `TENTACLE_KEY` environment variable names it, else `Z`):
 
 ```python
 from tentacle import Tcl
@@ -114,7 +114,9 @@ lists them all. The Unity Workflow and the WebXR Preview get the host's engine
 (`mtk` / `btk` `UnityBridge`, `WebXrPreview`), so they send the scene as well as a
 file: the host exports, the app delivers. Outside
 a DCC, `extapps` (or `python -m extapps [app]`) opens them. tentacle does not
-depend on extapps.
+depend on extapps; the `tentacletk[apps]` extra declares the extapps range it
+works with. With extapps missing, the first app opened installs it inside that
+range; one installed outside it is offered an update instead of launching.
 
 ## Project layout
 
@@ -123,8 +125,10 @@ tentacle/
 ├── tcl.py                 Tcl.launch / Tcl.build — the one launcher: host detection, ONE
 │                          uitk.MarkingMenu(host=…) per host, the activation-key/chord contract
 ├── tcl_blender.py         Blender add-on stub — bl_info, register/unregister, launch/reload/diagnose
+├── tentacle_installer.py  the one-file installer (Maya drop-in, Blender add-on): install/update/uninstall
 ├── slots/
-│   ├── _slots.py          Slots base — repeat-last-command shortcut
+│   ├── _slots.py          Slots base — self.tk (the host toolkit), requires / hide_unless,
+│   │                      launch_app, run_operation
 │   ├── <category>.py      one Slots class per marking-menu category, both hosts
 │   └── tools/             one Slots class per tool panel (Qt helpers in _<tool>/)
 └── ui/                    .ui definitions; tools/ the tool panels; maya_menus/ + blender_menus/ the

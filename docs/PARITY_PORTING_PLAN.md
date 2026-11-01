@@ -140,9 +140,10 @@ effective visibility, whether a control *works*. The measurement that closes thi
 every `*_init`, walk `findChildren` (+ per-mode states for dynamic panels like TubeRig), and
 serialize objectName/class/label/enabled/min/max/default to JSON; diff Maya vs Blender by name.
 
-The Blender half already exists as a template: `blendertk/test/test_blender_ui_handler.py`
-loads all panels under the workspace `.venv` (`QT_QPA_PLATFORM=offscreen`, no bpy) and already
-drives TubeRig mode switches + Channels behavior probes. The Maya half runs the same walk
+The Blender half has a template: `test/test_tool_panels_blender.py` loads every shared tool
+through a real `BlenderUiHandler` under the workspace `.venv` (`QT_QPA_PLATFORM=offscreen`, no
+bpy) and checks each one binds, but walks no widget tree and drives no per-mode state (blendertk's
+`test_blender_ui_handler.py` loads no panel). The Maya half runs the same walk
 under `mayapy` (standalone + offscreen Qt). Session safety applies: fresh instances only.
 
 ## Maintenance

@@ -6,7 +6,7 @@ Blender-specific marking-menu overlays, layered on top of the shared `ui/` menus
 
 ## Both-button chord menu — a thin launcher for Blender's own menus
 
-`F12 + L + R` opens `blender#startmenu.ui`. **These menus are not part of tentacle's custom
+The activation key + LMB + RMB (default `Z`) opens `blender#startmenu.ui`. **These menus are not part of tentacle's custom
 marking-menu system** (polygons / cameras / editors); like `ui/maya_menus/`, they are a fast
 radial way to reach the DCC's **built-in** menus. The `.ui` files author almost nothing — they are
 pure navigation, and the real menu is Blender's own.
