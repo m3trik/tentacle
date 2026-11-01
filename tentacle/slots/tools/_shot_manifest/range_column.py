@@ -288,8 +288,9 @@ class RangeColumnMixin:
     ) -> List[Tuple[str, float, Optional[float], bool]]:
         """Compute a resolved (start, end) for every step.
 
-        Detects/caches animation regions, then delegates to the
-        standalone :func:`._range_resolver.resolve_ranges` algorithm.
+        Detects/caches animation regions, then delegates to the host's
+        ``RangeResolver.resolve_ranges`` (``manifest_host.range_resolver_cls()``:
+        pythontk's ``ptk.RangeResolver``, sizing audio steps to their clips).
         ``regions=False`` ignores them: steps are placed one after another.
         On a built timeline the regions place nothing (no scan): a built step
         is its shot, an unbuilt one goes where Build inserts it

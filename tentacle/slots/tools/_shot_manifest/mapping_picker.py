@@ -9,9 +9,13 @@ One copy for both hosts: every host call goes through the controller's
 ``manifest_host``, the host library's ``ManifestHost`` (from ``Slots.tk``).
 """
 
+import json
+import os
 from typing import Dict, Optional
 
 import pythontk as ptk
+# Off the root on purpose (pythontk keeps generic names off it): its module path.
+from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
 
 from .manifest_data import ERROR_COLOR
 
@@ -129,8 +133,6 @@ class MappingPickerMixin:
         mapping name is stored as item *data* so selection stays robust.
         Selection priority: *select* arg > last-used > ``default`` > ``(none)``.
         """
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         cmb = self._cmb_mapping
         cmb.blockSignals(True)
         cmb.clear()
@@ -194,8 +196,6 @@ class MappingPickerMixin:
         *persist* records the choice as last-used (skipped in directory-override
         mode, whose pointer belongs to a different store).
         """
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         self._mapping_name = name or None
         # The user's own pick: what a sheet the scene never read is read with
         # (_adopt_sheet_options), whichever template a record switched in.
@@ -236,8 +236,6 @@ class MappingPickerMixin:
         """The user's saved option values of template *name* (the current one
         by default; ``{}`` if none) -- what seeds a sheet the scene has never
         read (maintainer 2026-10-12)."""
-        import json
-
         name = name or self._mapping_name
         if not name:
             return {}
@@ -250,8 +248,6 @@ class MappingPickerMixin:
 
     def _reapply_mapping(self) -> None:
         """Rebuild the effective template from its options, then re-load the sheet."""
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         self._active_mapping = (
             Mapping.apply_options(self._mapping_template, self._option_values())
             if self._mapping_template is not None
@@ -271,8 +267,6 @@ class MappingPickerMixin:
         next sheet the scene has never read.  A sheet in the field that did
         not load is read again with it (:meth:`_reapply_mapping`), and the
         sheet still shown keeps its record."""
-        import json
-
         user = self._user_option_values()
         user[key] = value
         self._settings.setValue(
@@ -316,8 +310,6 @@ class MappingPickerMixin:
         (:meth:`_inferred_sheet_options`); else the user's own: a sheet the
         scene has never read.  Nothing is written: a record is made by a
         Build, an option change or a saved edit."""
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         store = self._active_store()
         record = ptk.ManifestEdits.sheet_options(store, path)
         if record is None:
@@ -353,8 +345,6 @@ class MappingPickerMixin:
         loaded -- shown on the picker, never saved as the user's last-used.
         ``False`` (the current one kept) when this machine has no such
         template; the footer says so."""
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         template = None
         if name:
             try:
@@ -412,9 +402,6 @@ class MappingPickerMixin:
         from *path*, records no objects, or the sheet is a URL (each trial
         would fetch it).  The last read is kept, keyed by its sheet,
         template and build record."""
-        import os
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         if (
             store is None
             or self._mapping_template is None
@@ -464,7 +451,6 @@ class MappingPickerMixin:
         template; the template, not the widget state, owns them.
         """
         from qtpy import QtWidgets
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
         AttributeSpec, KindFactory = self.sb.AttributeSpec, self.sb.KindFactory
         Tooltip = self.sb.Tooltip
         FormRows = self.sb.FormRows
@@ -515,8 +501,6 @@ class MappingPickerMixin:
         example and the format reference, so there's a model to copy and a spec
         to read.
         """
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         ts = Mapping.templates()
         d = ts.user_dir
         d.mkdir(parents=True, exist_ok=True)
@@ -528,6 +512,4 @@ class MappingPickerMixin:
         """Seed *ts*'s empty user folder with an example mapping + format
         reference (``Mapping.seed_user_folder``: a no-op once it holds anything).
         """
-        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-
         Mapping.seed_user_folder(ts)

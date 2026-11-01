@@ -316,31 +316,10 @@ class ReferenceManagerController(ptk.LoggingMixin):
             return
 
         included = self.included_extensions()
-        file_list = [
-            f
-            for f in self.engine.workspace_files.get(workspace_path, [])
-            if os.path.splitext(f)[1].lower() in included
-        ]
-        unfiltered = len(file_list)
         _case, suffix, structure = self.naming_options()
         menu = self.header_menu()
-        if self._checked("chk_filter_suffix", menu=menu) and suffix:
-            file_list = [
-                f
-                for f in file_list
-                if os.path.splitext(os.path.basename(f))[0].endswith(suffix)
-            ]
-        if self._checked("chk_filter_folder_structure", menu=menu):
-            pattern = self.files.normalize_structure_pattern(structure)
-            if pattern:
-                file_list = ptk.SceneListing.filter_by_folder_structure(
-                    file_list,
-                    workspace_path,
-                    pattern,
-                    suffix,
-                    ptk.SceneListing.scenes_folder(workspace_path),
-                )
-        self._prefiltered = unfiltered - len(file_list)
+        if not self._checked("chk_filter_folder_structure", menu=menu):
+            structure = ""
 
         fmenu = self.filter_menu()
         ignore_case = self._checked("chk_ignore_case", default=True, menu=fmenu)
@@ -355,12 +334,10 @@ class ReferenceManagerController(ptk.LoggingMixin):
             target in ("Filter: All", "Filter: Notes"),
         )
 
-        # External references -- a reference whose row is not this workspace's -- are
-        # listed first, each by the row it stands for.
+        # The workspace's foreign scenes, found when a foreign type is checked (a
+        # foreign row's reference icon bakes it and references the result) or a
+        # reference stands for one.
         ref_rows = self._reference_rows()
-        listed = {
-            self.norm(f) for f in self.engine.workspace_files.get(workspace_path, [])
-        }
         foreign_ext = {e for e in self.engine.FOREIGN_EXTENSIONS if e in included}
         foreign_found = []
         if foreign_ext or any(self.engine.is_foreign(r) for r in ref_rows):
@@ -369,42 +346,25 @@ class ReferenceManagerController(ptk.LoggingMixin):
                 recursive=self.engine.recursive_search,
                 extensions=sorted(foreign_ext) or None,
             )
-            listed.update(self.norm(p) for p in foreign_found)
-        external, seen = [], set()
-        for row in ref_rows:
-            key = self.norm(row)
-            if key not in listed and key not in seen:
-                seen.add(key)
-                external.append(row)
-        file_list = external + file_list
-
-        # The workspace's foreign scenes of each checked foreign type: a foreign row's
-        # reference icon bakes it and references the result.
-        if foreign_ext:
-            existing = {self.norm(p) for p in file_list}
-            for p in foreign_found:
-                if (
-                    os.path.splitext(p)[1].lower() in foreign_ext
-                    and self.norm(p) not in existing
-                ):
-                    file_list.append(p)
-
-        hide_suffix = suffix if self._checked("chk_hide_suffix", menu=menu) else ""
-        hide_extension = self._checked("chk_hide_extension", menu=menu)
-        file_names = []
-        for f in file_list:
-            name = ptk.SceneListing.display_name(f, hide_extension, hide_suffix)
-            if f in external:
-                home = ptk.Workspace.find_containing(f)
-                name = (
-                    f"{name} ({os.path.basename(home.root)})"
-                    if home
-                    else f"{name} (External)"
-                )
-            file_names.append(name)
-        if not file_list:
+        # The rows (``ptk.SceneListing.rows``): the references from elsewhere
+        # first, each by the row it stands for, the foreign scenes last.
+        rows = ptk.SceneListing.rows(
+            self.engine.workspace_files.get(workspace_path, []),
+            workspace_path,
+            included,
+            suffix=suffix,
+            filter_suffix=self._checked("chk_filter_suffix", menu=menu),
+            structure=self.files.normalize_structure_pattern(structure),
+            references=ref_rows,
+            foreign=foreign_found,
+            foreign_extensions=foreign_ext,
+            hide_extension=self._checked("chk_hide_extension", menu=menu),
+            hide_suffix=self._checked("chk_hide_suffix", menu=menu),
+        )
+        self._prefiltered = rows.filtered
+        if not rows.paths:
             self.logger.debug(f"No scene files found in workspace: {workspace_path}")
-        self.update_table(file_names, file_list)
+        self.update_table(rows.labels, rows.paths)
 
     def update_table(self, file_names, file_list):
         """(Re)fill the table with *file_list* labelled *file_names*: items reused

@@ -386,196 +386,220 @@ class TestCombineMode(_PanelCase):
 
 
 class _TransferCase(_PanelCase):
-    def _run(self, sides, values=None, host=MAYA, affix="", affix_mode="auto"):
+    """The run is the host's (``TextureTransfer.run``: ``ptk.TransferRun``
+    over the host, pinned in pythontk's ``test_uv_transfer_run.py``): these
+    cases hand the panel a ``ptk.TransferResult`` and read what it says, and
+    read the rows it hands the run."""
+
+    def _run(self, result=None, values=None, host=MAYA, affix="", affix_mode="auto"):
         slots, sb, ui = _panel(
             values, host=host, mode="transfer", affix=affix, affix_mode=affix_mode
         )
-        sb.tk.TextureTransfer.selection_sides.return_value = sides
+        sb.tk.TextureTransfer.run.return_value = (
+            result if result is not None else ptk.TransferResult(mode="first")
+        )
         slots.transfer.run()
         return slots, sb, ui
 
-
-class TestTransferRun(_TransferCase):
-    def test_the_run_is_one_undo_step_over_the_hosts_sides(self):
-        slots, sb, ui = self._run(("first", ["src"], ["tgt"]))
-        tk = sb.tk
-        tk.CoreUtils.undo_chunk.assert_called_once_with("Texture Transfer")
-        tk.TextureTransfer.selection_sides.assert_called_once_with("first", [])
-        tk.TextureTransfer.pair_sources.assert_called_once_with(["tgt"], ["src"])
-
-    def test_a_pair_transfers_uvs_without_re_vetting(self):
-        tk = _fake_tk()
-        tk.TextureTransfer.pair_sources.return_value = {"tgt": "src"}
-        tk.UvUtils.transfer_uvs.return_value = [("src", "tgt", "topology")]
-        slots, sb, ui = _panel(tk=tk, mode="transfer")
-        tk.TextureTransfer.selection_sides.return_value = ("first", ["src"], ["tgt"])
-        slots.transfer.run()
-        tk.UvUtils.transfer_uvs.assert_called_once_with(
-            ["src"], ["tgt"], match_by_similarity=False
-        )
-        self.assertIn("Transferred UVs to <b>1</b> object(s).", _message(sb))
-        self.assertNotIn("proximity", _message(sb))
-        tk.UvUtils.transfer_uvs.return_value = [("src", "tgt", "nearest")]
-        slots.transfer.run()
-        self.assertIn("sampled by proximity", _message(sb))
-
-    def test_no_selection_refuses_with_the_hosts_hint(self):
-        for host in (MAYA, BLENDER):
-            for mode, key in (("first", "pick_first"), ("last", "pick_last")):
-                slots, sb, ui = self._run(
-                    (mode, [], []), {"cmb_tt_source": mode}, host=host
-                )
-                self.assertIn(host["terms"][key], _message(sb))
-                sb.tk.UvUtils.transfer_uvs.assert_not_called()
-
-    def test_the_uv_pass_refuses_a_combined_target(self):
-        tk = _fake_tk()
-        tk.TextureTransfer.pair_sources.return_value = {"c": ("a", "b")}
-        slots, sb, ui = _panel({"cmb_tt_source": "last"}, tk=tk, mode="transfer")
-        tk.TextureTransfer.selection_sides.return_value = ("last", ["a", "b"], ["c"])
-        slots.transfer.run()
-        self.assertIn("one source per target", _message(sb))
-        tk.UvUtils.transfer_uvs.assert_not_called()
-
-    def test_the_similar_scopes_fan_out_through_the_host(self):
-        tk = _fake_tk()
-        tk.UvUtils.transfer_uvs_to_similar.return_value = ["t1"]
-        slots, sb, ui = _panel({"cmb_tt_targets": "selection"}, tk=tk, mode="transfer")
-        tk.TextureTransfer.selection_sides.return_value = (
-            "first",
-            ["src"],
-            ["t1", "t2"],
-        )
-        slots.transfer.run()
-        tk.UvUtils.transfer_uvs_to_similar.assert_called_once_with(
-            "src", ["t1", "t2"], tolerance=0.9
-        )
-        tk.UvUtils.transfer_uvs_to_similar.return_value = []
-        slots.transfer.run()
-        self.assertIn("No similar meshes found", _message(sb))
-        self.assertIn("instances", _message(sb))
-
-    def test_auto_says_how_it_read_the_selection(self):
-        tk = _fake_tk()
-        tk.TextureTransfer.return_value.transfer.return_value = {
-            "m": {"baseColor": "/out/hero_BaseColor.png"}
-        }
-        tk.TextureTransfer.pair_sources.return_value = {"c": ("a", "b")}
-        slots, sb, ui = _panel(
-            {"cmb_tt_source": "auto", "cmb_tt_transfer": "textures"},
-            tk=tk,
-            mode="transfer",
-        )
-        tk.TextureTransfer.selection_sides.return_value = ("last", ["a", "b"], ["c"])
-        slots.transfer.run()
-        tk.TextureTransfer.selection_sides.assert_called_once_with("auto", [])
-        self.assertIn("<i>Source: Auto</i> read a mesh combined", _message(sb))
-
-    def test_auto_picks_textures_when_a_source_material_has_maps(self):
-        slots, sb, ui = _panel(mode="transfer")
-        transfers = sb.tk.TextureTransfer
-        transfers.face_materials.return_value = (["m"], None)
-        transfers.material_maps.return_value = {"baseColor": "/a.png"}
-        self.assertEqual(slots.transfer.resolve_auto(["src"]), "textures")
-        transfers.material_maps.return_value = {}
-        self.assertEqual(slots.transfer.resolve_auto(["src"]), "uvs")
-        self.assertEqual(
-            slots.transfer.resolve_auto(["src"], has_lightmap=lambda m: True),
-            "textures",
-        )
-
-    def test_the_passes(self):
-        passes = TransferMode.passes
-        self.assertEqual(passes("first", "auto"), (True, True))
-        self.assertEqual(passes("uvset", "auto"), (False, True))
-        self.assertEqual(passes("first", "textures"), (False, True))
-        self.assertEqual(passes("first", "uvs"), (True, False))
-        self.assertEqual(passes("uvset", "uvs"), (False, False))
-
-
-class TestTexturePass(_TransferCase):
     def _kwargs(self, values=None, **kwargs):
-        values = {"cmb_tt_transfer": "textures", **(values or {})}
-        slots, sb, ui = self._run(("first", ["src"], ["tgt"]), values, **kwargs)
-        engine = sb.tk.TextureTransfer.return_value
-        self.assertEqual(engine.transfer.call_count, 1, sb.message_box.call_args)
-        return slots, sb, engine.transfer.call_args
+        slots, sb, ui = self._run(values=values, **kwargs)
+        sb.tk.TextureTransfer.run.assert_called_once()
+        return sb.tk.TextureTransfer.run.call_args.kwargs
 
-    def test_the_rows_reach_the_hosts_transfer(self):
-        slots, sb, call = self._kwargs()
-        self.assertEqual(call.args, (["tgt"], ["src"]))
-        kw = call.kwargs
+
+class TestTransferRows(_TransferCase):
+    def test_the_rows_reach_the_hosts_run(self):
+        kw = self._kwargs()
+        self.assertEqual(
+            (kw["source"], kw["transfer"], kw["scope"], kw["stored"]),
+            ("first", "uvs", "order", []),
+        )
+        self.assertEqual((kw["similarity"], kw["lightmaps"]), (0.9, False))
         self.assertEqual(
             (kw["output_name"], kw["supersample"], kw["padding"]), ("hero", 2, -1)
         )
         self.assertIsNone(kw["size"])  # Resolution: Auto
+        self.assertEqual((kw["output_dir"], kw["source_uv_set"]), (None, None))
         self.assertEqual((kw["assign_prefix"], kw["assign_suffix"]), ("", None))
-        self.assertEqual(kw["assign_from"], "source")
+        self.assertEqual((kw["assign"], kw["assign_from"]), (True, "source"))
         self.assertNotIn("assign_shader_type", kw)
 
+    def test_the_stored_meshes_and_the_similarity_reach_the_run(self):
+        slots, sb, ui = _panel(mode="transfer")
+        slots.transfer.sources = ["|a"]
+        slots.transfer.similarity = mock.MagicMock(**{"value.return_value": 0.7})
+        sb.tk.TextureTransfer.run.return_value = ptk.TransferResult(mode="first")
+        slots.transfer.run()
+        kw = sb.tk.TextureTransfer.run.call_args.kwargs
+        self.assertEqual((kw["stored"], kw["similarity"]), (["|a"], 0.7))
+
     def test_the_affix_picker(self):
-        self.assertEqual(self._kwargs(affix="_MAT")[2].kwargs["assign_suffix"], "_MAT")
-        self.assertEqual(self._kwargs(affix="MAT_")[2].kwargs["assign_prefix"], "MAT_")
-        kw = self._kwargs(affix="MAT", affix_mode="prefix")[2].kwargs
+        self.assertEqual(self._kwargs(affix="_MAT")["assign_suffix"], "_MAT")
+        self.assertEqual(self._kwargs(affix="MAT_")["assign_prefix"], "MAT_")
+        kw = self._kwargs(affix="MAT", affix_mode="prefix")
         self.assertEqual((kw["assign_prefix"], kw["assign_suffix"]), ("MAT", ""))
-        kw = self._kwargs(affix="MAT")[2].kwargs  # Auto falls back to the suffix
+        kw = self._kwargs(affix="MAT")  # Auto falls back to the suffix
         self.assertEqual((kw["assign_prefix"], kw["assign_suffix"]), ("", "MAT"))
 
     def test_the_material_row(self):
-        kw = self._kwargs({"cmb_shader": "stingray"})[2].kwargs
+        kw = self._kwargs({"cmb_shader": "stingray"})
         self.assertEqual(
             (kw["assign_shader_type"], kw["assign_from"]), ("stingray", "source")
         )
-        kw = self._kwargs({"cmb_shader": "target"})[2].kwargs
+        kw = self._kwargs({"cmb_shader": "target"})
         self.assertEqual(kw["assign_from"], "target")
         self.assertNotIn("assign_shader_type", kw)
 
     def test_overwrite_target_re_uses_the_material_and_drops_the_affix(self):
-        kw = self._kwargs({"cmb_shader": "in_place"}, affix="_MAT")[2].kwargs
+        kw = self._kwargs({"cmb_shader": "in_place"}, affix="_MAT")
         self.assertEqual(kw["assign_from"], "in_place")
         self.assertEqual((kw["assign_prefix"], kw["assign_suffix"]), ("", None))
 
-    def test_a_blank_name_is_the_hosts_default_name_for_the_source(self):
-        slots, sb, ui = _panel(
-            {"t_name": "", "cmb_tt_transfer": "textures"}, mode="transfer"
+    def test_each_pass_names_its_progress_in_the_hosts_words(self):
+        slots, sb, ui = self._run(host=BLENDER)
+        progress = sb.tk.TextureTransfer.run.call_args.kwargs["progress"]
+        tick = sb.progress.return_value.__enter__.return_value
+        progress("uvs")
+        tick.assert_called_with(text="Working: Transfer UV Map")
+        progress("textures")
+        tick.assert_called_with(text="Working: Transfer Textures")
+
+    def test_a_typed_name_that_produced_maps_is_remembered(self):
+        maps = {"m": {"baseColor": "/out/hero_BaseColor.png"}}
+        result = ptk.TransferResult(
+            mode="first", do_textures=True, maps=maps, typed=True,
+            output_name="hero", named="hero",
+        )  # fmt: skip
+        for typed, recorded in ((True, [mock.call("hero")]), (False, [])):
+            result.typed = typed
+            slots, sb, ui = _panel(mode="transfer")
+            slots._name_recent = mock.MagicMock()  # the Output Name's history
+            sb.tk.TextureTransfer.run.return_value = result
+            slots.transfer.run()
+            self.assertEqual(slots._name_recent.record.call_args_list, recorded)
+
+
+class TestTransferWords(_TransferCase):
+    """How the panel words a run's result, in each host's terms."""
+
+    def test_every_refusal_the_run_names_has_words(self):
+        for host in (MAYA, BLENDER):
+            slots, sb, ui = _panel(host=host, mode="transfer")
+            for refusal in ptk.TransferRun.REFUSALS:
+                result = ptk.TransferResult(mode="first", refusal=refusal)
+                self.assertTrue(slots.transfer.report(result), refusal)
+
+    def test_no_selection_refuses_with_the_hosts_hint(self):
+        for host in (MAYA, BLENDER):
+            for refusal in ("pick_first", "pick_last"):
+                slots, sb, ui = self._run(
+                    ptk.TransferResult(mode="first", refusal=refusal), host=host
+                )
+                self.assertIn(host["terms"][refusal], _message(sb))
+
+    def test_the_uv_pass_refuses_a_combined_target(self):
+        result = ptk.TransferResult(mode="last", refusal="one_source_per_target")
+        slots, sb, ui = self._run(result)
+        self.assertIn("one source per target", _message(sb))
+
+    def test_no_similar_mesh_names_the_hosts_instances(self):
+        for host in (MAYA, BLENDER):
+            result = ptk.TransferResult(mode="first", refusal="no_similar")
+            slots, sb, ui = self._run(result, host=host)
+            self.assertIn("No similar meshes found", _message(sb))
+            self.assertIn(host["terms"]["instances"], _message(sb))
+
+    def test_the_hosts_message_is_quoted(self):
+        result = ptk.TransferResult(
+            mode="first", refusal="uv_error", error="no shared topology"
         )
-        slots.engine.default_name.return_value = "crate"
-        sb.tk.TextureTransfer.selection_sides.return_value = ("first", ["src"], ["tgt"])
-        slots.transfer.run()
-        slots.engine.default_name.assert_called_once_with(["src"], fallback="transfer")
-        kw = sb.tk.TextureTransfer.return_value.transfer.call_args.kwargs
-        self.assertEqual(kw["output_name"], "crate")
+        slots, sb, ui = self._run(result, host=BLENDER)
+        self.assertEqual(_message(sb), "<b>Transfer UV Map:</b><br>no shared topology")
+
+    def test_auto_says_how_it_read_the_selection(self):
+        maps = {"m": {"baseColor": "/out/hero_BaseColor.png"}}
+        result = ptk.TransferResult(
+            mode="last", source_auto=True, do_textures=True, maps=maps,
+            typed=True, output_name="hero", named="hero",
+        )  # fmt: skip
+        slots, sb, ui = self._run(result)
+        self.assertIn("<i>Source: Auto</i> read a mesh combined", _message(sb))
+        # A refusal reads the same way, with Auto's pick.
+        result = ptk.TransferResult(
+            mode="first", source_auto=True, transfer_auto=True, do_textures=True,
+            refusal="similar_needs_uvs",
+        )  # fmt: skip
+        slots, sb, ui = self._run(result)
+        self.assertIn("chose Textures", _message(sb))
+        self.assertIn(
+            "<i>Source: Auto</i> read the first-selected object", _message(sb)
+        )
+
+    def test_the_uv_pass_says_what_it_sampled_by_proximity(self):
+        result = ptk.TransferResult(
+            mode="first", do_uvs=True, uvs=[("src", "tgt", "topology")]
+        )
+        slots, sb, ui = self._run(result)
+        self.assertIn("Transferred UVs to <b>1</b> object(s).", _message(sb))
+        self.assertNotIn("proximity", _message(sb))
+        result.uvs = [("src", "tgt", "nearest")]
+        slots, sb, ui = self._run(result)
+        self.assertIn("sampled by proximity", _message(sb))
+
+    def test_the_texture_pass_links_its_folder_and_says_its_name(self):
+        maps = {"m": {"baseColor": "/out/crate_BaseColor.png"}}
+        result = ptk.TransferResult(
+            mode="first", do_textures=True, maps=maps,
+            output_name="crate", named="crate",
+        )  # fmt: skip
+        slots, sb, ui = self._run(result)
+        text = _message(sb)
+        self.assertIn("Transferred <b>1</b> map(s) for <b>1</b> material(s)", text)
+        self.assertIn('<a href="action://open?path=/out">/out</a>', text)
+        self.assertIn("Named <b>crate</b> after the source", text)
+        result.typed, result.named = True, "crate_1"
+        slots, sb, ui = self._run(result)
+        self.assertIn("<b>crate</b> is held outside this run", _message(sb))
+        result = ptk.TransferResult(
+            mode="first", do_textures=True, texture_error="no source maps"
+        )
+        slots, sb, ui = self._run(result)
+        self.assertEqual(_message(sb), "<b>Transfer Textures:</b> no source maps")
 
     def test_the_lightmap_pass_links_the_maps_home(self):
-        values = {"cmb_tt_transfer": "textures", "chk_tt_lightmaps": True}
-        tk = _fake_tk()
-        tk.LightmapRecords.transfer_lightmaps.return_value = {
-            "tgt": {"how": "resampled", "path": "/session/hero_Lightmap.exr"}
-        }
-        session = mock.MagicMock()
-        session.home.return_value = "/proj/lightmaps/hero_Lightmap.exr"
-        with mock.patch.object(ptk.PendingFiles, "session", return_value=session):
-            slots, sb, ui = _panel(values, tk=tk, mode="transfer")
-            tk.TextureTransfer.selection_sides.return_value = (
-                "first",
-                ["src"],
-                ["tgt"],
-            )
-            slots.transfer.run()
-        session.home.assert_called_once_with("/session/hero_Lightmap.exr")
-        self.assertIn("resampled into the target's layout", _message(sb))
-        self.assertIn("/proj/lightmaps", _message(sb))
+        result = ptk.TransferResult(
+            mode="first", do_textures=True, maps={}, typed=True,
+            output_name="hero", named="hero",
+            lightmap_results={
+                "tgt": {"how": "resampled", "path": "/session/hero_Lightmap.exr"},
+                "t2": {"how": "rebound", "path": "/maps/lm.exr"},
+            },
+            lightmap_folder="/proj/lightmaps",
+        )  # fmt: skip
+        slots, sb, ui = self._run(result)
+        text = _message(sb)
+        self.assertIn("<b>1</b> bound to the source's own map", text)
+        self.assertIn("<b>1</b> resampled into the target's layout", text)
+        self.assertIn('<a href="action://open?path=/proj/lightmaps">', text)
+        result.lightmap_results = {}
+        slots, sb, ui = self._run(result)
+        self.assertIn("No lightmaps transferred", _message(sb))
 
     def test_overwrite_note_names_the_files_rewritten_in_place(self):
-        before = {TransferMode._path_key("/maps/own.png")}
-        note = TransferMode.overwrite_note(
-            before,
-            {"m": {"baseColor": "/maps/own.png", "normal": "/maps/new.png"}},
-            ["kept x"],
+        result = ptk.TransferResult(
+            overwritten=["/maps/own.png"],
+            added=["/maps/new.png"],
+            warnings=["kept <x>"],
         )
+        note = TransferMode.overwrite_note(result)
         self.assertIn("Overwrote <b>1</b> file(s) in place: own.png", note)
         self.assertIn("Wrote <b>1</b> new file(s)", note)
-        self.assertIn("&bull; kept x", note)
+        self.assertIn("&bull; kept &lt;x&gt;", note)
+        note = TransferMode.overwrite_note(
+            ptk.TransferResult(warnings=[f"w{i}" for i in range(9)])
+        )
+        self.assertIn("No file was overwritten in place.", note)
+        self.assertIn("... and 3 more (the log).", note)
 
 
 class TestStoredSources(_TransferCase):

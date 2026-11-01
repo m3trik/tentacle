@@ -25,6 +25,7 @@ from unittest import mock
 
 import pythontk as ptk
 from qtpy import QtCore, QtWidgets
+from uitk import RecentValuesStore
 
 import tentacle
 from _host import MAYA_AVAILABLE, maya_module, qt_widgets_available
@@ -131,14 +132,30 @@ class _Tree(QtWidgets.QTreeWidget):
 
 
 class _Settings:
-    def __init__(self):
-        self.store = {}
+    """The panel's ``SettingsManager`` in memory: each key under its namespace
+    (``branch``), as the real one keeps them."""
+
+    def __init__(self, store=None, namespace=""):
+        self.store = {} if store is None else store
+        self.namespace = namespace
+
+    def _key(self, key):
+        return f"{self.namespace}/{key}" if self.namespace else key
 
     def value(self, key, default=None):
-        return self.store.get(key, default)
+        return self.store.get(self._key(key), default)
 
     def setValue(self, key, value):
-        self.store[key] = value
+        self.store[self._key(key)] = value
+
+    def remove(self, key):
+        self.store.pop(self._key(key), None)
+
+    def branch(self, name):
+        return _Settings(self.store, self._key(name))
+
+    def sync(self):
+        pass
 
 
 def _fill(tree, hierarchy, parent=None):
@@ -759,9 +776,9 @@ def _controller(tk=None):
     ui = types.SimpleNamespace(
         tree000=_Tree(), tree001=_Tree(), txt003=mock.MagicMock(), settings=_Settings()
     )
-    slots = types.SimpleNamespace(
-        sb=mock.MagicMock(), ui=ui, tk=tk, logger=mock.MagicMock()
-    )
+    sb = mock.MagicMock()
+    sb.RecentValuesStore = RecentValuesStore  # the real model, over _Settings
+    slots = types.SimpleNamespace(sb=sb, ui=ui, tk=tk, logger=mock.MagicMock())
     return HierarchySyncController(slots)
 
 
@@ -1032,24 +1049,46 @@ class TestRenderer(_QtCase):
 
 
 class TestRecentReferences(_QtCase):
-    def test_a_bare_string_setting_reads_as_a_list(self):
-        this_file = os.path.abspath(__file__)
-        self.ctrl.ui.settings.store["recent_reference_scenes"] = this_file
-        self.assertEqual(self.ctrl.get_recent_reference_scenes(), [this_file])
-
-    def test_saving_keeps_a_list_with_the_newest_last(self):
+    def test_the_history_is_newest_first_and_skips_the_missing(self):
         this_file = os.path.abspath(__file__)
         other = os.path.abspath(UI_PATH)
-        self.ctrl.ui.settings.store["recent_reference_scenes"] = this_file
-        self.ctrl.save_recent_reference_scene(other)
-        stored = self.ctrl.ui.settings.store["recent_reference_scenes"]
-        self.assertIsInstance(stored, list)
-        self.assertEqual(stored[-1], str(Path(other).resolve()))
-        self.assertIn(this_file, stored)
+        gone = os.path.join(os.path.dirname(this_file), "gone.ma")
+        for path in (this_file, gone, other):
+            self.ctrl.save_recent_reference_scene(path)
+        self.assertEqual(
+            self.ctrl.get_recent_reference_scenes(),
+            [str(Path(other).resolve()), str(Path(this_file).resolve())],
+        )
+        # Kept in the panel's own settings, by uitk's RecentValuesStore.
+        stored = self.ctrl.ui.settings.store["recent_references/entries"]
+        self.assertEqual(stored[0], str(Path(other).resolve()))
 
-    def test_the_diff_report_lists_every_difference(self):
+    def test_the_history_keeps_the_last_ten(self):
+        here = os.path.dirname(os.path.abspath(__file__))
+        names = sorted(f for f in os.listdir(here) if f.endswith(".py"))[:12]
+        for name in names:
+            self.ctrl.save_recent_reference_scene(os.path.join(here, name))
+        recent = self.ctrl.get_recent_reference_scenes()
+        self.assertEqual(len(recent), 10)
+        self.assertEqual(recent[0], str(Path(here, names[-1]).resolve()))
+
+    def test_the_legacy_history_carries_over_once(self):
+        """The list kept under ``recent_reference_scenes`` (newest last; a
+        one-item list read back as a bare string) seeds the store, then goes."""
+        this_file = os.path.abspath(__file__)
+        other = os.path.abspath(UI_PATH)
+        store = self.ctrl.ui.settings.store
+        store["recent_reference_scenes"] = [this_file, other]
+        self.assertEqual(self.ctrl.get_recent_reference_scenes(), [other, this_file])
+        self.assertNotIn("recent_reference_scenes", store)
+        ctrl = _controller()
+        ctrl.ui.settings.store["recent_reference_scenes"] = this_file
+        self.assertEqual(ctrl.get_recent_reference_scenes(), [this_file])
+
+    def test_the_diff_report_is_the_analyzers_full_report(self):
+        missing = [f"GRP|m{i}" for i in range(12)]
         path = HierarchySyncController.write_diff_report(
-            ["GRP|a"],
+            missing,
             ["X"],
             [{"leaf": "n", "reference_path": "B|n", "current_path": "A|n"}],
             [{"current_name": "F1", "target_name": "F", "score": 0.8}],
@@ -1057,13 +1096,28 @@ class TestRecentReferences(_QtCase):
         self.addCleanup(os.remove, path)
         with open(path, encoding="utf-8") as f:
             text = f.read()
+        self.assertEqual(
+            text.rstrip("\n"),
+            ptk.HierarchyAnalyzer.generate_diff_report(
+                HierarchySyncController.diff_records(
+                    missing,
+                    ["X"],
+                    [{"leaf": "n", "reference_path": "B|n", "current_path": "A|n"}],
+                    [{"current_name": "F1", "target_name": "F", "score": 0.8}],
+                ),
+                max_items_per_category=None,
+            ),
+        )
         for line in (
-            "  - GRP|a",
-            "  + X",
-            "      reference: B|n",
-            "F1  <->  F  (80% match)",
+            " GRP|m11\n",
+            " X\n",
+            "    from_path: B|n",
+            "    to_path: A|n",
+            "    from_path: F",
+            "    similarity: 80%",
         ):
             self.assertIn(line, text)
+        self.assertNotIn("more items", text)
 
 
 class TestTreePathMatcher(_QtCase):

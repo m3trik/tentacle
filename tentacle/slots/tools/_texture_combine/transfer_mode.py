@@ -2,17 +2,14 @@
 # coding=utf-8
 """The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 
-One tool, two transfers that are ALTERNATIVES: the source's UV layout onto the
-targets (the host's ``UvUtils.transfer_uvs`` -- exact for identical topology,
-sampled by proximity otherwise), or the source's textures re-mapped into each
-target's OWN layout (the host's ``TextureTransfer``: exact texel
-correspondence, no rays, no bleed). They do not compose -- the texture pass
-keeps the target's UV channel, so a source layout copied alongside its maps
-would land in one nothing references. *Auto* defers the pick to run time.
-
-Which selected mesh is the source is the host's convention, read by
-``TextureTransfer.selection_sides`` (Maya: the selection order; Blender: the
-active object), and worded by its ``TextureTransfer.TERMS``.
+One tool, two transfers that are ALTERNATIVES -- the source's UV layout onto
+the targets, or its textures re-mapped into each target's own layout; *Auto*
+defers the pick to run time. The run and every decision in it are the
+library's: the host's ``TextureTransfer.run`` (``ptk.TransferRun`` over the
+host) takes the rows as plain values and returns a ``ptk.TransferResult``,
+which this mode words. Which selected mesh is the source is the host's
+convention (Maya: the selection order; Blender: the active object), worded by
+its ``TextureTransfer.TERMS``.
 
 :class:`TransferMode` is composed by
 :class:`~tentacle.slots.tools.texture_combine.TextureCombineSlots` (which owns
@@ -22,21 +19,25 @@ controller, not a mixin.
 
 import html
 import os
-from typing import Tuple
 
 import pythontk as ptk
 
 
 class TransferMode:
-    """Transfer mode's decisions and its run, over the panel's widgets."""
+    """Transfer mode's widgets, and the words for its run's result."""
 
-    TRANSFER_AUTO = "auto"
-    TRANSFER_TEXTURES = "textures"
-    TRANSFER_UVS = "uvs"
-    SOURCE_AUTO = "auto"
+    TRANSFER_AUTO = ptk.TransferRun.AUTO
+    TRANSFER_TEXTURES = ptk.TransferRun.TEXTURES
+    TRANSFER_UVS = ptk.TransferRun.UVS
+    SOURCE_AUTO = ptk.TransferRun.AUTO
     #: Overwrite target's report lists this many of what it left alone; the
     #: host's log has the rest.
     NOTE_LIMIT = 6
+    #: Each pass's progress label (``{uv}``: the host's word for a UV channel).
+    STAGES = {
+        "uvs": "Working: Transfer {uv}",
+        "textures": "Working: Transfer Textures",
+    }
 
     def __init__(self, slots):
         self.slots = slots
@@ -322,39 +323,147 @@ class TransferMode:
         self.sources = []
         self.sync()
 
-    # ------------------------------------------------------------ decisions
-    @classmethod
-    def passes(cls, source_mode, transfer_mode) -> Tuple[bool, bool]:
-        """``(do_uvs, do_textures)`` for a Source / Transfer pair (Auto unresolved
-        = both possible; the same-mesh source has no second mesh for UVs)."""
-        mode = transfer_mode or cls.TRANSFER_UVS
-        if mode == cls.TRANSFER_AUTO:
-            return source_mode != "uvset", True
-        textures = mode == cls.TRANSFER_TEXTURES
-        return not textures and source_mode != "uvset", textures
+    # ------------------------------------------------------------ enablement
+    def sync(self) -> None:
+        """Grey every row the current Source / Transfer pair makes meaningless."""
+        ui = self.ui
+        source, transfer = (
+            getattr(ui, "cmb_tt_source", None),
+            getattr(ui, "cmb_tt_transfer", None),
+        )
+        if source is None or transfer is None:
+            return
+        mode = source.currentData() or self.SOURCE_AUTO
+        same_mesh = mode == "uvset"
+        index = transfer.findData(self.TRANSFER_TEXTURES)
+        if same_mesh and index >= 0 and transfer.currentIndex() != index:
+            transfer.setCurrentIndex(index)  # re-enters sync; harmless
+        transfer.setEnabled(not same_mesh)
+        uvs, textures = ptk.TransferRun.passes(mode, transfer.currentData())
+        stored = bool(self.sources)
+        for action in (self.select_action, self.clear_action):
+            if action is not None:
+                action.widget.setEnabled(stored)
+        scope = ui.cmb_tt_targets
+        scope.setEnabled(mode == "first")
+        if self.similarity is not None:
+            self.similarity.setEnabled(
+                mode == "first" and uvs and (scope.currentData() or "order") != "order"
+            )
+        for name in (
+            "t_tt_src_uvset",
+            "t_tt_dst_uvset",
+            "cmb_tt_resolution",
+            "chk_assign",
+        ):
+            getattr(ui, name).setEnabled(textures)
+        ui.chk_tt_lightmaps.setEnabled(textures and not same_mesh)
+        self.slots.sync_shared(textures=textures)
 
-    def resolve_auto(self, source_meshes, has_lightmap=None) -> str:
-        """Auto's run-time pick: Textures once any source material carries a map
-        (or a committed lightmap, with *has_lightmap*), else UVs."""
-        transfers = self.tk.TextureTransfer
-        for mesh in source_meshes:
-            if has_lightmap is not None:
-                try:
-                    if has_lightmap(mesh):
-                        return self.TRANSFER_TEXTURES
-                except Exception:  # noqa: BLE001 - unreadable marker = none
-                    pass
-            try:
-                materials, _ = transfers.face_materials(mesh)
-            except Exception:  # noqa: BLE001
-                continue
-            for material in materials:
-                try:
-                    if transfers.material_maps(material):
-                        return self.TRANSFER_TEXTURES
-                except Exception:  # noqa: BLE001
-                    continue
-        return self.TRANSFER_UVS
+    # ------------------------------------------------------------ run
+    def run(self) -> None:
+        """Transfer UVs OR textures: the host's ``TextureTransfer.run`` (one
+        pass per run, one undo step) over the rows, its result worded here."""
+        ui = self.ui
+        slots = self.slots
+        prefix, suffix = slots.material_affix()
+        uv = self.terms["uv"]
+        with self.sb.progress(text="Working: Transfer") as tick:
+            result = self.tk.TextureTransfer.run(
+                source=ui.cmb_tt_source.currentData() or self.SOURCE_AUTO,
+                transfer=ui.cmb_tt_transfer.currentData(),
+                scope=ui.cmb_tt_targets.currentData() or "order",
+                stored=list(self.sources),
+                similarity=self.similarity.value() if self.similarity else 0.9,
+                lightmaps=ui.chk_tt_lightmaps.isChecked(),
+                output_name=ui.t_name.text().strip(),
+                output_dir=ui.t_output.text().strip() or None,
+                source_uv_set=ui.t_tt_src_uvset.text().strip() or None,
+                target_uv_set=ui.t_tt_dst_uvset.text().strip() or None,
+                size=ui.cmb_tt_resolution.currentData() or None,
+                supersample=ui.cmb_quality.currentData() or 2,
+                padding=ui.s_padding.value(),
+                assign=ui.chk_assign.isChecked(),
+                assign_prefix=prefix,
+                assign_suffix=suffix,
+                progress=lambda stage: tick(text=self.STAGES[stage].format(uv=uv)),
+                **slots.assign_options(),
+            )
+        if result.produced and result.typed:
+            slots.record_name(result.output_name)
+        self.sb.message_box(self.report(result))
+
+    # ------------------------------------------------------------ the result, worded
+    def report(self, result) -> str:
+        """What a run's *result* (``ptk.TransferResult``) says: why it
+        stopped, or what each pass did -- with how Auto read the selection."""
+        source_note = self.source_note(result.mode) if result.source_auto else ""
+        if result.refusal:
+            auto_note = self.auto_note(
+                result.transfer_auto,
+                result.do_textures,
+                result.mode,
+                lightmaps=result.lightmaps,
+            )
+            return self.refusal_text(result, auto_note, source_note)
+        lines = []
+        if result.do_uvs:
+            lines.append(self.uv_note(result))
+        if result.do_textures:
+            lines.append(self.texture_note(result))
+        return "<br><br>".join(lines) + source_note
+
+    def refusal_text(self, result, auto_note="", source_note="") -> str:
+        """Why the run stopped (``result.refusal``), in the host's words."""
+        t = self.terms
+        uv = t["uv"]
+        pick_first = f"<b>{t['pick_first']}</b>"
+        pick_last = f"<b>{t['pick_last']}</b>"
+        both = auto_note + source_note
+        text, note = {
+            "nothing_to_transfer": (
+                f"<b>Nothing to transfer.</b><br>The <i>{uv}s On Same Mesh</i> "
+                "source transfers textures -- pick a <b>Transfer</b> mode that "
+                "includes them.",
+                source_note,
+            ),
+            "nothing_selected": (
+                "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on.",
+                source_note,
+            ),
+            "no_targets": (
+                "<b>Nothing selected.</b><br>Select the target mesh(es).",
+                source_note,
+            ),
+            "pick_first": (pick_first, source_note),
+            "pick_last": (pick_last, source_note),
+            "similar_needs_uvs": (
+                "<b>The Similar scopes need a Transfer mode that includes "
+                f"{uv}</b> -- the UV pass is what finds their targets. Use Rest "
+                "of Selection to transfer textures alone.",
+                both,
+            ),
+            "no_stored": (
+                "<b>No stored source meshes.</b><br>Store them with the <b>+</b> "
+                "icon on the Source row first.",
+                "",
+            ),
+            "pair_error": (f"<b>Transfer:</b><br>{result.error}", both),
+            "one_source_per_target": (
+                "<b>The UV pass copies one source per target.</b><br>The target "
+                "was combined from several sources, so only their textures can "
+                "travel -- pick <b>Transfer: Textures</b>.",
+                both,
+            ),
+            "no_similar": (
+                "<b>No similar meshes found</b> within the similarity threshold "
+                f"-- lower it, or note that the source's {t['instances']} "
+                "already share its UVs.",
+                "",
+            ),
+            "uv_error": (f"<b>Transfer {uv}:</b><br>{result.error}", ""),
+        }[result.refusal]
+        return text + note
 
     def source_note(self, mode) -> str:
         t = self.terms
@@ -384,336 +493,67 @@ class TransferMode:
             "carry texture maps."
         )
 
-    def pair(self, targets, sources, do_uvs):
-        """``(pairs, error)`` for mesh sources (Stored / Last)."""
-        try:
-            grouped = self.tk.TextureTransfer.pair_sources(targets, sources)
-        except ValueError as e:
-            return None, f"<b>Transfer:</b><br>{e}"
-        if do_uvs and any(isinstance(s, tuple) for s in grouped.values()):
-            return None, (
-                "<b>The UV pass copies one source per target.</b><br>The target was "
-                "combined from several sources, so only their textures can travel "
-                "-- pick <b>Transfer: Textures</b>."
-            )
-        return [(s, t) for t, s in grouped.items()], None
-
-    def gate(self, mode, scope, source, targets, do_uvs, do_textures, notes=("", "")):
-        """``(pairs, targets, others, refusal)`` -- the run's refusals and pairs."""
-        t = self.terms
-        auto_note, source_note = notes
-        pick_first = f"<b>{t['pick_first']}</b>"
-        pick_last = f"<b>{t['pick_last']}</b>"
-        if not (do_uvs or do_textures):
-            return (
-                None,
-                targets,
-                None,
-                (
-                    f"<b>Nothing to transfer.</b><br>The <i>{t['uv']}s On Same "
-                    "Mesh</i> source transfers textures -- pick a <b>Transfer</b> "
-                    "mode that includes them." + source_note
-                ),
-            )
-        if mode == "uvset":
-            if not targets:
-                return (
-                    None,
-                    targets,
-                    None,
-                    (
-                        "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on."
-                        + source_note
-                    ),
-                )
-            return None, targets, None, None
-        if mode == "first" and scope != "order":
-            if not source or (scope == "selection" and not targets):
-                return None, None, None, pick_first + source_note
-            if not do_uvs:
-                return (
-                    None,
-                    None,
-                    None,
-                    (
-                        "<b>The Similar scopes need a Transfer mode that includes "
-                        f"{t['uv']}</b> -- the UV pass is what finds their targets. "
-                        "Use Rest of Selection to transfer textures alone." + auto_note
-                    ),
-                )
-            return None, None, targets, None
-        if mode == "stored" and not source:
-            return (
-                None,
-                targets,
-                None,
-                (
-                    "<b>No stored source meshes.</b><br>Store them with the <b>+</b> "
-                    "icon on the Source row first."
-                ),
-            )
-        if not (source and targets):
-            hint = {"first": pick_first, "last": pick_last}.get(
-                mode, "<b>Nothing selected.</b><br>Select the target mesh(es)."
-            )
-            return None, targets, None, hint + source_note
-        pairs, error = self.pair(targets, source, do_uvs)
-        return pairs, targets, None, (error + auto_note if error else None)
-
-    def lightmap_probe(self):
-        if not self.ui.chk_tt_lightmaps.isChecked():
-            return None
-        records = self.tk.LightmapRecords
-        return lambda mesh: records.baked_objects([mesh])
-
-    # ------------------------------------------------------------ enablement
-    def sync(self) -> None:
-        """Grey every row the current Source / Transfer pair makes meaningless."""
-        ui = self.ui
-        source, transfer = (
-            getattr(ui, "cmb_tt_source", None),
-            getattr(ui, "cmb_tt_transfer", None),
+    @staticmethod
+    def uv_note(result) -> str:
+        """The UV pass: how many it reached, and the ones sampled by proximity."""
+        approximated = [r for r in result.uvs if r[2] != "topology"]
+        return f"Transferred UVs to <b>{len(result.uvs)}</b> object(s)." + (
+            f"<br><b>{len(approximated)}</b> did not match the source's topology "
+            "and were sampled by proximity -- check the result."
+            if approximated
+            else ""
         )
-        if source is None or transfer is None:
-            return
-        mode = source.currentData() or self.SOURCE_AUTO
-        same_mesh = mode == "uvset"
-        index = transfer.findData(self.TRANSFER_TEXTURES)
-        if same_mesh and index >= 0 and transfer.currentIndex() != index:
-            transfer.setCurrentIndex(index)  # re-enters sync; harmless
-        transfer.setEnabled(not same_mesh)
-        uvs, textures = self.passes(mode, transfer.currentData())
-        stored = bool(self.sources)
-        for action in (self.select_action, self.clear_action):
-            if action is not None:
-                action.widget.setEnabled(stored)
-        scope = ui.cmb_tt_targets
-        scope.setEnabled(mode == "first")
-        if self.similarity is not None:
-            self.similarity.setEnabled(
-                mode == "first" and uvs and (scope.currentData() or "order") != "order"
-            )
-        for name in (
-            "t_tt_src_uvset",
-            "t_tt_dst_uvset",
-            "cmb_tt_resolution",
-            "chk_assign",
-        ):
-            getattr(ui, name).setEnabled(textures)
-        ui.chk_tt_lightmaps.setEnabled(textures and not same_mesh)
-        self.slots.sync_shared(textures=textures)
 
-    # ------------------------------------------------------------ run
-    def run(self) -> None:
-        """Transfer UVs OR textures -- one pass per run, one undo step."""
-        with self.tk.CoreUtils.undo_chunk("Texture Transfer"):
-            self._run()
-
-    def _run(self) -> None:
-        ui = self.ui
-        transfers = self.tk.TextureTransfer
-        requested = ui.cmb_tt_source.currentData() or self.SOURCE_AUTO
-        scope = ui.cmb_tt_targets.currentData() or "order"
-        # The host's reading of the selection: Maya's order, Blender's active
-        # object; Auto resolved there too.
-        mode, source, targets = transfers.selection_sides(requested, self.sources)
-        source_note = ""
-        if requested == self.SOURCE_AUTO:
-            scope = "order"  # Auto's First reads Rest of Selection
-            source_note = self.source_note(mode)
-
-        transfer_mode = ui.cmb_tt_transfer.currentData()
-        auto = transfer_mode == self.TRANSFER_AUTO
-        probe = self.lightmap_probe()
-        if auto and mode != "uvset":
-            transfer_mode = self.resolve_auto(source or [], has_lightmap=probe)
-        do_uvs, do_textures = self.passes(mode, transfer_mode)
-        auto_note = self.auto_note(auto, do_textures, mode, lightmaps=probe is not None)
-        pairs, targets, others, refusal = self.gate(
-            mode,
-            scope,
-            source,
-            targets,
-            do_uvs,
-            do_textures,
-            notes=(auto_note + source_note, source_note),
+    @staticmethod
+    def _folder_link(folder: str) -> str:
+        return (
+            f'<br><a href="action://open?path={folder}">{folder}</a>' if folder else ""
         )
-        if refusal:
-            return self.sb.message_box(refusal)
 
-        uv = self.terms["uv"]
-        uv_utils = self.tk.UvUtils
-        report = []
-        label = f"Working: Transfer {uv}" if do_uvs else "Working: Transfer Textures"
-        with self.sb.progress(text=label) as tick:
-            tick()
-            if do_uvs:
-                try:
-                    if pairs is None:
-                        targets = uv_utils.transfer_uvs_to_similar(
-                            source[0],
-                            others if scope == "selection" else None,
-                            tolerance=self.similarity.value()
-                            if self.similarity
-                            else 0.9,
-                        )
-                        if not targets:
-                            return self.sb.message_box(
-                                "<b>No similar meshes found</b> within the "
-                                "similarity threshold -- lower it, or note that "
-                                f"the source's {self.terms['instances']} already "
-                                "share its UVs."
-                            )
-                        results = [(source[0], t, "topology") for t in targets]
-                    else:
-                        # The pairing is already decided (selection / stored by
-                        # name): re-vetting it by similarity could only drop a
-                        # pair the user named.
-                        results = (
-                            uv_utils.transfer_uvs(
-                                [s for s, _ in pairs],
-                                [t for _, t in pairs],
-                                match_by_similarity=False,
-                            )
-                            or []
-                        )
-                except ValueError as e:
-                    return self.sb.message_box(f"<b>Transfer {uv}:</b><br>{e}")
-                approximated = [r for r in results if r[2] != "topology"]
-                report.append(
-                    f"Transferred UVs to <b>{len(results)}</b> object(s)."
-                    + (
-                        f"<br><b>{len(approximated)}</b> did not match the source's "
-                        "topology and were sampled by proximity -- check the result."
-                        if approximated
-                        else ""
-                    )
-                )
-            if do_textures:
-                tick(text="Working: Transfer Textures")
-                report.append(self.texture_pass(targets, source))
-        self.sb.message_box("<br><br>".join(report) + source_note)
-
-    def derived_name(self, source, targets) -> str:
-        """A blank Output Name: the source's common name (else the targets')."""
-        nodes = list(source) if source else list(targets or [])
-        return self.slots.engine.default_name(nodes, fallback="transfer")
-
-    def texture_pass(self, targets, source) -> str:
+    def texture_note(self, result) -> str:
         """The texture pass (and, with Include Lightmaps, the lightmap pass)."""
-        ui = self.ui
         lines = []
-        produced = False
-        out_name = ui.t_name.text().strip()
-        typed = bool(out_name)
-        if not typed:
-            out_name = self.derived_name(source, targets)
-        named = out_name
-        prefix, suffix = self.slots.material_affix()
-        in_place = ui.chk_assign.isChecked() and self.slots.overwrites_target()
-        before = self.read_files(targets) if in_place else set()
-        engine = self.tk.TextureTransfer()
-        # What Overwrite target leaves alone is said as a warning; the report
-        # repeats it (the class's own ring buffer, read before it is dropped).
-        left = engine.logger.enable_log_buffer(level="WARNING") if in_place else None
-        try:
-            results = engine.transfer(
-                targets,
-                source,
-                source_uv_set=ui.t_tt_src_uvset.text().strip() or None,
-                target_uv_set=ui.t_tt_dst_uvset.text().strip() or None,
-                size=ui.cmb_tt_resolution.currentData() or None,
-                supersample=ui.cmb_quality.currentData() or 2,
-                padding=ui.s_padding.value(),
-                output_name=out_name,
-                output_dir=ui.t_output.text().strip() or None,
-                assign=ui.chk_assign.isChecked(),
-                assign_prefix=prefix,
-                assign_suffix=suffix,
-                **self.slots.assign_options(),
-            )
-        except ValueError as e:
-            lines.append(f"<b>Transfer Textures:</b> {e}")
-            results = None
-        finally:
-            warnings = [r.getMessage() for r in left.buffer] if left else []
-            if left is not None:
-                engine.logger.disable_log_buffer()
-        if results is not None:
-            n_maps = sum(len(v) for v in results.values())
-            produced = bool(n_maps)
-            folder = next(
-                (os.path.dirname(p) for v in results.values() for p in v.values()), ""
-            )
+        if result.texture_error:
+            lines.append(f"<b>Transfer Textures:</b> {result.texture_error}")
+        if result.maps is not None:
             lines.append(
-                f"Transferred <b>{n_maps}</b> map(s) for <b>{len(results)}</b> "
-                "material(s)"
-                + (
-                    f'<br><a href="action://open?path={folder}">{folder}</a>'
-                    if folder
-                    else ""
-                )
+                f"Transferred <b>{result.map_count}</b> map(s) for "
+                f"<b>{len(result.maps)}</b> material(s)"
+                + self._folder_link(result.maps_folder)
             )
-            if in_place:
-                lines.append(self.overwrite_note(before, results, warnings))
-            stems = {
-                os.path.basename(p).rsplit("_", 1)[0]
-                for v in results.values()
-                for p in v.values()
-            }
-            # In place, a map keeps the name it had: no stem is the output's.
-            if len(results) == 1 and len(stems) == 1 and not in_place:
-                named = stems.pop()
-        if source is not None and ui.chk_tt_lightmaps.isChecked():
-            text, wrote = self.lightmap_pass(targets, source, named)
-            lines.append(text)
-            produced = produced or wrote
-        if produced and not typed and not in_place:
+            if result.in_place:
+                lines.append(self.overwrite_note(result))
+        if result.lightmap_results is not None or result.lightmap_error:
+            lines.append(self.lightmap_note(result))
+        named, out_name = result.named, result.output_name
+        if result.produced and not result.typed and not result.in_place:
             lines.append(
                 f"Named <b>{named}</b> after the source -- type an <b>Output Name</b> "
                 "to choose another."
             )
-        elif produced and named != out_name and not in_place:
+        elif result.produced and named != out_name and not result.in_place:
             lines.append(
                 f"Named <b>{named}</b>: <b>{out_name}</b> is held outside this run "
                 "(another object's material, or a map one reads)."
             )
-        if produced and typed:
-            self.slots.record_name(out_name)
         return "<br><br>".join(lines)
 
-    @staticmethod
-    def _path_key(path: str) -> str:
-        """*path* as the filesystem compares it."""
-        return os.path.normcase(os.path.abspath(path))
-
-    def read_files(self, targets) -> set:
-        """Path keys of the maps the materials *targets* wear read now."""
-        transfers = self.tk.TextureTransfer
-        return {
-            self._path_key(path)
-            for target in targets or ()
-            for mat in transfers.face_materials(target)[0]
-            for path in transfers.material_maps(mat).values()
-        }
-
     @classmethod
-    def overwrite_note(cls, before, results, warnings) -> str:
+    def overwrite_note(cls, result) -> str:
         """Overwrite target's report: the files rewritten where they are (the
         targets' materials read them before the run), the new ones they read
         now, and the run's warnings (what was left alone, and why)."""
-        written = [p for maps in results.values() for p in maps.values()]
-        over = [p for p in written if cls._path_key(p) in before]
+        over, added, warnings = result.overwritten, result.added, result.warnings
         text = (
             f"Overwrote <b>{len(over)}</b> file(s) in place: "
             + ", ".join(os.path.basename(p) for p in over)
             if over
             else "No file was overwritten in place."
         )
-        if len(written) > len(over):
+        if added:
             text += (
-                f"<br>Wrote <b>{len(written) - len(over)}</b> new file(s) the "
-                "targets' own materials now read."
+                f"<br>Wrote <b>{len(added)}</b> new file(s) the targets' own "
+                "materials now read."
             )
         if warnings:
             shown = warnings[: cls.NOTE_LIMIT]
@@ -725,49 +565,27 @@ class TransferMode:
                 text += f"<br>... and {more} more (the log)."
         return text
 
-    def lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]:
-        ui = self.ui
-        try:
-            results = self.tk.LightmapRecords.transfer_lightmaps(
-                targets,
-                source,
-                output_dir=ui.t_output.text().strip() or None,
-                output_name=out_name,
-                supersample=ui.cmb_quality.currentData() or 2,
-                padding=ui.s_padding.value(),
-            )
-        except ValueError as e:
-            return f"<b>Transfer Lightmaps:</b> {e}", False
-        if not results:
+    def lightmap_note(self, result) -> str:
+        """The lightmap pass: bound to the source's map, or resampled (and
+        where the resampled maps go once the scene is saved)."""
+        if result.lightmap_error:
+            return f"<b>Transfer Lightmaps:</b> {result.lightmap_error}"
+        transferred = result.lightmap_results
+        if not transferred:
             return (
                 "<b>No lightmaps transferred</b> -- no source carries a committed "
-                "lightmap, or its map or lightmap UVs are gone (see the log).",
-                False,
+                "lightmap, or its map or lightmap UVs are gone (see the log)."
             )
-        resampled = [r["path"] for r in results.values() if r["how"] == "resampled"]
-        rebound = len(results) - len(resampled)
+        resampled = result.resampled
+        rebound = len(transferred) - len(resampled)
         parts = []
         if rebound:
             parts.append(f"<b>{rebound}</b> bound to the source's own map")
         if resampled:
             parts.append(f"<b>{len(resampled)}</b> resampled into the target's layout")
-        # The maps' home: a resampled map waits in the session until the scene
-        # is saved (``ptk.PendingFiles``); the folder it goes to is the link.
-        folder = (
-            ptk.FileUtils.format_path(
-                os.path.dirname(ptk.PendingFiles.session().home(resampled[0]))
-            )
-            if resampled
-            else ""
-        )
         return (
-            f"Transferred lightmaps to <b>{len(results)}</b> object(s): "
+            f"Transferred lightmaps to <b>{len(transferred)}</b> object(s): "
             + ", ".join(parts)
             + "."
-            + (
-                f'<br><a href="action://open?path={folder}">{folder}</a>'
-                if folder
-                else ""
-            ),
-            bool(resampled),
+            + self._folder_link(result.lightmap_folder)
         )

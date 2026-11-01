@@ -87,8 +87,16 @@ def _slots(answer="Yes", workspace=None, name="ShotA"):
 
     sb.message_box.side_effect = message_box
     sb.tk.DataNodes.scene_workspace.return_value = workspace
-    sb.tk.PlayblastExporter.scene_name.return_value = name
+    sb.tk.PlayblastExporter = _exporter(name)
     return slots
+
+
+def _exporter(name):
+    """The host's ``PlayblastExporter``: pythontk's shared class bound to a
+    host whose scene is *name* (``HOST.sequence_name``)."""
+    host = ptk.PureSequenceHost()
+    host.sequence_name = lambda: name
+    return type("PlayblastExporter", (ptk.SequenceExporter,), {"HOST": host})
 
 
 class TestThePreviewStaysALaunch(unittest.TestCase):
@@ -182,34 +190,28 @@ class TestFfmpegGate(unittest.TestCase):
 
 
 class TestDefaultPlayblastPath(unittest.TestCase):
-    """The playblast default is the scene project's movie folder, one rule for
-    both hosts."""
+    """The playblast default is the scene project's movie folder: the shared
+    rule (``ptk.SequenceExporter.default_output_base``, pinned in pythontk's
+    ``test_sequence_exporter.py``) over the scene's own workspace."""
 
-    def _project(self, rules=None):
+    def test_the_panel_asks_for_the_scene_projects_default(self):
         tmp = ptk.TempArtifacts.scoped("tentacle_test_movie")
         self.addCleanup(tmp.cleanup)
         root = tmp.dir_path()
-        return root, ptk.Workspace(root, rules or {})
-
-    def test_lands_in_the_scene_project_movie_folder(self):
-        root, ws = self._project()
-        path = _slots(workspace=ws)._default_playblast_path()
-        self.assertEqual(path, os.path.join(root, "movies", "ShotA"))
-
-    def test_honors_the_project_movie_rule(self):
-        root, ws = self._project({"movie": "deliver/clips"})
-        path = _slots(workspace=ws, name="v1.test")._default_playblast_path()
-        self.assertEqual(path, os.path.join(root, "deliver", "clips", "v1.test"))
-
-    def test_asking_creates_no_folder(self):
-        root, ws = self._project()
-        _slots(workspace=ws)._default_playblast_path()
-        self.assertFalse(os.path.exists(os.path.join(root, "movies")))
-
-    def test_without_a_project_falls_back_to_the_desktop(self):
-        path = _slots()._default_playblast_path()
+        ws = ptk.Workspace(root, {"movie": "deliver/clips"})
+        slots = _slots(workspace=ws, name="v1.test")
+        self.assertEqual(
+            slots._default_playblast_path(),
+            os.path.join(root, "deliver", "clips", "v1.test"),
+        )
+        self.assertEqual(
+            slots._split_output_base(""),
+            (os.path.join(root, "deliver", "clips"), "v1.test"),
+        )
         desktop = os.path.normpath(os.path.expanduser(os.path.join("~", "Desktop")))
-        self.assertEqual(path, os.path.join(desktop, "ShotA"))
+        self.assertEqual(
+            _slots()._default_playblast_path(), os.path.join(desktop, "ShotA")
+        )
 
 
 class _Field:
@@ -231,7 +233,7 @@ class TestPlayblastFieldDefault(unittest.TestCase):
         self.assertEqual(field.placeholder, slots._default_playblast_path())
         self.assertEqual(field.text, "")
         # A re-show over another scene follows it.
-        slots.tk.PlayblastExporter.scene_name.return_value = "ShotB"
+        slots.tk.PlayblastExporter.HOST.sequence_name = lambda: "ShotB"
         slots._show_playblast_default(field)
         self.assertEqual(os.path.basename(field.placeholder), "ShotB")
 

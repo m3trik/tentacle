@@ -740,33 +740,36 @@ class SceneSlots(Slots):
     def _resolve_export_path(self, save_mode: str, extension: str, accepted=None):
         """Output path for *save_mode*, or ``None`` to cancel (reported to the user).
 
-        ``"export_dir"`` writes into the export folder of the scene's workspace
-        (``ptk.Workspace.export_dir``: the ``FBX export`` rule, then ``FBX``, else
-        ``data/``; made on write) under the scene's own name. That workspace is the
-        scene's project, else the scene's own folder (``DataNodes.scene_workspace``).
-        ``"prompt"`` asks, pre-filled with exactly that path (the scene's folder while
-        the export folder does not exist yet). An unsaved scene has no name to write
-        under, so that combination is the one hard error.
+        ``"export_dir"`` writes where the scene's workspace exports it
+        (``ptk.Workspace.export_path``: the export folder -- the ``FBX export``
+        rule, then ``FBX``, else ``data/``; made on write -- under the scene's own
+        name). That workspace is the scene's project, else the scene's own folder
+        (``DataNodes.scene_workspace``). ``"prompt"`` asks, pre-filled with exactly
+        that path (the scene's folder while the export folder does not exist yet).
+        An unsaved scene has no name to write under, so that combination is the one
+        hard error.
 
         *accepted* are the extensions a picked name may carry as typed (default:
         *extension* alone); any other name gets *extension* appended.
         """
         scene_path = self._scene_path()
-        base = os.path.splitext(os.path.basename(scene_path))[0] or "untitled"
         label = extension.lstrip(".").upper()
         accepted = tuple(accepted or (extension,))
         ws = self.tk.DataNodes.scene_workspace()
 
         if save_mode == "prompt":
-            start_dir = ws.export_dir() if ws is not None else ""
-            if not os.path.isdir(start_dir):
+            start = ws.export_path(scene_path, extension) if ws is not None else ""
+            if not os.path.isdir(os.path.dirname(start)):
                 # Asking makes no folder: start where something exists.
-                start_dir = self._browse_start()
+                start = os.path.join(
+                    self._browse_start(),
+                    ptk.Workspace.export_name(scene_path, extension),
+                )
             picked = self.sb.save_file_dialog(
                 file_types=[f"*{ext}" for ext in accepted],
                 title=f"Export {label} As",
                 # A FILE path, not a directory: it pre-fills the name box.
-                start_dir=os.path.join(start_dir, base + extension),
+                start_dir=start,
                 filter_description=f"{label} Files",
             )
             if not picked:
@@ -785,7 +788,7 @@ class SceneSlots(Slots):
             # A saved scene always has a workspace (its project, else its own folder);
             # None means that folder no longer exists.
             return os.path.splitext(scene_path)[0] + extension
-        return os.path.join(ws.export_dir(create=True), base + extension)
+        return ws.export_path(scene_path, extension, create=True)
 
     def _confirm_export_cost(self, export_format, options) -> bool:
         """The dense-export gate for *options*; False when the user cancels. OBJ

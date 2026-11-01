@@ -350,6 +350,10 @@ class _FakeExporter:
     def scene_name():
         return "ShotA"
 
+    # The shared default-output rule (pythontk's), over this fake's scene name.
+    default_output_base = classmethod(ptk.SequenceExporter.default_output_base.__func__)
+    split_output_base = classmethod(ptk.SequenceExporter.split_output_base.__func__)
+
     def __init__(self, **kwargs):
         type(self).instances.append(self)
         self.ctor_kwargs = kwargs
@@ -751,7 +755,8 @@ class TestRenderingInMaya(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def test_an_unsaved_scene_playblasts_as_playblast(self):
-        self.assertEqual(self.slots._scene_base_name(), "playblast")
+        name = os.path.basename(self.slots._default_playblast_path())
+        self.assertEqual(name, "playblast")
 
     def test_a_saved_scene_playblasts_under_its_name(self):
         tmpdir = tempfile.mkdtemp(prefix="rh_test_")
@@ -760,8 +765,8 @@ class TestRenderingInMaya(unittest.TestCase):
             with self.subTest(file_name=file_name):
                 cmds.file(rename=os.path.join(tmpdir, file_name).replace("\\", "/"))
                 cmds.file(save=True, type="mayaAscii")
-                self.assertEqual(self.slots._scene_base_name(), base)
-                self.assertTrue(self.slots._default_playblast_path().endswith(base))
+                path = self.slots._default_playblast_path()
+                self.assertEqual(os.path.basename(path), base)
 
     def test_the_default_is_the_active_projects_movie_folder(self):
         import mayatk as mtk

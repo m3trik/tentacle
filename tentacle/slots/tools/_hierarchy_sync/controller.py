@@ -23,6 +23,10 @@ from .tree_renderer import HierarchyTreeRenderer
 #: How many recent reference scenes the history keeps.
 RECENT_LIMIT = 10
 
+#: The panel-settings key the recent references were kept under (a list,
+#: newest last) before uitk's ``RecentValuesStore`` held them.
+LEGACY_RECENT_KEY = "recent_reference_scenes"
+
 #: How many entries a diff log box lists before "... and N more".
 LOG_LIMIT = 10
 
@@ -51,6 +55,9 @@ class HierarchySyncController(ptk.LoggingMixin):
         self._ignored_cur_paths = set()
         #: Hide ignored items instead of dimming them (header menu toggle).
         self.hide_ignored = False
+        #: The recent references' store (:attr:`recent_references`), built on
+        #: first use.
+        self._recent = None
         #: The trees' renderer.
         self.tree = HierarchyTreeRenderer(self)
 
@@ -313,8 +320,47 @@ class HierarchySyncController(ptk.LoggingMixin):
         self.logger.log_divider()
 
     @staticmethod
-    def write_diff_report(missing, extra, reparented, fuzzy_matches) -> Optional[str]:
-        """Write the full diff to a text file.
+    def diff_records(
+        missing, extra, reparented, fuzzy_matches
+    ) -> List[ptk.HierarchyDifference]:
+        """The session's diff as the analyzer's records: a reparented node and
+        a fuzzy match are each a MOVED one, from its reference path to its
+        current one (a fuzzy match with its similarity)."""
+        Diff, Type = ptk.HierarchyDifference, ptk.DifferenceType
+        moved = [
+            Diff(
+                Type.MOVED,
+                r.get("current_path", ""),
+                {
+                    "from_path": r.get("reference_path", ""),
+                    "to_path": r.get("current_path", ""),
+                },
+            )
+            for r in reparented
+        ] + [
+            Diff(
+                Type.MOVED,
+                m.get("current_name", ""),
+                {
+                    "from_path": m.get("target_name", ""),
+                    "to_path": m.get("current_name", ""),
+                    "similarity": f"{m.get('score', 0):.0%}",
+                },
+            )
+            for m in fuzzy_matches
+        ]
+        return (
+            [Diff(Type.MISSING, p) for p in missing]
+            + [Diff(Type.EXTRA, p) for p in extra]
+            + moved
+        )
+
+    @classmethod
+    def write_diff_report(
+        cls, missing, extra, reparented, fuzzy_matches
+    ) -> Optional[str]:
+        """Write the full diff to a text file: the analyzer's report
+        (``ptk.HierarchyAnalyzer.generate_diff_report``), every item listed.
 
         Detached: the user opens it after this returns, so nothing deletes it
         here; allocation sweeps earlier sessions' reports (``TempArtifacts``).
@@ -322,76 +368,49 @@ class HierarchySyncController(ptk.LoggingMixin):
         Returns:
             The file's path, or ``None`` when it could not be written.
         """
-        lines = [
-            "Hierarchy Diff Report",
-            "=" * 60,
-            "",
-            "Summary",
-            "-" * 40,
-            f"  Missing in current scene:  {len(missing)}",
-            f"  Extra in current scene:    {len(extra)}",
-            f"  Reparented:                {len(reparented)}",
-            f"  Fuzzy matches:             {len(fuzzy_matches)}",
-            f"  Total differences:         {len(missing) + len(extra) + len(reparented)}",
-            "",
-        ]
-        if missing:
-            lines += [f"Missing in current scene ({len(missing)}):"]
-            lines += [f"  - {p}" for p in missing] + [""]
-        if extra:
-            lines += [f"Extra in current scene ({len(extra)}):"]
-            lines += [f"  + {p}" for p in extra] + [""]
-        if reparented:
-            lines += [f"Reparented ({len(reparented)}):"]
-            for r in reparented:
-                lines += [
-                    f"  ~ {r.get('leaf', '')}",
-                    f"      reference: {r.get('reference_path', '')}",
-                    f"      current:   {r.get('current_path', '')}",
-                ]
-            lines += [""]
-        if fuzzy_matches:
-            lines += [f"Fuzzy matches ({len(fuzzy_matches)}):"]
-            lines += [
-                f"  {m.get('current_name', '')}  <->  {m.get('target_name', '')}  "
-                f"({m.get('score', 0):.0%} match)"
-                for m in fuzzy_matches
-            ]
+        report = ptk.HierarchyAnalyzer.generate_diff_report(
+            cls.diff_records(missing, extra, reparented, fuzzy_matches),
+            max_items_per_category=None,
+        )
         try:
             path = ptk.TempArtifacts("hierarchy_diff").path(extension=".txt")
             with open(path, "w", encoding="utf-8") as f:
-                f.write("\n".join(lines) + "\n")
+                f.write(report + "\n")
             return path
         except OSError:
             return None
 
     # ------------------------------------------------------------------ recent references
-    @staticmethod
-    def coerce_str_list(value) -> List[str]:
-        """A settings value as a list: QSettings hands a one-item list back as
-        a bare string."""
-        if value is None:
-            return []
-        if isinstance(value, str):
-            return [value]
-        return list(value)
+    @property
+    def recent_references(self):
+        """The recent reference scenes: uitk's ``RecentValuesStore`` in the
+        panel's settings (``recent_references/``), most recent first, the ten
+        last kept, a missing file filtered out on read. Built on first use; a
+        history kept under :data:`LEGACY_RECENT_KEY` carries over once."""
+        if self._recent is None:
+            settings = self.ui.settings
+            store = self.sb.RecentValuesStore(
+                settings=settings.branch("recent_references"),
+                max_recent=RECENT_LIMIT,
+                validator=os.path.exists,
+            )
+            legacy = settings.value(LEGACY_RECENT_KEY, None)
+            if legacy is not None:
+                if not store.values:
+                    # Kept newest last; a one-item list read back as a bare string.
+                    for path in reversed(
+                        [legacy] if isinstance(legacy, str) else legacy
+                    ):
+                        store.add(path)
+                settings.remove(LEGACY_RECENT_KEY)
+            self._recent = store
+        return self._recent
 
     def get_recent_reference_scenes(self) -> List[str]:
-        """The recent reference scenes that still exist (the last ten)."""
-        recent = self.coerce_str_list(
-            self.ui.settings.value("recent_reference_scenes", [])
-        )
-        return [scene for scene in recent if os.path.exists(scene)][-RECENT_LIMIT:]
+        """The recent reference scenes that still exist, most recent first."""
+        return self.recent_references.valid_values()
 
     def save_recent_reference_scene(self, scene_path: str) -> None:
-        """Put *scene_path* last in the recent references (the last ten kept)."""
-        if not scene_path:
-            return
-        scene_path = str(Path(scene_path).resolve())
-        recent = self.coerce_str_list(
-            self.ui.settings.value("recent_reference_scenes", [])
-        )
-        if scene_path in recent:
-            recent.remove(scene_path)
-        recent.append(scene_path)
-        self.ui.settings.setValue("recent_reference_scenes", recent[-RECENT_LIMIT:])
+        """Put *scene_path* first in the recent references."""
+        if scene_path:
+            self.recent_references.record(str(Path(scene_path).resolve()))

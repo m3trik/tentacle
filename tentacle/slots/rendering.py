@@ -14,7 +14,6 @@ the settings buttons open the host's render editors (``UiUtils.open_editor``).
 """
 
 import os
-import posixpath
 from typing import List
 
 import pythontk as ptk
@@ -95,26 +94,13 @@ class RenderingSlots(Slots):
             self.sb.message_box(f"Could not open <hl>{editor}</hl>.")
 
     # ------------------------------------------------------- playblast defaults
-    def _scene_base_name(self) -> str:
-        """The name a playblast of the open scene is written under ("playblast"
-        while unsaved): the exporter's own rule."""
-        return self.tk.PlayblastExporter.scene_name()
-
     def _default_playblast_path(self) -> str:
-        """The playblast's default output base: ``<movie folder>/<scene name>``.
-
-        The scene project's movie folder (``ptk.Workspace.movie_dir``: the
-        ``movie`` rule, else ``movies/``) -- the same folder in both hosts, and
-        the scene's own project rather than merely the active one. The Desktop
-        only when no project resolves (an unsaved file with no session
-        project). Asking creates nothing: the writer makes the folder.
-        """
-        ws = self.tk.DataNodes.scene_workspace()
-        if ws is not None:
-            folder = ws.movie_dir()
-        else:
-            folder = os.path.expanduser(os.path.join("~", "Desktop"))
-        return os.path.normpath(os.path.join(folder, self._scene_base_name()))
+        """The playblast's default output base, ``<movie folder>/<scene name>``
+        (``ptk.SequenceExporter.default_output_base``) of the scene's own
+        project, not merely the active one."""
+        return self.tk.PlayblastExporter.default_output_base(
+            self.tk.DataNodes.scene_workspace()
+        )
 
     def _show_playblast_default(self, field) -> None:
         """Show the default output base as *field*'s placeholder (``t000``).
@@ -127,28 +113,11 @@ class RenderingSlots(Slots):
         field.setPlaceholderText(self._default_playblast_path())
 
     def _split_output_base(self, text: str) -> tuple:
-        """Split the output field into (directory, base name).
-
-        A bare/existing directory (or trailing separator) uses the scene name;
-        a typed extension is dropped (each output appends its own); an empty
-        field falls back to the default playblast path. A leading ``//`` (a
-        path relative to the open .blend) is left for the exporter to resolve.
-        """
-        raw = (text or "").strip()
-        base = os.path.expanduser(os.path.expandvars(raw or self._default_playblast_path()))
-        if base.startswith("//"):
-            # Split as the forward-slash path it is: Windows reads '//x/y' as a
-            # network share (and would probe it for an isdir).
-            directory, name = posixpath.split(base.replace("\\", "/"))
-            return directory, os.path.splitext(name)[0] or self._scene_base_name()
-        base = os.path.normpath(base)
-        if os.path.isdir(base) or raw.endswith(("/", "\\")):
-            return base, self._scene_base_name()
-        directory, name = os.path.split(base)
-        name = os.path.splitext(name)[0] or self._scene_base_name()
-        if not directory:
-            directory = os.path.dirname(self._default_playblast_path())
-        return directory, name
+        """The output field's ``(directory, base name)``
+        (``ptk.SequenceExporter.split_output_base``: blank is the default)."""
+        return self.tk.PlayblastExporter.split_output_base(
+            text, self.tk.DataNodes.scene_workspace()
+        )
 
     def _ffmpeg_ready(self) -> bool:
         """Guarantee ffmpeg for an encoded playblast output, offering the
