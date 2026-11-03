@@ -1,0 +1,36 @@
+# tentacle
+
+<!-- packs (generated: edit the packs, then sync) -->
+Shared rules (packs; Claude Code loads them, other agents read them first): [principles](.agents/packs/principles.md) · [python](.agents/packs/python.md)
+<!-- /packs -->
+
+**Role**: The DCC product's UI: the launcher, the UIs and the Slots classes, for Maya and Blender, and no logic of its own: a tool's API is mayatk / blendertk, shared logic pythontk. Layout (root AGENTS.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): a tool's UI is `ui/tools/<tool>.ui` and its one Slots class `slots/tools/<tool>.py` (shared by both hosts, paired by name; Qt helpers in `slots/tools/_<tool>/`); categories are `ui/<category>.ui` + `slots/<category>.py`. Nothing imports tentacle. A host-free standalone app (engine, panel, Slots) is [extapps](../extapps/AGENTS.md)', the other product: the rule is that a tool with a host half, or one that needs a DCC to run, is tentacle's.
+
+**Nav**: [← root](../AGENTS.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/AGENTS.md) · [uitk](../uitk/AGENTS.md) · **Host libraries**: [mayatk](../mayatk/AGENTS.md) · [blendertk](../blendertk/AGENTS.md) (host-provided, not pinned)
+
+## API surface
+
+Searched live (`api.search`; MCP `api_search`), never a committed file — rules in [root](../AGENTS.md). Upstream: [pythontk](../pythontk/AGENTS.md) · [uitk](../uitk/AGENTS.md) · [mayatk](../mayatk/AGENTS.md) · [blendertk](../blendertk/AGENTS.md).
+
+## Architecture
+
+- **One `<Base>Slots(Slots)` per marking-menu category, shared by both hosts** (`slots/<category>.py`; exemplar [`slots/normals.py`](tentacle/slots/normals.py)): host behavior through `self.tk` or the tool's API, never a per-host fork or a mixin (§3); a control one host cannot serve is hidden there, never a stub (§15): a `requires` tag in the `.ui`, `Slots.requires(widget, host)` for one built in code, `Slots.hide_unless(widget, available)` where the host's engine lacks the operation.
+- No per-host slot package: the chord menus' native-menu pages (`ui/maya_menus`, `ui/blender_menus`) are pure `MenuButton` navigation with no Slots class; each host's UI handler (mayatk / blendertk) builds its own menus when the switchboard resolves a release's target.
+- **One launcher** (`tcl.py`): `Tcl.launch` defers through the host toolkit's adapter (`Tcl.ADAPTERS`: a `uitk.MarkingMenuHost` to the menu, a `uitk.MarkingMenuLaunchHost` to the launcher) and `Tcl.build` makes ONE `uitk.MarkingMenu(host=...)`; `Tcl.reload` is one path too (`teardown`, reload, `defer` the rebuild, `report`). Host behavior is the adapter's, never a `MarkingMenu` subclass or a host-named launcher method, and nothing is per host beyond `Tcl.HOSTS` (folder, chord target, context tag by convention). `tcl_blender.py` is only the Blender add-on stub; Blender's Qt hosting is blendertk's.
+- **Standalone apps are extapps'**, never tentacle's and never a dependency: a category's slots open one BY NAME through the host's external-app handler (`self.sb.handlers.external_app.launch("converter")`), which discovers extapps' `uitk.external_apps.in_process` entry points and installs a missing provider; `test_package.py` holds every launched name to extapps' table.
+- **UI**: Qt via [uitk](../uitk/AGENTS.md). Widget naming: `tb###`, `b###`, `list###`, etc.
+
+## Conventions
+
+- Slot classes are `<Base>Slots` (`edit.py` -> `EditSlots`; the name keys users' shortcut overrides, pinned by `test_dcc_invariants.py`) and subclass `Slots`; slot methods are named after their widget (`tb000`, `b005`).
+- UI files pair with slot files (same basename). Enforced by `test_ui_integrity.py`.
+- Slots reach uitk off `self.sb` (any public uitk name: `self.sb.IconManager`), never a bare `from uitk import` (the class-body exceptions ride the `Slots` base: `Slots.Signals`, `Slots.AttributeSpec`).
+- A tool one host serves is a `slots.tools.HOSTS` row (with its reason); a panel merged into or renamed to a tool is a `RENAMED_FROM` row plus a `RENAMED_HOSTS` row per former panel, so users' saved values carry over.
+- **No PyMEL** (rule owned by [mayatk](../mayatk/AGENTS.md)) — `maya.cmds` / `maya.mel` only.
+- Heavy scenes: suspend viewport refresh around bulk edits.
+
+## Tests
+
+Structural suite: `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py` (runs in CI — `.github/workflows/tests.yml`). Pointed: `python tentacle/test/run_tests.py <modules> [-k pat]` (offscreen; Maya-gated tests skip there, so add `--in-maya` for those — or let `m3trik/scripts/affected_tests.py <files> --run` split them). Canonical full run (review / release): `python tentacle/test/run_tests.py --in-maya` (launches a FRESH Maya via `MayaConnection`; the badge needs the Maya slot suites, so a plain no-Maya or pointed run never stamps it). Blender: `python tentacle/test/run_tests.py [checks] --in-blender` runs each headless `test/blender/*_check.py` (its usage line says `blender --background`) in a FRESH background Blender; the rest drive a window and are run by hand.
+
+See [CHANGELOG.md](CHANGELOG.md) for history.

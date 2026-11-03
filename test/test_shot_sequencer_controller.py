@@ -3445,7 +3445,7 @@ class TestDeleteStaleShots(unittest.TestCase):
     def _remove(self, button, scope="stale"):
         """Run the *scope* delete, answering its question with *button*; return
         the question's text.  Patched with a function, never a bare MagicMock: a
-        QObject subclass faults natively on a mock attribute (uitk/CLAUDE.md)."""
+        QObject subclass faults natively on a mock attribute (uitk/AGENTS.md)."""
         from unittest import mock
 
         asked = []

@@ -42,7 +42,7 @@ python o:\Cloud\Code\_scripts\tentacle\test\run_tests.py --in-maya
 Uses `mayatk.MayaConnection` to launch a **fresh** Maya instance on an
 unused port, dispatches the full suite (main + slots) over the command
 port, polls for completion, then closes Maya. Per the monorepo hard
-rule (`mayatk/CLAUDE.md`), this always uses `force_new_instance=True` —
+rule (`mayatk/AGENTS.md`), this always uses `force_new_instance=True` —
 existing Maya sessions are never touched. There is no `--reuse` path.
 
 Optional: `--keep-maya` keeps the launched Maya open after tests for

@@ -155,27 +155,30 @@ jobs:
           python m3trik/scripts/compare_panel_surface.py --all --write
           git -C tentacle diff --exit-code -- docs/PARITY_SURFACE.md
 
-      - name: Parity audit up-to-date
-        # mtimes are meaningless in a fresh checkout, so skip the
-        # mtime-based registry-freshness guard; --check still
-        # content-diffs the committed PARITY_AUDIT.md.
-        run: python m3trik/scripts/generate_parity_audit.py --check --allow-stale
+      # The audit's layer 4 reads mayatk and blendertk at their last release
+      # tag (the audit is regenerated at release, so between releases it stays
+      # as committed); a depth-1 checkout holds no tag, so fetch just that one.
+      - name: Fetch the libraries' last release tags
+        run: |
+          for repo in mayatk blendertk; do
+            tags=$(git -C "$repo" ls-remote --tags --refs origin 'v*' | sed 's#.*refs/tags/##')
+            tag=$(printf '%s\n' $tags | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+            git -C "$repo" fetch --depth=1 origin "refs/tags/$tag:refs/tags/$tag"
+          done
 
-  api-registry:
-    # Content-hash staleness gate for the committed API_INDEX.md /
-    # API_REGISTRY.md (root CLAUDE.md documents --check as the CI gate; before
-    # this it was wired into no workflow). Its own job because the generator
-    # lives in the m3trik repo and expects the monorepo layout - <pkg>/ and
-    # m3trik/ as siblings - so the repos are checked out into sibling paths,
-    # the same shape tentacle's parity job uses. pythontk is checked out for
-    # one stdlib file: it owns the SymbolRecord DTO the generator loads from
-    # source (SSoT for the registry's symbol shape).
-    #
-    # AST-only: no package install, no DCC, no git history. Deterministic in a
-    # fresh checkout because --check hashes CONTENT, not mtimes, and normalizes
-    # away the generation date and #L line numbers (see StalenessGate) - only a
-    # real public-surface delta fails this.
-    name: API registry up to date
+      - name: Parity audit up-to-date
+        # --check content-diffs the committed PARITY_AUDIT.md.
+        run: python m3trik/scripts/generate_parity_audit.py --check
+
+  api-retirements:
+    # A retirement past its window fails: a ptk.Deprecation alias or retired
+    # keyword whose remove_in this package's __version__ has reached and whose
+    # calendar window has closed (m3trik/scripts/check_api_surface.py). Its own
+    # job because the script lives in the m3trik repo and reads with pythontk's
+    # ApiSurface, so the repos are checked out as siblings. Source only: no
+    # install, no DCC, no git history. Nothing generated is committed: the
+    # API is searched live (api.search).
+    name: API retirements on time
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -200,8 +203,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Registry matches source
-        run: python m3trik/scripts/generate_api_registry.py tentacle --check
+      - name: Retirements on time
+        run: python m3trik/scripts/check_api_surface.py tentacle --check
 
   guardrails:
     # The layout's guardrails (CODE_STANDARD section 3), strict on the new

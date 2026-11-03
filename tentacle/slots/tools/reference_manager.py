@@ -552,10 +552,7 @@ class ReferenceManagerSlots(Slots):
         if not widget.is_initialized:
             # One settings key on both hosts: uitk host-namespaces it ("..._maya",
             # "..._blender"), so each keeps its own list.
-            widget.option_box.pin(
-                settings_key="reference_manager_directories",
-                single_click_restore=True,
-            )
+            widget.option_box.pin(settings_key="reference_manager_directories")
             # The directory picker, fired by the b000 "Set Directory…" item.
             self._browse_option = self.sb.BrowseOption(
                 wrapped_widget=widget,

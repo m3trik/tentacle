@@ -50,8 +50,7 @@ jobs:
 
           # Exact-membership check: publish only if THIS version is absent
           # from PyPI. (Comparing against the latest release only re-entered
-          # the publish path — and re-fired the registry dispatch —
-          # whenever main held an older-but-published version. A transient
+          # the publish path whenever main held an older-but-published version. A transient
           # network failure falls through to publish=true, which is safe:
           # twine --skip-existing dedupes the upload.)
           if curl --fail --silent --output /dev/null "https://pypi.org/pypi/tentacletk/$VERSION/json"; then
@@ -96,15 +95,6 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: python -m twine upload dist/* --skip-existing
-      
-      - name: Trigger API registry refresh
-        if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.REPO_DISPATCH_TOKEN }}" \
-            https://api.github.com/repos/m3trik/m3trik/dispatches \
-            -d '{"event_type":"refresh_api_registry","client_payload":{"package":"tentacle"}}'
       
       - name: Summary
         run: |

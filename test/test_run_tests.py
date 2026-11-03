@@ -75,6 +75,51 @@ class TestPointedRuns(unittest.TestCase):
                     rt.main()
             self.assertEqual(gui.call_args.kwargs["timeout"], wanted)
 
+    def test_show_reaches_the_in_maya_run(self):
+        for argv, wanted in (
+            (["run_tests.py", "--in-maya"], False),
+            (["run_tests.py", "--in-maya", "--show"], True),
+        ):
+            with mock.patch.object(sys, "argv", argv), \
+                    mock.patch.object(rt, "_run_in_maya_gui", return_value=0) as gui:
+                with self.assertRaises(SystemExit):
+                    rt.main()
+            self.assertIs(gui.call_args.kwargs["show"], wanted)
+
+    def test_the_in_maya_run_hides_its_maya_unless_shown_or_kept(self):
+        """The fresh Maya starts on a private desktop (``connect(hidden=True)``):
+        it takes neither the user's focus nor their input. ``--show`` shows it,
+        and so does ``--keep-maya``: a Maya left open is the user's from then on,
+        and a hidden one would end with the runner."""
+        import tempfile
+
+        sys.path.insert(0, str(TEST_DIR.parent.parent))
+        try:
+            from mayatk.env_utils.maya_connection import MayaConnection
+        except ImportError as error:
+            self.skipTest(f"needs mayatk: {error}")
+        # Its dispatcher goes to a scratch folder, never a real run's temp_tests.
+        scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(scratch.cleanup)
+        for show, keep_maya, hidden in (
+            (False, False, True),
+            (True, False, False),
+            (False, True, False),
+        ):
+            conn = mock.Mock()
+            conn.connect.return_value = False
+            with mock.patch.object(MayaConnection, "get_instance", return_value=conn), \
+                    mock.patch.object(sys, "stdout", io.StringIO()), \
+                    mock.patch.object(sys, "stderr", io.StringIO()):
+                code = rt._run_in_maya_gui(
+                    Path(scratch.name), TEST_DIR.parent.parent, 0, no_badge=True,
+                    keep_maya=keep_maya, root_dir=TEST_DIR.parent,
+                    modules=["test_run_tests"], show=show,
+                )
+            with self.subTest(show=show, keep_maya=keep_maya):
+                self.assertEqual(code, 2)
+                self.assertIs(conn.connect.call_args.kwargs.get("hidden"), hidden)
+
     def test_an_unknown_module_exits_two_before_any_run(self):
         argv = ["run_tests.py", "definitely_not_a_module"]
         with mock.patch.object(sys, "argv", argv), \

@@ -155,7 +155,7 @@ def _store(*bounds):
 def _answer(button, asked=None):
     """Answer every question with *button*, keeping its text in *asked*.
     Patched with a function, never a bare MagicMock: a QObject subclass faults
-    natively on a mock attribute (uitk/CLAUDE.md)."""
+    natively on a mock attribute (uitk/AGENTS.md)."""
 
     def question(*args, **kwargs):
         if asked is not None:
