@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "timeout": 10,
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.agents/session_hook.py"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

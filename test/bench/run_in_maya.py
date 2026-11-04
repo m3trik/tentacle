@@ -1,6 +1,6 @@
 """Launch a fresh Maya, run an :class:`OptionBoxInitBench` subclass, capture JSON.
 
-Per the monorepo session-safety rule (``mayatk/CLAUDE.md``), every run
+Per the monorepo session-safety rule (``mayatk/AGENTS.md``), every run
 launches a **new** Maya GUI instance; the bench must never attach to a
 live session.
 

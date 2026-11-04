@@ -154,9 +154,9 @@ CI runs `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`, and
 
 ## More
 
-- [`API_REGISTRY.md`](../API_REGISTRY.md) — every public class/method, with file:line links.
+- Every public class/method, with file:line: `python -m pythontk ops run api.search "query=<words>"`.
 - [`CHANGELOG.md`](../CHANGELOG.md) — notable changes.
-- [`CLAUDE.md`](../CLAUDE.md) — contributor conventions.
+- [`AGENTS.md`](../AGENTS.md) — contributor conventions.
 - [`uitk/docs/MARKING_MENU.md`](https://github.com/m3trik/uitk/blob/main/docs/MARKING_MENU.md) — chord syntax, gesture mechanics.
 
 ## License

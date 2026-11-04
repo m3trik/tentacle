@@ -26,9 +26,11 @@ Three execution modes:
    Uses mayatk.MayaConnection to launch a FRESH Maya instance, dispatches
    the full suite (main + slots) over the command port, polls for
    completion, then closes Maya. Gives genuine 100% — overlay widget
-   tests run against real Qt.
+   tests run against real Qt. The Maya runs on a private desktop
+   (Windows), where it takes neither your focus nor your input; --show
+   puts it on yours, and --keep-maya shows it too.
 
-   Per the monorepo hard rule (mayatk/CLAUDE.md), --in-maya always uses
+   Per the monorepo hard rule (mayatk/AGENTS.md), --in-maya always uses
    force_new_instance=True. There is no --reuse path; existing Maya
    sessions are never touched.
 
@@ -49,7 +51,8 @@ Other flags:
     --log               Save results to a log file
     -q / --quiet        Minimal output
     --no-badge          Skip README badge update
-    --keep-maya         Keep Maya open after tests (only with --in-maya)
+    --keep-maya         Keep Maya open after tests, shown (only with --in-maya)
+    --show              Show the --in-maya Maya on your desktop (default: hidden)
     --timeout N         Seconds to wait for an --in-maya run (default 2400)
 """
 import argparse
@@ -499,14 +502,20 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
 
 def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                      no_badge: bool, keep_maya: bool, root_dir: Path,
-                     modules=(), patterns=(), timeout: int = 2400) -> int:
+                     modules=(), patterns=(), timeout: int = 2400,
+                     show: bool = False) -> int:
     """Launch a FRESH Maya GUI and dispatch the full suite over command port.
 
     This is the canonical "100% verified" path — every test runs against
     real Qt, including the overlay widget test that mayapy.standalone
     cannot host.
 
-    Hard rule (mayatk/CLAUDE.md): force_new_instance=True always. Never
+    The Maya runs on a private desktop, where it takes neither the user's
+    focus nor their input, unless *show*n -- or kept (*keep_maya*): a Maya
+    left open is the user's from then on, and a hidden one would end with
+    this process.
+
+    Hard rule (mayatk/AGENTS.md): force_new_instance=True always. Never
     --reuse, never attach to a live session.
     """
     if str(monorepo) not in sys.path:
@@ -549,6 +558,7 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
         force_new_instance=True,  # HARD RULE — never False
         launch=True,
         confirm_existing=True,
+        hidden=not (show or keep_maya),
     ):
         sys.stderr.write("[ERROR] Could not launch / connect to Maya.\n")
         return 2
@@ -777,6 +787,12 @@ def main():
         help="Keep the launched Maya open after tests (only with --in-maya).",
     )
     parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Show the --in-maya Maya on your desktop (default: a private one, "
+        "where it takes neither your focus nor your input).",
+    )
+    parser.add_argument(
         "--timeout",
         type=int,
         default=2400,
@@ -834,6 +850,7 @@ def main():
             modules=stems,
             patterns=args.patterns,
             timeout=args.timeout,
+            show=args.show,
         ))
 
     # Headless unless a GUI is the point (CODE_STANDARD section 9): the plain and

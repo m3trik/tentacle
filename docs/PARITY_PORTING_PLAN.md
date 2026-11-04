@@ -28,7 +28,7 @@ Three artifacts drive it:
 | Artifact | Role |
 |:--|:--|
 | [`PARITY_SURFACE.md`](PARITY_SURFACE.md) | Auto-gen parity gate (`compare_panel_surface.py --all --write`): every `self.tk` chain a shared Slots class calls (an engine instance's members included), resolved statically on mayatk and blendertk — name and signature. Its **Gaps** fail the gate (exit 1); its **One-host operations** list each chain one library lacks with what hides it there. Also lints every `.ui`'s `<customwidgets>`. |
-| [`PARITY_AUDIT.md`](PARITY_AUDIT.md) | Auto-gen scoreboard (`generate_parity_audit.py`): the gate per category and per tool, the `requires`-hidden buttons per host, and the libraries' helper coverage. Refuses stale registry inputs. |
+| [`PARITY_AUDIT.md`](PARITY_AUDIT.md) | Auto-gen scoreboard (`generate_parity_audit.py`): the gate per category and per tool, the `requires`-hidden buttons per host, and the libraries' helper coverage (read from their source). |
 | [`parity_map.py`](parity_map.py) | The twin-panel era's triage ledger, read by no tool now: a live divergence is stated where the code hides it (`requires`, `slots.tools.HOSTS`, a guard and its comment). |
 
 **The contract:** every call a shared panel makes resolves on both hosts, or is hidden or
@@ -149,11 +149,9 @@ under `mayapy` (standalone + offscreen Qt). Session safety applies: fresh instan
 ## Maintenance
 
 ```powershell
-# after ANY public-API change:
-python m3trik/scripts/generate_api_registry.py mayatk blendertk
 # after ANY slot/.ui change, or a library rename / signature change (must exit 0):
 python m3trik/scripts/compare_panel_surface.py --all --write
-# refresh the scoreboard (refuses stale registries):
+# refresh the scoreboard:
 python m3trik/scripts/generate_parity_audit.py
 ```
 
@@ -163,5 +161,4 @@ python m3trik/scripts/generate_parity_audit.py
   sibling repos at `dev` beside this one (pythontk, uitk, mayatk, blendertk), runs the gate
   (`--all --write` + git-diff on PARITY_SURFACE.md — a gap AND a stale committed doc both
   fail), then
-  `generate_parity_audit.py --check --allow-stale` (mtimes are meaningless in a fresh
-  checkout; `--check` is content-based).
+  `generate_parity_audit.py --check` (content-based).
