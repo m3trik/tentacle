@@ -6,6 +6,7 @@ Every m3trik repo follows these, whatever its language. One line each; the ratio
 - **One shape at every scale** (§0): a unit has one charter, a surface others touch, a host-free model under host adapters, parts in a declared order, seams, contracts and proof.
 - **Libraries hold the logic, products the UI** (§14): a panel calls a library's API, never a host.
 - **Contracts are declared once, as data**, in the lowest unit every reader reaches; other languages get generated types, and every restatement is checked.
+- **Depend only downward, in knowledge too** (§0): a unit imports, names, reads, branches on and tests against only what sits below it and the contracts declared there; data beyond the contract is a declared, optional extension it may handle or ignore, and it works fully without it.
 - **Public APIs are contracts** (§5): a removed or renamed public name gets a moved-names row naming its new home (a deprecation alias with a real `remove_in` only where callers need a window), a CHANGELOG line and a minor bump. Saved data (scenes, presets, manifests, serialized fields) is always published.
 
 ## Design
