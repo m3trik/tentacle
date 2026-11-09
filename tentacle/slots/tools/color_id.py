@@ -62,7 +62,9 @@ class ColorIdSlots(Slots):
 
     def header_init(self, widget):
         """Configure header help text and preset combobox."""
-        # Gesture-scoped window: pin button + auto-hide on key_show release.
+        # Quick-setting window: held open by the marking-menu key it hides on
+        # release; a tap (released right after it opens) pins it instead
+        # (uitk's tap-to-pin default).
         widget.config_buttons("menu", "collapse", "pin")
         widget.set_help_text(
             self.sb.tooltip.fmt(

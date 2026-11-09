@@ -148,12 +148,11 @@ class MaterialsSlots(Slots):
             (
                 "Emissive Groups",
                 "b027",
-                "Author named face groups whose emissive regions a game "
-                "engine can toggle or dim independently, sharing one all-on "
-                "emissive map. Bakes membership into a vertex color set "
-                "(Blender: a color attribute; it rides the FBX) or an _EMask "
-                "texture, and publishes the manifest Unity's "
-                "EmissiveGroupController reads.",
+                "Group faces into regions whose glow plays on its own: each "
+                "group's faces wear a copy of their material made for the "
+                "group, sharing its maps, its emission keyed by the group's "
+                "weight, so the viewport shows what ships; each keyed copy "
+                "rides the export as a material with animated emission.",
             ),
         ],
         "Texture Maps (files)": [
@@ -178,7 +177,7 @@ class MaterialsSlots(Slots):
             ("Substance Bridge", "b020", ""),
             ("Map Compositor", "b022", ""),
             ("Metashape Workflow", "b023", ""),
-            ("RealityCapture Workflow", "b024", ""),
+            ("RealityScan Workflow", "b024", ""),
             ("Brush Splat Workflow", "b025", ""),
         ],
         "Utilities": [
@@ -1655,7 +1654,7 @@ class MaterialsSlots(Slots):
         self.launch_app("metashape_workflow")
 
     def b024(self, widget=None):
-        """RealityCapture Workflow."""
+        """RealityScan Workflow."""
         self.launch_app("realityscan_workflow")
 
     def b025(self, widget=None):

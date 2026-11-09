@@ -57,7 +57,7 @@ class MatUpdaterSlots(Slots):
         except Exception:  # a scene state the host cannot answer for
             root = ""
         info = (
-            "<br><font color='#888'>Texture folder: "
+            f"<br><font color='{ptk.Palette.status()['locked'][0]}'>Texture folder: "
             f"{ptk.truncate(root, mode='middle')}</font><br>"
             if root
             else ""

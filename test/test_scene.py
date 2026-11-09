@@ -371,7 +371,7 @@ class TestToolsLaunchers(_SlotsCase):
         )
 
     def test_unity_opens_the_one_unity_app_with_the_hosts_engine(self):
-        """The Unity Workflow app (extapps'), opened by name, with the host's
+        """The Unity Scripts app (extapps'), opened by name, with the host's
         engine class injected before it shows: the app's Current Scene source.
         Added: 2026-10-31 (tentacle's Unity Bridge panel folded into the app)."""
         ui = self.sb.handlers.external_app.launch.return_value
@@ -380,7 +380,7 @@ class TestToolsLaunchers(_SlotsCase):
         self.sb.handlers.marking_menu.show.side_effect = lambda w: events.append("show")
         self.slots.b016()
         self.sb.handlers.external_app.launch.assert_called_once_with(
-            "unity_workflow", show=False
+            "unity_scripts", show=False
         )
         self.assertIs(ui.slots.engine, self.tk.UnityBridge)
         self.sb.handlers.marking_menu.show.assert_called_once_with(ui)
@@ -391,13 +391,13 @@ class TestToolsLaunchers(_SlotsCase):
         self.slots.b016()
         self.sb.PanelRenames.carry.assert_not_called()
         self.sb.handlers.marking_menu.show.assert_not_called()
-        self.assertIn("Unity Workflow", self._message())
+        self.assertIn("Unity Scripts", self._message())
 
     @unittest.skipUnless(qt_widgets_available(), "the settings stores are QSettings")
     def test_the_unity_bridges_saved_values_land_in_the_apps_store(self):
         """The panel stored per host on this switchboard (``unity_bridge_maya``);
         the app's window reads one unsuffixed branch on its own switchboard
-        (``unity_workflow``). The carry moves them there, the Unity Project
+        (``unity_scripts``). The carry moves them there, the Unity Project
         field under the app's name for it, once."""
         from uitk import PanelRenames, SettingsManager, ShortcutManager
         from uitk.testing import TestSandbox
@@ -407,7 +407,8 @@ class TestToolsLaunchers(_SlotsCase):
         former = root.branch("unity_bridge_maya")
         former.setValue("unity_bridge_output_dir/textChanged", "C:/UnityProj")
         former.setValue("param_assets_subdir/textChanged", "Models")
-        app = root.branch("unity_workflow")
+        former.setValue("cmb000/currentIndexChanged", 1)  # manage_scripts' row
+        app = root.branch("unity_scripts")
         configurable = root.branch("configurable")
         self.addCleanup(configurable.clear, PanelRenames.CARRIED_KEY)
         self.addCleanup(app.clear)
@@ -423,15 +424,22 @@ class TestToolsLaunchers(_SlotsCase):
         self.sb.ShortcutManager = ShortcutManager
         self.sb.context_tags = {"maya"}
         self.tk.__name__ = "mayatk"
-        ui = NS(sb=app_sb, slots=NS(PRESETS_ROOT="extapps/unity_workflow"))
+        templates = {"copy_to_assets": "SendToUnity", "manage_scripts": None}
+        ui = NS(
+            sb=app_sb,
+            slots=NS(PRESETS_ROOT="extapps/unity_scripts", FORMER_TEMPLATES=templates),
+        )
         self.slots._carry_unity_bridge_values(ui)
         self.assertEqual(
             app.value("unity_workflow_output_dir/textChanged"), "C:/UnityProj"
         )
         self.assertEqual(app.value("param_assets_subdir/textChanged"), "Models")
-        # Its presets, keyed by the widget names the app keeps, beside the app's.
+        # Its template combo's row indexed scripts the app no longer lists.
+        self.assertIsNone(app.value("cmb000/currentIndexChanged"))
+        # Its presets, keyed by the widget names the app keeps, beside the app's,
+        # each former template's under the script that took its place.
         self.sb.PresetManager.carry_presets.assert_called_once_with(
-            "mayatk/unity_bridge", "extapps/unity_workflow"
+            "mayatk/unity_bridge", "extapps/unity_scripts", templates
         )
         app.setValue("param_assets_subdir/textChanged", "Mine")
         self.slots._carry_unity_bridge_values(ui)  # once: a later edit stays

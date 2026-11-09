@@ -128,10 +128,9 @@ class ReferenceManagerSlots(Slots):
         Types / Operations menu, and the help text."""
         # Runs on every call: the header outlives a slots reload, so its buttons and
         # the signals below are re-targeted at THIS instance each time.
+        # Pin chrome: a tap of the marking-menu key keeps the panel (uitk's
+        # tap-to-pin default), holding it still auto-hides on release.
         widget.config_buttons("refresh", "menu", "collapse", "pin")
-        # Tap-to-pin: releasing the marking-menu key right after the panel opens pins
-        # it -- the user came here to work. Holding it still auto-hides on release.
-        widget.pin_on_tap = True
         self._rewire_signal(
             widget,
             widget.refresh_requested,

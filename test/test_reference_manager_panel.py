@@ -1417,9 +1417,11 @@ class TestHeaderAndFooter(_PanelCase):
         slots.header_init(header)
         return slots, header, added
 
-    def test_tap_to_pin_presets_and_naming_before_the_filters(self):
+    def test_pin_chrome_presets_and_naming_before_the_filters(self):
         slots, header, added = self._header()
-        self.assertTrue(header.pin_on_tap)
+        # Pin chrome, and no tap-to-pin override: the user's preference governs.
+        header.config_buttons.assert_called_with("refresh", "menu", "collapse", "pin")
+        self.assertNotIn("pin_on_tap", vars(header))
         self.assertEqual(header.menu.presets.preset_dir, "mayatk/reference_manager")
         self.assertLess(added.index("Naming:"), added.index("chk_filter_suffix"))
         self.assertIn("btn_convert_assembly", added)

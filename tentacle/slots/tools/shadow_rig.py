@@ -203,15 +203,14 @@ class ShadowRigSlots(Slots, ptk.LoggingMixin):
                     ),
                 ],
                 notes=[
-                    "Unity plug-and-play: deploy unitytk's C# templates once "
-                    "(<i>unitytk.TemplateDeployer.deploy_package</i>) and export "
-                    "via the Scene Exporter (in Maya with Embed Textures on) -- "
-                    "the import sets up the unlit-transparent material and "
-                    "shadow flags automatically. Other engines: assign an "
-                    "unlit/transparent shader with the PNG by hand.",
-                    "The fade is the plane's keyable <i>opacity</i>: it bakes "
-                    "with the transform and rides the FBX as an animated "
-                    "custom attribute.",
+                    "An engine that reads the export's shadows record sets "
+                    "the plane up on import: export via the Scene "
+                    "Exporter (in Maya with Embed Textures on). Other engines: "
+                    "assign an unlit/transparent shader with the PNG by hand.",
+                    "The fade is the engine's to evaluate each frame from the "
+                    "record's terms (intensity, falloff, fade height); the "
+                    "plane's material previews it here, and nothing keys "
+                    "it.",
                 ],
             )
         )
@@ -390,9 +389,10 @@ class ShadowRigSlots(Slots, ptk.LoggingMixin):
         ui.b002.setToolTip(
             tip(
                 title="Bake to Keyframes",
-                body="Bakes the shadow plane's driven motion and fade to "
-                "keyframes over the playback range and removes the live rig -- "
-                "leaving an FBX-ready plane.",
+                body="Bakes the shadow plane's driven motion to keyframes over "
+                "the playback range and removes the live rig -- leaving an "
+                "FBX-ready plane. The fade is not keyed: the engine evaluates "
+                "it from the shadows record.",
                 notes=[
                     "Applies to the rig(s) the selection touches, or all planes "
                     "if nothing is selected.",

@@ -1520,13 +1520,23 @@ class TestRenderEffectsPanelInMaya(_PanelCase):
         return bridge.return_value.push
 
     @staticmethod
-    def _published_ramp(keys):
-        """*keys* as the visibility channel publishes them: every float
-        rounded to ``MeshConvert.VISIBILITY_TRACK_DIGITS`` places."""
+    def _preview_curve(overlay, channel):
+        """The one curve the overlay states for *channel*, as the build reads
+        it (``render_effects`` v2: the record names the channel, the curve
+        rides the overlay's ``MeshConvert.EFFECT_PREVIEW_KEY``, in seconds)."""
         import pythontk as ptk
 
-        digits = ptk.MeshConvert.VISIBILITY_TRACK_DIGITS
-        return [[round(float(f), digits), round(float(v), digits)] for f, v in keys]
+        (curve,) = [
+            c
+            for c in overlay[ptk.MeshConvert.EFFECT_PREVIEW_KEY]["curves"]
+            if c["channel"] == channel
+        ]
+        return curve
+
+    @staticmethod
+    def _seconds(keys, fps):
+        """*keys* (frames) in seconds, as ``effect_preview_channels`` states them."""
+        return [[round(float(f) / fps, 9) + 0.0, float(v)] for f, v in keys]
 
     def test_the_webxr_preview_pushes_the_fade_as_set_and_writes_nothing(self):
         import pythontk as ptk
@@ -1541,12 +1551,14 @@ class TestRenderEffectsPanelInMaya(_PanelCase):
         self.assertEqual(kwargs["objects"], [self.cube])
         overlay = kwargs["data_export"]
         tracks = overlay[ptk.SceneRecords.VISIBILITY.key]["tracks"]
-        self.assertEqual([t["node"] for t in tracks], [self.cube])
+        self.assertEqual(tracks, [{"node": self.cube, "channels": ["opacity"]}])
         fps = float(mtk.AudioUtils.get_fps() or 30.0)
         expected = ptk.RampKeys.fade_loop(
             15, hold=self.slot.PREVIEW_HOLD_SECONDS * fps, direction="auto"
         )
-        self.assertEqual(tracks[0]["opacity"], self._published_ramp(expected))
+        curve = self._preview_curve(overlay, "opacity")
+        self.assertEqual(curve["target"], self.cube)
+        self.assertEqual(curve["keys"], self._seconds(expected, fps))
         # No shot cuts it: the shot record carries the takes (each clip its
         # range).
         self.assertIsNone(overlay[ptk.SceneRecords.SHOTS.key], "no shot cuts it")
@@ -1581,10 +1593,14 @@ class TestRenderEffectsPanelInMaya(_PanelCase):
             lead_in=0.5 * fps,
             lead_out=0.25 * fps,
         )
-        self.assertEqual(track["highlight"], self._published_ramp(expected))
+        self.assertEqual(self._preview_curve(overlay, "highlight")["keys"], self._seconds(expected, fps))
         self.assertEqual(track["highlight_color"], [1.0, 0.0, 0.0])
         self.assertEqual(track["highlight_color_dim"], list(self.slot.DEFAULT_DIM))
-        self.assertNotIn("opacity", track, "the object's own fade is left out")
+        self.assertEqual(track["channels"], ["highlight"], "the object's own fade is left out")
+        self.assertEqual(
+            [c["channel"] for c in overlay[ptk.MeshConvert.EFFECT_PREVIEW_KEY]["curves"]],
+            ["highlight"],
+        )
         self.assertFalse(cmds.attributeQuery("highlight", node=self.cube, exists=True))
         self.assertEqual(cmds.keyframe(f"{self.cube}.opacity", q=True, kc=True), before)
 

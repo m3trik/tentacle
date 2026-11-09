@@ -229,13 +229,13 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
                 "export_visible_objects",
                 lambda scope: scope != "visible",
             )
-        # A USD deliverable: the FBX preset, the takes and the bake range set
-        # FBX flags only (the engine reports them inert), the verifier has no
+        # A USD deliverable: the FBX preset and the bake range set FBX flags
+        # only (the engine reports them inert), the verifier has no
         # FBX/GLB to open, and the rig-helper pass edits a written FBX (or sets
         # the deform-only write). A row a host lacks is simply never matched.
         sb.show_when(
             ui,
-            "cmb000,animation_clips,bake_range,verify_deliverables,drop_rig_apparatus",
+            "cmb000,bake_range,verify_deliverables,drop_rig_apparatus",
             "cmb004",
             lambda fmt: fmt != "usd",
         )
@@ -418,13 +418,14 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
 
         # Warn if no presets or directory issues
         if hasattr(self.ui, "txt003"):
+            warn = ptk.Palette.status()["warn"][0]
             if not self.exporter.fbx_preset_dir():
                 self.ui.txt003.setHtml(
-                    "<span style='color:orange'>Warning: the FBX preset directory was not found.</span>"
+                    f"<span style='color:{warn}'>Warning: the FBX preset directory was not found.</span>"
                 )
             elif len(presets) <= 1:  # Only "None"
                 self.ui.txt003.setHtml(
-                    "<span style='color:orange'>Warning: No presets found in the preset directory.<br>"
+                    f"<span style='color:{warn}'>Warning: No presets found in the preset directory.<br>"
                     "Drop preset files into it (FBX Preset ▸ option box ▸ Open FBX Preset Directory).</span>"
                 )
 

@@ -45,6 +45,20 @@ def _status(**overrides):
     return status
 
 
+class TestHudColorsReadThePalette(unittest.TestCase):
+    """The HUD's warning / error text is the shared status palette's."""
+
+    def test_warnings_use_the_status_tiers(self):
+        import pythontk as ptk
+
+        status = ptk.Palette.status()
+        self.assertEqual(HudSlots._WARN, str(status["warn"][0]))
+        self.assertEqual(HudSlots._ERROR, str(status["error"][0]))
+        colors = {w["key"]: w["color"] for w in HudSlots.WARNING_DEFS}
+        self.assertEqual(colors["chk_warn_framerate"], HudSlots._WARN)
+        self.assertEqual(colors["chk_warn_autosave_off"], HudSlots._ERROR)
+
+
 class _FakeHud:
     """Collects the paragraphs a hud TextEdit would have appended."""
 

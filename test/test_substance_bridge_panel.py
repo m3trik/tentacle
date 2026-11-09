@@ -9,8 +9,9 @@ list and template metadata (``SubstanceBridge``), the Scope (``BridgeHost``) and
 the Bake Source row (``BakeSourceSet``). A fake toolkit stands in for ``mtk`` /
 ``btk`` and records what the panel asks of it. The shared base's own cases
 (Scope, closure, the Bake Source row's three actions) are
-``test_host_bridge.py``'s; these pin what this bridge adds: a template
-that exports nothing needs no selection, the Output Dir row starts blank and
+``test_host_bridge.py``'s; these pin what this bridge adds: a script on a
+project needs no selection, the Painter row lists the running Painters, the
+job is followed off the main thread, the Output Dir row starts blank and
 clears, and Texture Affix greys while Include Textures is off.
 
 The unit cases run the panel's methods on an instance never built (``__new__``:
@@ -40,8 +41,8 @@ from tentacle.slots.tools.substance_bridge import SubstanceBridgeSlots
 UI_PATH = (
     Path(tentacle.__file__).resolve().parent / "ui" / "tools" / "substance_bridge.ui"
 )
-IMPORT = ("import", ptk.SEND_TO)
-RENDER = ("render", ptk.SEND_TO)
+IMPORT = ("new_project", ptk.SEND_TO)
+RENDER = ("bake_lighting", ptk.SEND_TO)  # a script on a project: no selection
 
 
 # ---------------------------------------------------------------------------
@@ -82,9 +83,11 @@ class _FakeSubstance:
 
     TEMPLATE_DIR = Path("templates")
     APP = types.SimpleNamespace(not_found_message="Substance Painter was not found.")
-    #: What ``parse_template`` answers, by template stem (``render`` targets the
-    #: project already open in Painter).
-    META = {"import": {"EXPORT_FBX": True}, "render": {"EXPORT_FBX": False}}
+    #: What ``parse_template`` answers, by script stem (``bake_lighting`` works
+    #: on a project Painter holds).
+    META = {"new_project": {"WORKS_ON": "new"}, "bake_lighting": {"WORKS_ON": "project"}}
+    #: The running Painters' records ``painters`` lists.
+    RECORDS = []
     #: Every template path the panel asked about (a fresh list per toolkit).
     parsed = []
 
@@ -92,6 +95,37 @@ class _FakeSubstance:
         self.logger = _Log()
         self.painter_path = "C:/Painter/painter.exe"
         self.sent = None
+        self.reported = []
+
+    @classmethod
+    def painters(cls):
+        return list(cls.RECORDS)
+
+    @staticmethod
+    def painter_label(record):
+        return f"Painter: {record['id']}"
+
+    @staticmethod
+    def label(script):
+        return script.replace("_", " ").title()
+
+    @staticmethod
+    def follow(result):
+        return {"state": "done", "job": result["job"]}
+
+    def report(self, status):
+        self.reported.append(status)
+
+    def conclude(self, task):
+        status = task.result()
+        self.report(status)
+        return status
+
+    @classmethod
+    def painter_choices(cls):
+        return [("Auto", "auto"), ("New Painter", "new")] + [
+            (cls.painter_label(r), r["id"]) for r in cls.RECORDS
+        ]
 
     @classmethod
     def params_registry(cls):
@@ -100,10 +134,10 @@ class _FakeSubstance:
     @staticmethod
     def list_template_modes():
         return [
-            ("bake_lighting", ptk.SEND_TO),
-            IMPORT,
-            ("reimport", ptk.SEND_TO),
             RENDER,
+            IMPORT,
+            ("update_mesh", ptk.SEND_TO),
+            ("export_textures", ptk.SEND_TO),
         ]
 
     @classmethod
@@ -135,6 +169,7 @@ def _stub(tk=None, params=None, output_dir="", pair=IMPORT, widgets=None):
     slots.sb.tk = tk or _toolkit()
     slots._bridge = _FakeSubstance()
     slots._output_dir_edit = None
+    slots._running, slots._starting = None, False
     slots._param_widgets = dict(widgets or {})
     slots._selected_template_mode = lambda: pair
     slots.collect_param_values = lambda: dict(
@@ -172,7 +207,7 @@ class TestSubstanceBridgeShape(unittest.TestCase):
         root = ElementTree.parse(UI_PATH).getroot()
         button = next(w for w in root.iter("widget") if w.get("name") == "b000")
         label = next(p.find("string").text for p in button if p.get("name") == "text")
-        self.assertEqual(label, "Send to Painter")
+        self.assertEqual(label, "Run in Painter")
         self.assertIn(f"<b>{label}</b>", SubstanceBridgeSlots.HELP_SPEC["steps"][-1])
 
     def test_a_blank_output_dir_is_the_bridges_call_every_session(self):
@@ -189,6 +224,27 @@ class TestSubstanceBridgeShape(unittest.TestCase):
                 slots = _stub()
                 self.assertEqual(slots.require_output_dir(mode), "")
                 self.assertEqual(slots._bridge.logger.said("error"), [])
+
+    def test_former_presets_carry_once_so_a_deleted_one_stays_deleted(self):
+        """The panel's presets moved from its former templates' folders to their
+        scripts' in the same root: carried on every open, a preset the person
+        deleted from ``new_project/`` came back from ``import/`` next session."""
+        from uitk.managers.preset_manager import PresetManager
+
+        root = Path(tempfile.mkdtemp(prefix="substance_presets_"))
+        self.addCleanup(shutil.rmtree, root, True)
+        former = root / "mayatk" / "substance_bridge" / "import"
+        former.mkdir(parents=True)
+        (former / "mine.json").write_text("{}", encoding="utf-8")
+        slots = _stub()
+        slots.sb.PresetManager = PresetManager
+        with mock.patch.object(PresetManager, "get_presets_root", return_value=root):
+            slots._carry_former_presets()
+            carried = root / "mayatk" / "substance_bridge" / "new_project" / "mine.json"
+            self.assertTrue(carried.is_file())
+            carried.unlink()  # the person deletes it
+            slots._carry_former_presets()  # the next open
+            self.assertFalse(carried.exists())
 
     def test_the_output_dir_field_carries_a_clear_button(self):
         """Blank is a real setting here, so the field offers the way back to it
@@ -221,11 +277,62 @@ class TestSubstanceBridgeAsksItsHost(unittest.TestCase):
                 root = _stub(tk=_toolkit(name)).PRESETS_ROOT
                 self.assertEqual(root, Path(name) / "substance_bridge")
 
-    def test_the_combo_opens_on_import(self):
+    def test_the_combo_opens_on_new_project(self):
         slots = _stub()
         pairs = _FakeSubstance.list_template_modes()
         self.assertEqual(slots.select_initial_template_index(pairs), 1)
         self.assertEqual(slots.select_initial_template_index([RENDER]), 0)
+
+
+class TestSubstanceBridgePainters(unittest.TestCase):
+    def test_the_painter_row_lists_the_running_painters(self):
+        slots = _stub(widgets={"PAINTER": mock.MagicMock()})
+        slots._set_param_choices = mock.MagicMock()
+        slots.tk.SubstanceBridge.RECORDS = [{"id": "r1"}, {"id": "r2"}]
+        slots.refresh_painters()
+        slots._set_param_choices.assert_called_once_with(
+            "PAINTER",
+            [("Auto", "auto"), ("New Painter", "new"), ("Painter: r1", "r1"), ("Painter: r2", "r2")],
+        )
+
+    def test_install_in_painter_is_the_persons_menu_action(self):
+        """uitk's shared action, from the engine's ``RPC_PLUGIN``: the panel
+        writes none of its own."""
+        slots = _stub()
+        spec = ptk.RpcPluginSpec(name="substance_rpc", app="Painter", source=Path("."), user_dir=lambda: None)
+        engine = slots.tk.SubstanceBridge
+        engine.RPC_PLUGIN = spec
+        self.addCleanup(delattr, engine, "RPC_PLUGIN")
+        items = {item[3]: item[0] for item in slots.header_menu_items()}
+        self.assertEqual(items["install_rpc_plugin"], "Install in Painter")
+        self.assertEqual(items["uninstall_rpc_plugin"], "Uninstall from Painter")
+        with mock.patch.object(ptk.PluginInstaller, "install") as install:
+            slots.install_rpc_plugin()
+        install.assert_called_once_with(spec, logger=slots._bridge.logger)
+
+    def test_a_row_saved_against_the_old_templates_names_its_successor(self):
+        """The combo saved its row against bake_lighting / import / reimport /
+        render; read against today's list, row 1 (import) would be another
+        script, so the old list maps each row to its successor."""
+        slots = _stub()
+        with mock.patch.object(HostBridge, "cmb000_init", lambda self, widget: None):
+            combo = types.SimpleNamespace()
+            slots.cmb000_init(combo)
+        self.assertEqual(
+            combo.legacy_items,
+            ("bake_lighting (send_to)", "new_project (send_to)", "update_mesh (send_to)", None),
+        )
+
+    def test_a_cancel_reaches_the_running_job_and_says_when_there_is_none(self):
+        slots = _stub()
+        slots._running = None
+        slots._bridge.cancel = mock.MagicMock()
+        slots.cancel_script()
+        slots._bridge.cancel.assert_not_called()
+        self.assertIn("No script is running", slots._bridge.logger.said("info")[0])
+        slots._running = {"job": "j1"}
+        slots.cancel_script()
+        slots._bridge.cancel.assert_called_once_with({"job": "j1"})
 
 
 # ---------------------------------------------------------------------------
@@ -281,32 +388,33 @@ class TestSubstanceBridgeSend(unittest.TestCase):
         _scoped(slots, ["|pCube1"])
         slots.b000()
         self.assertEqual(
-            slots.tk.SubstanceBridge.parsed, [Path("templates") / "import.py"]
+            slots.tk.SubstanceBridge.parsed, [Path("templates") / "new_project.py"]
         )
+        sent = dict(slots._bridge.sent)
+        self.assertTrue(callable(sent.pop("background")) and callable(sent.pop("on_queued")))
         self.assertEqual(
-            slots._bridge.sent,
+            sent,
             {
                 "objects": ["|pCube1"],
-                "template": "import",
+                "template": "new_project",
                 "mode": ptk.SEND_TO,
+                "target": "auto",
                 "output_dir": "",
                 "params": params,
             },
         )
-        slots.sb.progress.assert_called_once_with(
-            text=f"Working: Substance import ({ptk.SEND_TO})"
-        )
+        slots.sb.progress.assert_called_once_with(text="Working: New Project")
         self.assertEqual(slots._bridge.logger.said("error"), [])
 
-    def test_a_template_that_exports_nothing_needs_no_selection(self):
-        """``render`` works on the project open in Painter: an empty Scope is no
-        reason to stop, nor to warn."""
+    def test_a_script_on_a_project_needs_no_selection(self):
+        """``bake_lighting`` works on a project Painter holds: an empty Scope is
+        no reason to stop, nor to warn."""
         slots = _stub(pair=RENDER)
         _scoped(slots, [])
         slots.b000()
         self.assertEqual(slots._bridge.logger.said("warning"), [])
         self.assertEqual(slots._bridge.sent["objects"], [])
-        self.assertEqual(slots._bridge.sent["template"], "render")
+        self.assertEqual(slots._bridge.sent["template"], "bake_lighting")
 
     def test_an_export_with_nothing_scoped_sends_nothing_and_says_why(self):
         slots = _stub(pair=IMPORT)
@@ -319,7 +427,7 @@ class TestSubstanceBridgeSend(unittest.TestCase):
         slots = _stub(pair=None)
         slots.b000()
         self.assertIsNone(slots._bridge.sent)
-        self.assertIn("No template chosen", slots._bridge.logger.said("warning")[0])
+        self.assertIn("No script chosen", slots._bridge.logger.said("warning")[0])
         slots.tk.BridgeHost.resolve_scope.assert_not_called()
 
     def test_without_painter_the_apps_own_sentence_is_logged(self):
@@ -339,6 +447,76 @@ class TestSubstanceBridgeSend(unittest.TestCase):
         slots.b000()
         self.assertEqual(slots._bridge.sent["output_dir"], "C:/handoff")
 
+    def test_the_painter_row_is_the_target(self):
+        slots = _stub(params={"SCOPE": "selected", "PAINTER": "rec7"})
+        _scoped(slots, ["|a"])
+        slots.b000()
+        self.assertEqual(slots._bridge.sent["target"], "rec7")
+
+    def test_a_queued_job_is_followed_off_the_main_thread_and_reported(self):
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        slots._bridge.send = lambda **kw: {"job": "j1", "connection": object()}
+        tasks = []
+
+        class _Task:
+            def __init__(self, fn, name):
+                self.fn, self.name = fn, name
+                tasks.append(self)
+
+            def result(self):
+                return self.fn()
+
+            def when_done(self, _ui, done):
+                done()
+
+        slots.sb.BackgroundTask = _Task
+        slots.ui = types.SimpleNamespace(footer=None)
+        slots.refresh_painters = lambda: None
+        slots.b000()
+        (task,) = tasks
+        self.assertEqual(task.name, "substance-script")
+        self.assertEqual(slots._bridge.reported, [{"state": "done", "job": "j1"}])
+
+    def test_while_painter_starts_the_run_waits_off_the_main_thread_then_follows(self):
+        """A launch (or a project opening) is waited on in a BackgroundTask; the
+        job is followed once queued, and a second Run meanwhile launches nothing."""
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        sends, tasks = [], []
+
+        def send(**kw):
+            sends.append(kw)
+            kw["background"](lambda: "", lambda error: kw["on_queued"]({"job": "j1", "connection": object()}))
+            return {"pending": True}
+
+        class _Task:
+            def __init__(self, fn, name):
+                self.fn, self.name, self.later = fn, name, None
+                tasks.append(self)
+
+            def result(self):
+                return self.fn()
+
+            def when_done(self, _ui, done):
+                self.later = done
+
+        slots._bridge.send = send
+        slots.sb.BackgroundTask = _Task
+        slots.ui = types.SimpleNamespace(footer=None)
+        slots.refresh_painters = lambda: None
+        self.assertIsNone(slots.b000())
+        (starting,) = tasks
+        self.assertEqual(starting.name, "substance-deliver")
+        slots.b000()
+        self.assertEqual(len(sends), 1, "no second launch while the first starts")
+        self.assertIn("still starting", slots._bridge.logger.said("warning")[-1])
+        starting.later()
+        self.assertEqual([t.name for t in tasks], ["substance-deliver", "substance-script"])
+        tasks[1].later()
+        self.assertEqual(slots._bridge.reported, [{"state": "done", "job": "j1"}])
+        self.assertFalse(slots._starting)
+
     def test_an_engine_error_lands_in_the_log(self):
         slots = _stub()
         _scoped(slots, ["|a"])
@@ -354,10 +532,11 @@ class TestSubstanceBridgeSend(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 _TEMPLATES = {
-    "import": '"""Open the selection in a new Painter project."""\n'
-    "ARGS = (__SCOPE__, __BAKE_SOURCE_SET__, __PAINTER_INCLUDE_TEXTURES__, "
-    "__PAINTER_TEXTURE_AFFIX__)\n",
-    "render": '"""Render the open project."""\nEXPORT_FBX = False\n',
+    "new_project": '"""Create a Painter project from the selection."""\n'
+    'WORKS_ON = "new"\n'
+    "# Rows: __SCOPE__ __BAKE_SOURCE_SET__ __PAINTER_INCLUDE_TEXTURES__ "
+    "__PAINTER_TEXTURE_AFFIX__\n",
+    "bake_lighting": '"""Bake lighting on the open project."""\nWORKS_ON = "project"\n',
 }
 
 
@@ -434,7 +613,7 @@ class TestSubstanceBridgePanelLoads(unittest.TestCase):
         self.assertIsInstance(slots, SubstanceBridgeSlots)
         return ui, slots
 
-    def test_the_panel_builds_and_opens_on_import(self):
+    def test_the_panel_builds_and_opens_on_new_project(self):
         ui, slots = self._load()
         self.assertIsInstance(slots.peek_bridge(), _FakeSubstance)
         self.assertEqual(slots.PRESETS_ROOT, Path("mayatk") / "substance_bridge")
@@ -482,7 +661,7 @@ class TestSubstanceBridgePanelInMaya(unittest.TestCase):
         engine = self.mtk.SubstanceBridge
         self.assertIs(slots.bridge_class, engine)
         self.assertIs(slots.params_module, engine.params_registry())
-        self.assertTrue((slots.template_dir / "import.py").is_file())
+        self.assertTrue((slots.template_dir / "new_project.py").is_file())
         modes = slots.list_template_modes()
         self.assertEqual(modes[slots.select_initial_template_index(modes)], IMPORT)
         self.assertEqual(slots.PRESETS_ROOT, Path("mayatk") / "substance_bridge")
@@ -497,9 +676,10 @@ class TestSubstanceBridgePanelInMaya(unittest.TestCase):
                     callable(getattr(SubstanceBridgeSlots, choice[1], None))
                 )
 
-    def test_render_reads_its_template_and_needs_no_selection(self):
-        """The real ``render.py`` exports no FBX: with nothing selected the send
-        goes on (to the missing-Painter stop here) without a scope warning."""
+    def test_a_script_on_a_project_reads_its_header_and_needs_no_selection(self):
+        """The real ``bake_lighting.py`` works on a project: with nothing
+        selected the send goes on (to the missing-Painter stop here) without a
+        scope warning."""
         self.cmds.select(clear=True)
         slots = self._panel(pair=RENDER)
         slots.b000()
@@ -508,7 +688,7 @@ class TestSubstanceBridgePanelInMaya(unittest.TestCase):
             slots._bridge.logger.said("error"), [_FakeSubstance.APP.not_found_message]
         )
 
-    def test_import_with_nothing_selected_stops_and_says_why(self):
+    def test_new_project_with_nothing_selected_stops_and_says_why(self):
         self.cmds.polyCube(name="substancePanelIdle")
         self.cmds.select(clear=True)
         slots = self._panel(pair=IMPORT)

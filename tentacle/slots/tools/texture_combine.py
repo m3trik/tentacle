@@ -608,7 +608,9 @@ class TextureCombineSlots(Slots, ptk.LoggingMixin):
                     if tip:
                         item.setToolTip(tip)
                     if warn:
-                        item.setForeground(self.sb.QtGui.QColor("#d8a24a"))
+                        item.setForeground(
+                            self.sb.QtGui.QColor(str(ptk.Palette.status()["warn"][0]))
+                        )
                     table.setItem(r, c, item)
             if not rows and self._error:
                 table.setRowCount(1)

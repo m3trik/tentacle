@@ -36,7 +36,7 @@ Three modes, picked via flags on the main tentacle runner:
 ### `--in-maya` (canonical)
 
 ```powershell
-python o:\Cloud\Code\_scripts\tentacle\test\run_tests.py --in-maya
+python tentacle\test\run_tests.py --in-maya
 ```
 
 Uses `mayatk.MayaConnection` to launch a **fresh** Maya instance on an

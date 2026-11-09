@@ -23,7 +23,7 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
   <property name="accessibleDescription">
-   <string>Group faces into emissive regions a game engine can toggle or dim independently.</string>
+   <string>Group faces into regions whose glow plays on its own: each group's faces wear a copy of their material, its emission keyed by the group's weight.</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
@@ -122,7 +122,7 @@ Typing an existing name adds the selection to that group.</string>
           </property>
           <property name="toolTip">
            <string>Create a group from the selected faces or meshes.
-Each group takes the next free channel slot (max 4).</string>
+Each face takes the group's copy of its material.</string>
           </property>
           <property name="text">
            <string>Add</string>
@@ -140,8 +140,8 @@ Each group takes the next free channel slot (max 4).</string>
          </size>
         </property>
         <property name="toolTip">
-         <string>Groups in slot order.
-Drag or click the Weight cell to set a group's default weight (0 = off, 1 = full).
+         <string>Groups by name.
+Drag or click the Weight cell to set the weight a group rests at (0 = off, 1 = its base's glow).
 Right-click a row for select / remove.</string>
         </property>
        </widget>
@@ -167,7 +167,7 @@ Right-click a row for select / remove.</string>
           </property>
           <property name="toolTip">
            <string>Remove the selected group.
-Its slot is retired, not reused — existing engine bindings stay valid.</string>
+Its faces wear their base material again and its copies are deleted.</string>
           </property>
           <property name="text">
            <string>Remove</string>
@@ -211,11 +211,11 @@ Its slot is retired, not reused — existing engine bindings stay valid.</string
            </size>
           </property>
           <property name="toolTip">
-           <string>Check for empty groups, overlapping membership,
-orphaned groups and foreign vertex-color layers.</string>
+           <string>Check for copies out of step with their base material
+and groups the old tool made, still to convert.</string>
           </property>
           <property name="text">
-           <string>Validate</string>
+           <string>Check</string>
           </property>
          </widget>
         </item>
@@ -236,11 +236,11 @@ orphaned groups and foreign vertex-color layers.</string>
          </size>
         </property>
         <property name="toolTip">
-         <string>Bake group membership and publish the export manifest.
-Vertex Color rides the FBX; Mask Texture writes an _EMask image.</string>
+         <string>Keep every copy in step with its base material:
+a changed value or map of the base reaches its copies.</string>
         </property>
         <property name="text">
-         <string>Bake</string>
+         <string>Sync</string>
         </property>
        </widget>
       </item>

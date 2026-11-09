@@ -38,7 +38,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="txt_display">
+     <widget class="LineEdit" name="txt_display">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -125,12 +125,18 @@
         <widget class="QComboBox" name="cmb_unit_from"/>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>-&gt;</string>
+        <widget class="QPushButton" name="btn_swap_units">
+         <property name="toolTip">
+          <string>Swap the From and To units.</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>19</width>
+           <height>19</height>
+          </size>
          </property>
         </widget>
        </item>
@@ -201,6 +207,11 @@
    <class>Header</class>
    <extends>QLabel</extends>
    <header>uitk.widgets.header</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uitk.widgets.lineEdit</header>
   </customwidget>
   <customwidget>
    <class>CollapsableGroup</class>

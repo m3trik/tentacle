@@ -200,7 +200,7 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
 
 ### Phase 1 — `blendertk` scaffold
 ### Phase 1 — `blendertk` scaffold — ✅ **DONE & TESTED** (2026-06-11)
-- [x] Package created at `o:/Cloud/Code/_scripts/blendertk/` with `pyproject.toml` (mirrors
+- [x] Package created at `blendertk/` (the workspace root) with `pyproject.toml` (mirrors
       mayatk; deps `pythontk` only — `bpy` is the runtime; `uitk` deferred to BlenderUiHandler).
 - [x] `bootstrap_package(globals(), include=DEFAULT_INCLUDE)` mirroring mayatk; subpackage
       `__init__.py` = docstring only; **`import bpy` deferred into call bodies** (no side effects).

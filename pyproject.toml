@@ -52,7 +52,7 @@ blender = ["blendertk>=0.23.1"]
 # The standalone-apps product the menus open by name (Tcl.register_apps): the
 # floor is the first extapps shipping the apps, the cap the next minor, and
 # push.ps1 ratchets both on each release ($STANDALONE_RANGES).
-apps = ["extapps>=0.8.0,<0.9"]
+apps = ["extapps>=0.9.0,<0.10"]
 
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"

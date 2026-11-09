@@ -195,6 +195,20 @@ class TestHarnessPersistsUnderRealKeys(unittest.TestCase, _ControllerHarness):
         self.assertEqual(settings.namespace, "shot_manifest_csv_paths")
 
 
+class TestHelpLinksTheGuide(unittest.TestCase, _ControllerHarness):
+    """The header's help is the short form; its link opens the full guide,
+    mayatk's ``docs/shot_manifest.md`` (one guide for both hosts)."""
+
+    def test_the_help_links_the_guide(self):
+        self.setup_controller()
+
+        url = self.ui.header.set_help_text.call_args.kwargs.get("url")
+        self.assertEqual(url, ShotManifestController.HELP_URL)
+        self.assertTrue(url.endswith("/mayatk/blob/main/docs/shot_manifest.md"))
+        mono = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.assertTrue(os.path.isfile(os.path.join(mono, "mayatk", "docs", "shot_manifest.md")))
+
+
 class TestResolveRanges(unittest.TestCase, _ControllerHarness):
     """Test _resolve_ranges() merging user pins with auto-fill."""
 
@@ -3760,6 +3774,14 @@ class TestAutoFillAssetsController(unittest.TestCase, _ControllerHarness):
                     return_value=True,
                 )
                 for check in ("_object_exists", "_is_asset_candidate")
+            ),
+            # Nothing else animates in the shot's range: the scene's animation
+            # is this test's claim too, not what an earlier module left keyed
+            # in the shared Maya (render effects' ``slot_cube`` was filled in).
+            patch(
+                "mayatk.anim_utils.shots.shot_manifest._shot_manifest"
+                ".ShotManifest._discover_scene_objects",
+                return_value=[],
             ),
         ):
             p.start()

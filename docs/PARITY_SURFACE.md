@@ -52,7 +52,7 @@
 | `tools/bevel.py` | both | 3 | 3 | 0 | 0 | 0 |
 | `tools/blendshape_animator.py` | both | 26 | 40 | 0 | 2 | 0 |
 | `tools/bridge.py` | both | 5 | 8 | 0 | 0 | 0 |
-| `tools/calculator.py` | both | 7 | 8 | 0 | 0 | 0 |
+| `tools/calculator.py` | both | 7 | 9 | 0 | 0 | 0 |
 | `tools/channels.py` | both | 58 | 83 | 0 | 21 | 0 |
 | `tools/color_id.py` | both | 9 | 10 | 0 | 0 | 0 |
 | `tools/curtain.py` | both | 13 | 22 | 0 | 0 | 0 |
@@ -63,7 +63,7 @@
 | `tools/duplicate_linear.py` | both | 5 | 6 | 0 | 0 | 0 |
 | `tools/duplicate_radial.py` | both | 5 | 9 | 0 | 0 | 0 |
 | `tools/dynamic_pipe.py` | both | 1 | 1 | 0 | 0 | 0 |
-| `tools/emissive_groups.py` | both | 16 | 22 | 0 | 0 | 0 |
+| `tools/emissive_groups.py` | both | 13 | 18 | 0 | 0 | 0 |
 | `tools/exploded_view.py` | both | 5 | 5 | 0 | 0 | 0 |
 | `tools/game_shader.py` | both | 10 | 11 | 0 | 0 | 0 |
 | `tools/hdr_manager.py` | both | 15 | 25 | 0 | 3 | 0 |
@@ -87,7 +87,7 @@
 | `tools/shot_sequencer.py` | both | 1 | 1 | 0 | 0 | 0 |
 | `tools/smart_bake.py` | both | 10 | 11 | 0 | 0 | 0 |
 | `tools/snap.py` | both | 4 | 5 | 0 | 0 | 0 |
-| `tools/substance_bridge.py` | both | 3 | 3 | 0 | 0 | 0 |
+| `tools/substance_bridge.py` | both | 6 | 6 | 0 | 0 | 0 |
 | `tools/telescope_rig.py` | both | 7 | 8 | 0 | 0 | 0 |
 | `tools/texture_combine.py` | both | 32 | 42 | 0 | 0 | 0 |
 | `tools/texture_path_editor.py` | both | 47 | 81 | 0 | 0 | 0 |

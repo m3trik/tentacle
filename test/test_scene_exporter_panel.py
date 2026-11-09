@@ -363,9 +363,7 @@ class TestSceneExporterPanelRules(_PanelCase):
         )
         # A USD deliverable: the FBX-only knobs, the FBX/GLB verifier and the
         # rig-helper pass go.
-        trigger, usd = rules[
-            "cmb000,animation_clips,bake_range,verify_deliverables,drop_rig_apparatus"
-        ]
+        trigger, usd = rules["cmb000,bake_range,verify_deliverables,drop_rig_apparatus"]
         self.assertEqual(trigger, "cmb004")
         self.assertEqual((usd("fbx"), usd("glb"), usd("usd")), (True, True, False))
         # The GLB-only dials.
