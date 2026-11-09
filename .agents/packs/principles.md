@@ -1,11 +1,12 @@
 # Principles
 
-Every m3trik repo follows these, whatever its language. One line each; the rationale is CODE_STANDARD (`§N`: `m3trik/docs/CODE_STANDARD.md` in the workspace, else https://github.com/m3trik/m3trik/blob/main/docs/CODE_STANDARD.md). A language pack spells them for that language; a repo's own AGENTS.md adds its shapes.
+Every repo in this ecosystem follows these, whatever its language. One line each; the rationale is CODE_STANDARD (`§N`: `m3trik/docs/CODE_STANDARD.md` in the workspace, else https://github.com/m3trik/m3trik/blob/main/docs/CODE_STANDARD.md). A language pack spells them for that language; a repo's own AGENTS.md adds its shapes.
 
 ## Shape
 - **One shape at every scale** (§0): a unit has one charter, a surface others touch, a host-free model under host adapters, parts in a declared order, seams, contracts and proof.
 - **Libraries hold the logic, products the UI** (§14): a panel calls a library's API, never a host.
 - **Contracts are declared once, as data**, in the lowest unit every reader reaches; other languages get generated types, and every restatement is checked.
+- **Depend only downward, in knowledge too** (§0): a unit imports, names, reads, branches on and tests against only what sits below it and the contracts declared there; data beyond the contract is a declared, optional extension it may handle or ignore, and it works fully without it.
 - **Public APIs are contracts** (§5): a removed or renamed public name gets a moved-names row naming its new home (a deprecation alias with a real `remove_in` only where callers need a window), a CHANGELOG line and a minor bump. Saved data (scenes, presets, manifests, serialized fields) is always published.
 
 ## Design
@@ -15,10 +16,11 @@ Every m3trik repo follows these, whatever its language. One line each; the ratio
 - **YAGNI**: no speculative features. **Unify over duplicate**: a drift-guarded vendored copy is the one sanctioned duplicate (§6).
 - **Adopt before building** (§15): first look for what already does the job (our APIs, the host's built-ins, an open standard, a maintained library); use it when it fits our needs, licenses and dependency rules, else build and say why.
 - **Tools behave as their users already expect** (§15): the host's conventions, progress and cancel, undo, preview, fixable errors, open formats that pass their reference validators. Deviate only with a stated reason.
+- **A bridge reaches a person's session only by their hand** (§15): it acts on an app session they opened only when they invoke it, through a connection they enabled there (a plugin or package they installed), visible and switchable off in the app, its edits in the app's own undo.
 - **Export is plug-and-play; previews overlay, never replace** (§13).
 
 ## Work
-- **Session safety (hard rule)**: never connect to, test against or overwrite an application session a person opened (Maya, Blender, Unity, Painter...). Launch a new instance first; later runs, tests included, may reuse an instance the tooling launched and still owns while no other run is using it, after reloading changed code; run headless wherever possible.
+- **Session safety (hard rule)**: the tooling (agents, tests, MCP sessions, CI, any unattended run) never connects to, tests against or overwrites an application session a person opened (Maya, Blender, Unity, Painter...), a bridge's connection included. Launch a new instance first; later runs, tests included, may reuse an instance the tooling launched and still owns while no other run is using it, after reloading changed code; run headless wherever possible.
 - **Issue-driven TDD** (§9): reproduce the bug, write the failing test (red first), fix, verify; the test stays. After a change, run the affected tests and report the real result.
 - **Findings: fix now.** A mechanical or minor finding is fixed in the turn that found it; a genuine deferral is logged in the backlog, never left in chat. Fix every sibling copy of a repeated shape, or log each.
 - **Instructions stay small and stable**: actionable rules only; no work history, dates or counts (churn defeats prompt caching).

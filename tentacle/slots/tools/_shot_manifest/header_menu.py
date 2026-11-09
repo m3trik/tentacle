@@ -25,6 +25,8 @@ class HeaderMenuMixin:
     #: What Build does with a behavior type (the header menu's choice per
     #: type): key it, mark it on the timeline instead, or leave it alone.
     BEHAVIOR_MODES = (("Key", "key"), ("Marker", "marker"), ("Off", "off"))
+    #: The full guide; the header's help is its short form.
+    HELP_URL = "https://github.com/m3trik/mayatk/blob/main/docs/shot_manifest.md"
 
     def _setup_header_menu(self) -> None:
         """Configure the header option menu.
@@ -223,7 +225,8 @@ class HeaderMenuMixin:
                         ],
                     ),
                 ],
-            )
+            ),
+            url=self.HELP_URL,
         )
 
     @property

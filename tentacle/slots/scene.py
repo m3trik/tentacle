@@ -945,10 +945,11 @@ class SceneSlots(Slots):
                     None,
                 ),
                 (
-                    "Unity Workflow",
+                    "Unity Scripts",
                     "b016",
-                    "Send the scene to a Unity project: the Scope exported (FBX + the "
-                    "scene's records) and copied into Assets/, or a model file copied.",
+                    "Run built-in and your own scripts in a Unity project: Send to "
+                    "Unity exports the Scope with the Scene Exporter and shows it in "
+                    "the open scene.",
                     None,
                 ),
             ],
@@ -1181,22 +1182,27 @@ class SceneSlots(Slots):
         the other app (the Blender Bridge in Maya, the Maya Bridge in Blender)."""
         self.sb.handlers.marking_menu.show("dcc_bridge")
 
-    # ------------------------------------------------------------------ b016  Unity Workflow
-    # A LAUNCH of the one Unity app (extapps' ``unity_workflow``), as the WebXR
-    # Preview is: the app owns the delivery (unitytk, the project, the Editor
-    # launch) and this supplies what is the host's, its engine class. The engine
-    # exports the Scope and hands the FBX to the app's delivery.
+    # ------------------------------------------------------------------ b016  Unity Scripts
+    # A LAUNCH of the one Unity app (extapps' ``unity_scripts``), as the WebXR
+    # Preview is: the app owns the scripts, the delivery and the connection to
+    # Unity, and this supplies what is the host's, its engine class. The engine
+    # exports the Scope (the Scene Exporter) and hands the FBX to the app's delivery.
     #: The Unity Bridge panel this entry opened before the app took its place,
     #: and the widget the app names differently. Its users' values carry into
     #: the app's store once per host (:meth:`_carry_unity_bridge_values`).
     UNITY_BRIDGE_PANEL = "unity_bridge"
-    UNITY_BRIDGE_RENAMED = {"unity_bridge_output_dir": "unity_workflow_output_dir"}
+    #: (``cmb000``, its template combo, is not carried: its saved row indexed
+    #: copy_to_assets / manage_scripts, scripts the app no longer lists.)
+    UNITY_BRIDGE_RENAMED = {
+        "unity_bridge_output_dir": "unity_workflow_output_dir",
+        "cmb000": None,
+    }
 
     def b016(self):
-        """Unity Workflow: the one Unity app, with this scene as its Current Scene
+        """Unity Scripts: the one Unity app, with this scene as its Current Scene
         source -- the host's ``UnityBridge`` exports the Scope, the app copies it
-        into the Unity project."""
-        ui = self.launch_app("unity_workflow", show=False)
+        into the Unity project and runs the chosen script on it."""
+        ui = self.launch_app("unity_scripts", show=False)
         if ui is None:
             return
         self._carry_unity_bridge_values(ui)
@@ -1218,16 +1224,18 @@ class SceneSlots(Slots):
         keeps) are copied beside the app's. Once per host, then a no-op.
         """
         former = self.host_key(self.UNITY_BRIDGE_PANEL)
-        classes = {"unity_workflow": ["UnityWorkflowSlots"], former: ["UnityBridgeSlots"]}
+        classes = {"unity_scripts": ["UnityScriptsSlots"], former: ["UnityBridgeSlots"]}
         carried = self.sb.PanelRenames.carry(
             ui.sb,
-            {"unity_workflow": {former: self.UNITY_BRIDGE_RENAMED}},
+            {"unity_scripts": {former: self.UNITY_BRIDGE_RENAMED}},
             slot_class_names=lambda panel: classes.get(panel, [panel]),
         )
         if former in (carried or ()):
             library = self.tk.__name__.split(".")[0]
             self.sb.PresetManager.carry_presets(
-                f"{library}/{self.UNITY_BRIDGE_PANEL}", ui.slots.PRESETS_ROOT
+                f"{library}/{self.UNITY_BRIDGE_PANEL}",
+                ui.slots.PRESETS_ROOT,
+                getattr(ui.slots, "FORMER_TEMPLATES", None),
             )
 
     # ------------------------------------------------------------------ Tools: manage

@@ -11,9 +11,9 @@
 | **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 10 *(presence)*; 0 hollow handlers |
 | **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 466 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
 | **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 760 chains at 1102 sites; 42 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1498/2379 names); 0 modules absent |
+| **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1555/2435 names); 0 modules absent |
 
-**Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 63% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
+**Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 64% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
 ---
 
@@ -24,24 +24,24 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 333 | 297 | 247 | 74% |
+| anim_utils | 334 | 298 | 248 | 74% |
 | audio_utils | 81 | 36 | 21 | 26% |
 | cam_utils | 22 | 22 | 17 | 77% |
 | core_utils | 197 | 103 | 80 | 41% |
 | display_utils | 61 | 63 | 40 | 66% |
 | edit_utils | 168 | 200 | 134 | 80% |
-| env_utils | 426 | 308 | 245 | 58% |
-| light_utils | 132 | 110 | 87 | 66% |
-| mat_utils | 365 | 290 | 259 | 71% |
+| env_utils | 427 | 311 | 247 | 58% |
+| light_utils | 133 | 110 | 88 | 66% |
+| mat_utils | 420 | 341 | 312 | 74% |
 | node_utils | 170 | 87 | 78 | 46% |
 | nurbs_utils | 20 | 31 | 9 | 45% |
 | operations.py | 0 | 0 | 0 | — |
 | render_utils | 14 | 11 | 11 | 79% |
-| rig_utils | 246 | 224 | 165 | 67% |
+| rig_utils | 253 | 231 | 172 | 68% |
 | ui_utils | 82 | 130 | 39 | 48% |
-| uv_utils | 131 | 115 | 104 | 79% |
+| uv_utils | 131 | 116 | 105 | 80% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2379** | **1927** | **1498** | **63%** |
+| **TOTAL (unique)** | **2435** | **1981** | **1555** | **64%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
@@ -60,7 +60,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | bevel | both | 3 | 3 | 0 | 0 |
 | blendshape_animator | both | 26 | 40 | 1 | 0 |
 | bridge | both | 5 | 8 | 0 | 0 |
-| calculator | both | 7 | 8 | 0 | 0 |
+| calculator | both | 7 | 9 | 0 | 0 |
 | channels | both | 58 | 83 | 13 | 0 |
 | color_id | both | 9 | 10 | 0 | 0 |
 | curtain | both | 13 | 22 | 0 | 0 |
@@ -71,7 +71,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | duplicate_linear | both | 5 | 6 | 0 | 0 |
 | duplicate_radial | both | 5 | 9 | 0 | 0 |
 | dynamic_pipe | both | 1 | 1 | 0 | 0 |
-| emissive_groups | both | 16 | 22 | 0 | 0 |
+| emissive_groups | both | 13 | 18 | 0 | 0 |
 | exploded_view | both | 5 | 5 | 0 | 0 |
 | game_shader | both | 10 | 11 | 0 | 0 |
 | hdr_manager | both | 15 | 25 | 2 | 0 |
@@ -97,7 +97,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | shots | both | 1 | 1 | 0 | 0 |
 | smart_bake | both | 10 | 11 | 0 | 0 |
 | snap | both | 4 | 5 | 0 | 0 |
-| substance_bridge | both | 3 | 3 | 0 | 0 |
+| substance_bridge | both | 6 | 6 | 0 | 0 |
 | telescope_rig | both | 7 | 8 | 0 | 0 |
 | texture_combine | both | 34 | 59 | 0 | 0 |
 | texture_path_editor | both | 47 | 81 | 0 | 0 |

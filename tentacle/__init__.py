@@ -3,7 +3,7 @@
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.17.1"
+__version__ = "0.18.0"
 
 
 DEFAULT_INCLUDE = {
@@ -50,8 +50,8 @@ MOVED_NAMES = {
     ),
     # The Unity Bridge panel folded into the one Unity app, extapps' Unity
     # Workflow; the Scene menu opens it with the host's engine (``b016``).
-    "UnityBridgeSlots": ("extapps.UnityWorkflowSlots", "0.17.0"),
-    "UnityPanelMixin": ("extapps.UnityWorkflowSlots", "0.17.0"),
+    "UnityBridgeSlots": ("extapps.UnityScriptsSlots", "0.17.0"),
+    "UnityPanelMixin": ("extapps.UnityScriptsSlots", "0.17.0"),
     # The native-menu wrappers (slots/maya, slots/blender): the chord menu's pages
     # need no Slots class; each host's UI handler builds its own menus.
     "BlenderSlots": ("blendertk.BlenderUiHandler", "0.17.0"),
@@ -167,6 +167,13 @@ MOVED_NAMES = {
     # One reload for every host (2026-11-01): the adapter releases what Blender holds
     # (``btk.BlenderMarkingMenuHost.teardown``); ``tcl_blender.reload`` forwards to it.
     "BlenderHost.reload": ("tentacle.Tcl.reload", "0.17.0"),
+    # Emissive groups become materials (2026-11-07): no slots to compact, no
+    # carrier weights to make keyable and no record to republish (the export
+    # stages it); the old groups convert in one action.
+    "EmissiveGroupsSlots.compact_slots": ("tentacle.slots.tools.emissive_groups.EmissiveGroupsSlots.convert_legacy", "0.18.0"),
+    "EmissiveGroupsSlots.make_weights_keyable": ("tentacle.slots.tools.emissive_groups.EmissiveGroupsSlots.key_weights", "0.18.0"),
+    "EmissiveGroupsSlots.remove_keyable_weights": ("tentacle.slots.tools.emissive_groups.EmissiveGroupsSlots.remove_keys", "0.18.0"),
+    "EmissiveGroupsSlots.republish_export": ("tentacle.slots.tools.emissive_groups.EmissiveGroupsSlots.tb000", "0.18.0"),
 }
 
 

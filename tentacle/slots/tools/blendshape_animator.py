@@ -10,6 +10,7 @@ animator (``self.animator``), swaps in another when the selection or the
 option box loads a different setup, and lists the setup's tweens.
 """
 
+import pythontk as ptk
 from qtpy import QtCore, QtWidgets
 
 from tentacle import Slots
@@ -568,17 +569,23 @@ class BlendshapeAnimatorSlots(Slots):
     def _wire_tree(self) -> None:
         """One-time tree setup: column formatters, header actions, signals."""
         tree = self.ui.tree000
-        # Per-column colors, read from each cell's UserRole key.
+        # Per-column text colors, read from each cell's UserRole key: the
+        # shared status tiers (``ptk.Palette.status()``).
+        tiers = ptk.Palette.status()
+
+        def text(tier):
+            return (str(tiers[tier][0]), None)
+
         topology_map = {
-            "match": ("#3C8D3C", None),  # green text
-            "mismatch": ("#B97A7A", None),  # red text
-            "unknown": ("#AAAAAA", None),  # gray
+            "match": text("success"),
+            "mismatch": text("error"),
+            "unknown": text("locked"),
         }
         status_map = {
-            "applied": ("#3C8D3C", None),
-            "pending": ("#B49B5C", None),
-            "skipped": ("#6D9BAA", None),
-            "error": ("#B97A7A", None),
+            "applied": text("success"),
+            "pending": text("warn"),
+            "skipped": text("info"),
+            "error": text("error"),
         }
         tree.set_column_formatter(
             COL_TOPOLOGY, tree.make_color_map_formatter(topology_map)

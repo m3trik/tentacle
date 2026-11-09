@@ -9,6 +9,7 @@ no widgets loaded. In Maya the same classes drive the real ``mtk`` (the
 """
 
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import pythontk as ptk
@@ -368,47 +369,172 @@ class _Controller:
 
 
 class TestCalculatorPanel(_PanelCase):
+    """The real ``calculator.ui`` (offscreen): the keys, the display and the
+    footer are live widgets, so what the user sees is what is asserted."""
+
+    UI_PATH = Path(__file__).resolve().parents[1] / "tentacle/ui/tools/calculator.ui"
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            from qtpy import QtWidgets
+        except Exception as error:  # pragma: no cover - Qt-less environment
+            raise unittest.SkipTest(f"Qt unavailable: {error}") from error
+        from uitk.testing import TestSandbox
+
+        TestSandbox.activate()  # the panel's settings stay off the live stores
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
     def setUp(self):
         super().setUp()
-        sb = mock.MagicMock()
+        from uitk import Switchboard
+
+        sb = Switchboard(ui_source=str(self.UI_PATH), slot_source=CalculatorSlots)
+        sb.tk = mock.MagicMock()
         sb.tk.CalculatorController = _Controller
         self.ui = sb.loaded_ui.calculator
-        self.ui.txt_display.text.return_value = ""
-        with mock.patch("qtpy.QtWidgets.QPushButton"):
-            self.calc = CalculatorSlots(sb)
+        self.calc = sb.get_slots_instance(self.ui)
+        self.addCleanup(self.ui.close)
+        self.display = self.ui.txt_display
+        self.display.clear()  # the field restores its last text
 
-    def _shows(self, display, action, expected):
-        self.ui.txt_display.text.return_value = display
-        action()
-        self.ui.txt_display.setText.assert_called_with(expected)
+    def _key(self, label):
+        """Click the keypad key showing *label*."""
+        for button in self.ui.calc_container.findChildren(type(self.ui.btn_convert)):
+            if button.text() == label:
+                button.click()
+                return
+        raise AssertionError(f"no key {label!r}")
+
+    def _type(self, text):
+        self.display.setText(text)
+        self.calc._on_typed(text)
+
+    def _failed(self):
+        return self.display.property("actionState") == "invalid"
 
     def test_builds_the_grids_and_the_unit_combos(self):
-        self.assertTrue(self.ui.calc_container.layout().addWidget.called)
-        self.assertTrue(self.ui.maya_container.layout().addWidget.called)
-        self.ui.cmb_unit_from.addItems.assert_called_once_with(CalculatorSlots._UNITS)
+        self.assertEqual(self.ui.calc_container.layout().count(), 20)
+        self.assertEqual(self.ui.maya_container.layout().count(), 4)
+        self.assertEqual(self.ui.cmb_unit_from.count(), len(CalculatorSlots._UNITS))
+        self.assertFalse(self.ui.btn_swap_units.icon().isNull(), "the arrow is an icon")
 
-    def test_entry_keys(self):
-        self._shows("1", lambda: self.calc.on_input("+"), "1+")
-        self._shows("123", self.calc.on_backspace, "12")
-        self.calc.on_clear()
-        self.ui.txt_display.clear.assert_called()
+    def test_the_typeset_keys_type_the_engine_operators(self):
+        for label in ("7", "×", "2", "−", "1", "÷", "3", "+", "1"):
+            self._key(label)
+        self.assertEqual(self.display.text(), "7*2-1/3+1")
+        self._key("⌫")
+        self.assertEqual(self.display.text(), "7*2-1/3+")
+        self._key("C")
+        self.assertEqual(self.display.text(), "")
 
-    def test_evaluation(self):
-        self._shows("2+2", self.calc.on_equal, "4")
-        self._shows("10/4", self.calc.on_equal, "2.5")
-        self._shows("1/0", self.calc.on_equal, "Error")
+    def test_keys_insert_at_the_cursor(self):
+        self._type("12")
+        self.display.setCursorPosition(1)
+        self._key("+")
+        self.assertEqual(self.display.text(), "1+2")
+
+    def test_evaluation_keeps_the_expression_on_the_footer(self):
+        self._type("10/4")
+        self._key("=")
+        self.assertEqual(self.display.text(), "2.5")
+        self.assertEqual(self.ui.footer.text(), "10/4 =")
+        self.assertFalse(self._failed())
+
+    def test_after_a_result_a_number_starts_over_and_an_operator_continues(self):
+        self._type("2+2")
+        self._key("=")
+        self._key("5")
+        self.assertEqual(self.display.text(), "5")
+        self._type("2+2")
+        self._key("=")
+        self._key("×")
+        self.assertEqual(self.display.text(), "4*")
+
+    def test_a_failure_keeps_the_expression_and_marks_it(self):
+        self._type("1/0")
+        self._key("=")
+        self.assertEqual(self.display.text(), "1/0", "the user's expression stays")
+        self.assertTrue(self._failed())
+        self.assertIn("1/0", self.ui.footer.text())
+        self.assertIn(
+            ptk.Palette.status()["error"][0],
+            self.ui.footer.status_label.styleSheet(),
+            "the reason is in the shared status palette's error color",
+        )
+        self._key("⌫")  # editing makes it the user's expression again
+        self.assertFalse(self._failed())
+        self.assertEqual(self.ui.footer.text(), "")
 
     def test_unit_conversion_evaluates_the_display_first(self):
-        self.ui.cmb_unit_from.currentText.return_value = "cm"
-        self.ui.cmb_unit_to.currentText.return_value = "m"
-        self._shows("50*2", self.calc.on_convert_units, "1.0")
-        self._shows("1/0", self.calc.on_convert_units, "Error")
+        self.ui.cmb_unit_from.setCurrentText("cm")
+        self.ui.cmb_unit_to.setCurrentText("m")
+        self._type("50*2")
+        self.calc.on_convert_units()
+        self.assertEqual(self.display.text(), "1.0")
+        self.assertEqual(self.ui.footer.text(), "100 cm = 1.0 m")
+        self._type("1/0")
+        self.calc.on_convert_units()
+        self.assertEqual(self.display.text(), "1/0")
+        self.assertTrue(self._failed())
+
+    def test_the_arrow_swaps_the_units(self):
+        self.ui.grp_units.setChecked(True)  # a collapsed group disables its rows
+        self.ui.cmb_unit_from.setCurrentText("cm")
+        self.ui.cmb_unit_to.setCurrentText("m")
+        self.ui.btn_swap_units.click()
+        self.assertEqual(
+            (self.ui.cmb_unit_from.currentText(), self.ui.cmb_unit_to.currentText()),
+            ("m", "cm"),
+        )
 
     def test_time_helpers_read_the_host_scene(self):
-        self._shows("", self.calc.get_fps, "24.0")
-        self._shows("", self.calc.get_current_time, "12")
-        self._shows("48", self.calc.frames_to_sec, "2.0")
-        self._shows("1+1", self.calc.sec_to_frames, "48.0")
+        self.calc.get_fps()
+        self.assertEqual(self.display.text(), "24.0")
+        self.calc.get_current_time()
+        self.assertEqual(self.display.text(), "12")
+        self._type("48")
+        self.calc.frames_to_sec()
+        self.assertEqual(self.display.text(), "2.0")
+        self.assertEqual(self.ui.footer.text(), "48 frames = 2.0 s at 24 fps")
+        self._type("1+1")
+        self.calc.sec_to_frames()
+        self.assertEqual(self.display.text(), "48.0")
+
+    def test_editing_a_result_drops_its_note(self):
+        """The footer names what produced the value on display -- so once the
+        user edits it (a key, a backspace, a real keystroke), the note goes."""
+        from qtpy.QtTest import QTest
+
+        for edit in (
+            lambda: self._key("5"),
+            lambda: self._key("⌫"),
+            lambda: QTest.keyClicks(self.display, "1"),  # the textEdited wiring
+        ):
+            self._type("2+2")
+            self._key("=")
+            self.assertEqual(self.ui.footer.text(), "2+2 =")
+            edit()
+            self.assertEqual(self.ui.footer.text(), "")
+
+    def test_equal_on_a_result_keeps_its_tape(self):
+        self._type("2+2")
+        self._key("=")
+        self._key("=")
+        self.assertEqual((self.display.text(), self.ui.footer.text()), ("4", "2+2 ="))
+
+    def test_the_tape_shows_the_converted_value_in_full(self):
+        self.ui.cmb_unit_from.setCurrentText("ft")
+        self.ui.cmb_unit_to.setCurrentText("in")
+        self._type("1234567")
+        self.calc.on_convert_units()
+        self.assertTrue(self.ui.footer.text().startswith("1234567 ft = "))
+
+    def test_an_empty_display_asks_for_a_value(self):
+        self._type("")
+        self.calc.frames_to_sec()
+        self.assertTrue(self._failed())
+        self.assertEqual(self.display.text(), "")
 
 
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")

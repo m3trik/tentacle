@@ -18,6 +18,10 @@ from tentacle import Slots
 class HudSlots(Slots):
     """Scene and selection information, shown while the marking-menu key is held."""
 
+    #: Warning / error text: the shared status tiers (``ptk.Palette.status()``).
+    _WARN = str(ptk.Palette.status()["warn"][0])
+    _ERROR = str(ptk.Palette.status()["error"][0])
+
     #: The warnings a user can opt into (Preferences). ``key`` is the gating
     #: checkbox's objectName in ``preferences.ui``; ``check`` and ``describe``
     #: read the :meth:`EnvUtils.scene_status` dict. Adding a warning is one entry.
@@ -25,11 +29,11 @@ class HudSlots(Slots):
         {
             "key": "chk_warn_framerate",
             "icon": "⚠",
-            "color": "Orange",
+            "color": _WARN,
             "label": "FPS",
             "check": lambda status: status["default_fps"],
             "describe": lambda status: (
-                'Frame Rate: <font style="color: Orange;">'
+                f'Frame Rate: <font style="color: {HudSlots._WARN};">'
                 f"{HudSlots._frame_rate(status)}</font> "
                 "matches the default for new scenes &mdash; verify this is intentional."
             ),
@@ -37,22 +41,22 @@ class HudSlots(Slots):
         {
             "key": "chk_warn_autosave_off",
             "icon": "⚠",
-            "color": "Red",
+            "color": _ERROR,
             "label": "Autosave",
             "check": lambda status: not status["autosave"],
             "describe": lambda status: (
-                'Autosave: <font style="color: Red;">DISABLED</font> &mdash; enable '
+                f'Autosave: <font style="color: {HudSlots._ERROR};">DISABLED</font> &mdash; enable '
                 "it in Preferences to avoid losing work after a crash."
             ),
         },
         {
             "key": "chk_warn_autosave_open",
             "icon": "⚠",
-            "color": "Red",
+            "color": _ERROR,
             "label": "Autosave Open",
             "check": lambda status: status["autosave_scene"],
             "describe": lambda status: (
-                'Open file is an <font style="color: Red;">AUTOSAVE</font> &mdash; '
+                f'Open file is an <font style="color: {HudSlots._ERROR};">AUTOSAVE</font> &mdash; '
                 "save to your main scene before continuing or your work will be "
                 "lost on the next autosave cycle."
             ),
@@ -180,7 +184,7 @@ class HudSlots(Slots):
             f'Selected: <font style="color: Yellow;">{summary["count"]}<br/>{names}'
         )
         if summary.get("normals_locked"):
-            hud.insertText('Normals: <font style="color: Red;">LOCKED</font>')
+            hud.insertText(f'Normals: <font style="color: {self._ERROR};">LOCKED</font>')
         if summary.get("instances", 0) > 1:
             hud.insertText(
                 f'Instances: <font style="color: Yellow;">{summary["instances"]}</font>'

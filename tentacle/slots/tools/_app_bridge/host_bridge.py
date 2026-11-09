@@ -81,6 +81,13 @@ class HostBridge(Slots.ParamPanelSlots):
         """The engine's template folder."""
         return self.bridge_class.TEMPLATE_DIR
 
+    @property
+    def template_dirs(self):
+        """Where the engine resolves a template, the person's own scripts first
+        (its ``template_dirs()``); an engine without a user tier, its one folder."""
+        dirs = getattr(self.bridge_class, "template_dirs", None)
+        return tuple(dirs()) if callable(dirs) else (Path(self.template_dir),)
+
     def list_template_modes(self):
         """The engine's ``[(template, mode), ...]`` for the template combo."""
         return self.bridge_class.list_template_modes()

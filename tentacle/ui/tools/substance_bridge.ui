@@ -142,10 +142,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Send the selected object(s) to Substance Painter using the chosen template.</string>
+            <string>Run the chosen script in Substance Painter (on the selection, or on a project).</string>
            </property>
            <property name="text">
-            <string>Send to Painter</string>
+            <string>Run in Painter</string>
            </property>
           </widget>
          </item>

@@ -155,6 +155,14 @@ class TestHostBridgeDefaults(unittest.TestCase):
         self.assertIsInstance(probe.make_bridge(), _ProbeBridge)
         self.assertEqual(probe.PRESETS_ROOT, Path("mayatk") / "probe_bridge")
 
+    def test_the_panel_resolves_templates_where_its_engine_does(self):
+        """A user tier is the engine's: the panel reads the folders it runs from."""
+        self.assertEqual(_stub().template_dirs, (Path("templates"),), "no tier: its one folder")
+        tiered = (Path("mine"), Path("templates"))
+        with mock.patch.object(_ProbeBridge, "template_dirs", staticmethod(lambda: tiered), create=True):
+            self.assertEqual(_stub().template_dirs, tiered)
+            self.assertEqual(_stub().user_scripts_dir, Path("mine"))
+
     def test_presets_stay_in_each_hosts_folder(self):
         """Where each host's panel kept them: saved user presets."""
         for name in ("mayatk", "blendertk"):
