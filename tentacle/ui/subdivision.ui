@@ -162,6 +162,37 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="tb001">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Make a LOD group of each selected mesh: the mesh becomes &lt;name&gt;_LOD0 and each lower level a reduced copy, named &lt;name&gt;_LOD1, _LOD2 ... (Unity reads these names). Set the levels and the reduction in the option box.</string>
+           </property>
+           <property name="text">
+            <string>Create LODs</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="b008">
            <property name="enabled">
             <bool>true</bool>

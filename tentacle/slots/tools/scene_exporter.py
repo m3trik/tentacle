@@ -49,6 +49,8 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
                 "export_visible_objects",
                 "ignore_groups",
                 "exclude_hdr",
+                "lods",
+                "lod_write_back",
                 "drop_rig_apparatus",
                 "export_data_node",
             ),
@@ -229,6 +231,8 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
                 "export_visible_objects",
                 lambda scope: scope != "visible",
             )
+        # LOD Output only matters when Generate Missing makes groups.
+        sb.show_when(ui, "lod_write_back", "lods", lambda mode: mode == "generate")
         # A USD deliverable: the FBX preset and the bake range set FBX flags
         # only (the engine reports them inert), the verifier has no
         # FBX/GLB to open, and the rig-helper pass edits a written FBX (or sets
