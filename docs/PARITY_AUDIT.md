@@ -8,8 +8,8 @@
 
 | Layer | What it measures | Result |
 |:--|:--|:--|
-| **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 9 *(presence)*; 0 hollow handlers |
-| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 466 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
+| **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 243 across 27 categories; hidden by `requires` on Maya 6, on Blender 9 *(presence)*; 0 hollow handlers |
+| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 379 chains at 469 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
 | **3. Tool panels** | the shared tools, per host | 49 tools: 49 both; 755 chains at 1097 sites; 42 one-host operations; **0 gap sites** |
 | **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1555/2435 names); 0 modules absent |
 
@@ -134,7 +134,7 @@ Each marking-menu category's one Slots class (`slots/<category>.py`) over its `u
 | scene | 7 | 0 / 0 | 24 | 7 | 50 | 64 | 9 | 0 |  |
 | selection | 19 | 0 / 1 | 21 | 10 | 18 | 18 | 0 | 0 |  |
 | settings | 5 | 0 / 0 | 4 | 0 | 1 | 1 | 0 | 0 |  |
-| subdivision | 9 | 0 / 0 | 8 | 2 | 9 | 11 | 0 | 0 |  |
+| subdivision | 10 | 0 / 0 | 13 | 4 | 11 | 14 | 0 | 0 |  |
 | symmetry | 5 | 0 / 0 | 0 | 0 | 3 | 8 | 0 | 0 |  |
 | transform | 12 | 0 / 0 | 30 | 13 | 16 | 21 | 0 | 0 |  |
 | utilities | 4 | 0 / 0 | 0 | 0 | 2 | 2 | 0 | 0 |  |
