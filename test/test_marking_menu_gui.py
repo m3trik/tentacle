@@ -114,6 +114,11 @@ class MarkingMenuGuiTest(unittest.TestCase):
         sx, sy, sw, sh = self.screen_geom
         QtGui.QCursor.setPos(sx + sw // 2, sy + sh // 2)
         self._process()
+        # Whether a warp lands: on the hidden (private-desktop) Maya the
+        # --in-maya leg launches, QCursor.pos() reads garbage, so a test that
+        # places or hovers by the cursor cannot run there (_require_cursor).
+        landed = QtGui.QCursor.pos()
+        self._cursor_warps = (landed.x(), landed.y()) == (sx + sw // 2, sy + sh // 2)
 
         self.mm = Tcl.build("maya", parent=self.parent)
         self._process()
@@ -217,6 +222,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
         """
         from qtpy import QtCore, QtGui
 
+        self._require_cursor()
         target = button.submenu_name() if hasattr(button, "submenu_name") else None
 
         def _revealed() -> bool:
@@ -246,6 +252,14 @@ class MarkingMenuGuiTest(unittest.TestCase):
                 self._wait(40)
                 if _revealed():
                     return
+
+    def _require_cursor(self) -> None:
+        """Skip, saying why, where a cursor warp does not land (the hidden,
+        private-desktop Maya): a reveal gated on the live pointer, or a menu
+        placed at it, cannot be judged there. A visible owned Maya runs them;
+        never ``--show`` beside a person's session, which moves their pointer."""
+        if not getattr(self, "_cursor_warps", True):
+            self.skipTest("the cursor cannot be placed on this desktop (a hidden Maya): run in a visible owned Maya")
 
     def _cursor_str(self) -> str:
         from qtpy import QtGui
@@ -292,6 +306,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
         """
         from qtpy import QtCore, QtWidgets
 
+        self._require_cursor()  # the menu opens at the parked pointer
         # Use GLOBAL geometry: the menu UI is a child of the MarkingMenu, so
         # ui.x()/y() are parent-relative, not screen coordinates.
         top_left = ui.mapToGlobal(QtCore.QPoint(0, 0))

@@ -1,6 +1,7 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-11-10 -- Test: the marking menu's GUI tests skip, saying why, where the cursor cannot be placed (`test/test_marking_menu_gui.py`).** On the hidden (private-desktop) Maya the `--in-maya` leg launches, `QCursor.pos()` reads garbage, so the five tests that hover or place a menu by the pointer failed on every full run; `setUp` now checks that a warp lands and those five skip with the reason (a visible owned Maya runs them). The other ten run as before.
 - **2026-11-10 -- Create LODs says it leaves animated, skinned and instanced meshes alone (`slots/subdivision.py` `tb001`).** A level is a static copy, so the hosts' `LodUtils.generate` now skips them, and the log names each.
 - **2026-11-10 -- Create LODs says what it skips (`slots/subdivision.py` `tb001`).** The message now covers selected components and meshes holding other objects, both of which the hosts' `LodUtils.generate` leaves alone.
 - **2026-11-10 -- The Subdivision panel's Create LODs (`ui/subdivision.ui` new `tb001`; `slots/subdivision.py` `tb001`, `tb001_init`).** Makes a LOD group of each selected mesh through the host's `LodUtils.generate`; the option box sets the levels, each level's share of the last's triangles and Maya's three preserve options, greyed where the host's `GENERATE_OPTIONS` lacks them (Blender's Decimate takes none).
