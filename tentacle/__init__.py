@@ -3,7 +3,7 @@
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.18.0"
+__version__ = "0.19.0"
 
 
 DEFAULT_INCLUDE = {
@@ -15,6 +15,11 @@ DEFAULT_INCLUDE = {
 #: MovedNameError naming the new home. ``{name: (new home, version)}``; a category
 #: composed into one Slots class lists the mixin its forks shared.
 MOVED_NAMES = {
+    # The Arnold Preview Shader panel is gone (2026-11-11): Arnold renders,
+    # previews and bakes bridge every material Arnold cannot translate on their
+    # own, so the manual Add / Remove had no job left. The engine stays mayatk's.
+    "ArnoldBridgeSlots": ("removed: an Arnold render bridges the game shaders itself (mayatk.RenderUtils.prepare_arnold_preview)", "0.19.0"),
+    "MaterialsSlots.b026": ("removed: an Arnold render bridges the game shaders itself (mayatk.RenderUtils.prepare_arnold_preview)", "0.19.0"),
     # uitk's parameter panel is no longer named for one use (2026-10-31).
     "Slots.BridgeSlotsBase": ("tentacle.Slots.ParamPanelSlots", "0.17.0"),
     "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),

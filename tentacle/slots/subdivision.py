@@ -31,6 +31,16 @@ class SubdivisionSlots(Slots):
         "s011": ("angle_tolerance", "value"),
     }
 
+    #: The Create LODs option box: widget -> (the ``LodUtils.generate``
+    #: keyword it sets, the reader of its value).
+    _LOD_WIDGETS = {
+        "s020": ("levels", "value"),
+        "s021": ("ratio", "value"),
+        "chk020": ("preserve_borders", "isChecked"),
+        "chk021": ("preserve_hard_edges", "isChecked"),
+        "chk022": ("preserve_uv_borders", "isChecked"),
+    }
+
     NO_MESH = (
         "<strong>No mesh in the selection</strong>.<br>"
         "Select polygon meshes or their components."
@@ -241,6 +251,89 @@ class SubdivisionSlots(Slots):
         if not processed:
             self.sb.message_box(self.NO_MESH)
 
+
+    # ------------------------------------------------------------------ tb001  Create LODs
+    def tb001_init(self, widget):
+        """Initialize Create LODs."""
+        menu = widget.option_box.menu
+        menu.setTitle("Create LODs")
+        menu.add(
+            "QSpinBox",
+            setPrefix="Levels: ",
+            setObjectName="s020",
+            set_limits=[2, 8, 1],
+            setValue=3,
+            set_fixed_height=20,
+            setToolTip="Levels in all, LOD0 included (Unity reads at most 8). "
+            "Fewer are made where a level would fall below the triangle floor.",
+        )
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Keep: ",
+            setSuffix=" of the last",
+            setObjectName="s021",
+            set_limits=[0.05, 0.95, 0.05, 2],
+            setValue=0.5,
+            set_fixed_height=20,
+            setToolTip="Each level's share of the level above's triangles "
+            "(0.5 halves them, as Unity's own Mesh LOD does).",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Preserve Borders",
+            setObjectName="chk020",
+            setChecked=True,
+            setToolTip="Hold open mesh borders fixed.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Preserve Hard/Crease Edges",
+            setObjectName="chk021",
+            setChecked=True,
+            setToolTip="Hold hard and crease edges.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Preserve UV Borders",
+            setObjectName="chk022",
+            setChecked=True,
+            setToolTip="Hold UV borders, so a level keeps its texture layout.",
+        )
+        honored = self.tk.LodUtils.GENERATE_OPTIONS
+        for name, (option, _reader) in self._LOD_WIDGETS.items():
+            getattr(menu, name).setEnabled(option in honored)
+
+    def tb001(self, widget):
+        """Create LODs: make a LOD group of each selected mesh -- the mesh as
+        ``<name>_LOD0`` and reduced copies beside it as ``_LOD1``, ``_LOD2`` ...
+        (the names Unity reads), under a group ``<name>`` (Maya: a LOD Group
+        node). One undo step."""
+        if (
+            self.require_selection(
+                "<strong>Nothing selected</strong>.<br>Select one or more meshes "
+                "to make LOD groups of."
+            )
+            is None
+        ):
+            return
+        menu = widget.option_box.menu
+        honored = self.tk.LodUtils.GENERATE_OPTIONS
+        options = {
+            option: getattr(getattr(menu, name), reader)()
+            for name, (option, reader) in self._LOD_WIDGETS.items()
+            if option in honored
+        }
+        made = self.tk.LodUtils.generate(None, **options)
+        if not made:
+            self.sb.message_box(
+                "<strong>No LOD group made</strong>.<br>Select mesh objects (not "
+                "components) that are not already LOD levels, hold no other "
+                "objects, are static (not skinned, blend-shaped, animated or "
+                "instanced: a level is a static copy), and have enough triangles "
+                "for a lower level. The log says why each was left."
+            )
+            return
+        self.sb.message_box(f"Created <hl>{len(made)}</hl> LOD group(s).")
 
 # --------------------------------------------------------------------------------------------
 # Notes

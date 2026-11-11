@@ -4,9 +4,10 @@
 
 It reaches its host only through ``self.tk``, so a fake toolkit stands in for
 ``mtk`` and records what the panel asks of its ``LightRig``: plain unittest, no
-DCC, no widgets. A Maya tool for now (``tentacle.slots.tools.HOSTS``): in Maya
-the same class drives the real ``mtk.LightRig`` on a scratch library (never the
-user's). The engine's own behavior is mayatk's ``test_light_rig.py``.
+DCC, no widgets. Both hosts serve it; in Maya the same class drives the real
+``mtk.LightRig`` on a scratch library (never the user's). The engine's own
+behavior is pythontk's ``test_light_rig.py``, each host's binding its own
+library's.
 """
 
 import os
@@ -81,8 +82,8 @@ class _PanelCase(unittest.TestCase):
 
 
 class TestLightRigPanelSetup(_PanelCase):
-    def test_a_maya_tool_until_blendertk_has_the_engine(self):
-        self.assertEqual(HOSTS["light_rig"], ("maya",))
+    def test_both_hosts_serve_it(self):
+        self.assertNotIn("light_rig", HOSTS)
 
     def test_follows_scene_opens_through_the_host_jobs(self):
         slots, sb = _panel()

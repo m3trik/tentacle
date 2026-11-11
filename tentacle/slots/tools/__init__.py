@@ -18,13 +18,7 @@ a category's slots open one BY NAME through the host's external-app handler
 #: for ``marking_menu.show`` to open (CODE_STANDARD section 15: a tool with no
 #: equivalent in a host is hidden there, never a stub). A host that gains the
 #: tool's API adds itself here; the panel already calls only ``self.tk``.
-HOSTS = {
-    # Arnold renders inside Maya alone: Blender has no Arnold, and Cycles and
-    # EEVEE read one material graph, so there is no preview network to add.
-    "arnold_bridge": ("maya",),
-    # blendertk has no LightRig yet (BACKLOG: "Light Rigs has no blendertk twin").
-    "light_rig": ("maya",),
-}
+HOSTS: dict = {}
 
 #: ``{tool: {former panel: {former widget name: its name now}}}`` for the tools
 #: that took over other panels' names (a merge or a rename), each with the

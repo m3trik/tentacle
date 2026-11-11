@@ -8,10 +8,10 @@
 
 | Layer | What it measures | Result |
 |:--|:--|:--|
-| **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 10 *(presence)*; 0 hollow handlers |
-| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 466 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
-| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 760 chains at 1102 sites; 42 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1555/2435 names); 0 modules absent |
+| **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 243 across 27 categories; hidden by `requires` on Maya 6, on Blender 9 *(presence)*; 0 hollow handlers |
+| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 379 chains at 469 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
+| **3. Tool panels** | the shared tools, per host | 49 tools: 49 both; 755 chains at 1097 sites; 42 one-host operations; **0 gap sites** |
+| **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1579/2451 names); 0 modules absent |
 
 **Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 64% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
@@ -29,9 +29,9 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | cam_utils | 22 | 22 | 17 | 77% |
 | core_utils | 197 | 103 | 80 | 41% |
 | display_utils | 61 | 63 | 40 | 66% |
-| edit_utils | 168 | 200 | 134 | 80% |
-| env_utils | 427 | 311 | 247 | 58% |
-| light_utils | 133 | 110 | 88 | 66% |
+| edit_utils | 178 | 210 | 143 | 80% |
+| env_utils | 432 | 316 | 252 | 58% |
+| light_utils | 130 | 127 | 105 | 81% |
 | mat_utils | 420 | 341 | 312 | 74% |
 | node_utils | 170 | 87 | 78 | 46% |
 | nurbs_utils | 20 | 31 | 9 | 45% |
@@ -41,7 +41,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 82 | 130 | 39 | 48% |
 | uv_utils | 131 | 116 | 105 | 80% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2435** | **1981** | **1555** | **64%** |
+| **TOTAL (unique)** | **2451** | **2006** | **1579** | **64%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
@@ -54,7 +54,6 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | tool | hosts | chains | sites | one-host | gap sites |
 |:--|:--|--:|--:|--:|--:|
 | _app_bridge | shared helpers | 12 | 14 | 0 | 0 |
-| arnold_bridge | maya | 5 | 5 | 0 | 0 |
 | articulated_rig | both | 27 | 48 | 0 | 0 |
 | audio_clips | both | 38 | 81 | 20 | 0 |
 | bevel | both | 3 | 3 | 0 | 0 |
@@ -79,7 +78,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | image_to_plane | both | 4 | 4 | 0 | 0 |
 | image_tracer | both | 2 | 3 | 1 | 0 |
 | key_stash | both | 6 | 6 | 0 | 0 |
-| light_rig | maya | 26 | 37 | 0 | 0 |
+| light_rig | both | 26 | 37 | 0 | 0 |
 | lightmap_baker | both | 37 | 50 | 0 | 0 |
 | marmoset_bridge | both | 2 | 2 | 0 | 0 |
 | mat_updater | both | 13 | 17 | 0 | 0 |
@@ -122,7 +121,7 @@ Each marking-menu category's one Slots class (`slots/<category>.py`) over its `u
 | edit | 9 | 1 / 1 | 40 | 8 | 15 | 17 | 2 | 0 |  |
 | editors | 20 | 5 / 5 | 2 | 0 | 6 | 6 | 0 | 0 |  |
 | hud | 0 | 0 / 0 | 0 | 0 | 2 | 3 | 0 | 0 |  |
-| lighting | 4 | 0 / 1 | 4 | 2 | 2 | 2 | 0 | 0 |  |
+| lighting | 4 | 0 / 0 | 4 | 2 | 2 | 2 | 0 | 0 |  |
 | main | 1 | 0 / 0 | 11 | 0 | 10 | 14 | 0 | 0 |  |
 | materials | 5 | 0 / 0 | 25 | 5 | 37 | 47 | 3 | 0 |  |
 | normals | 8 | 0 / 0 | 6 | 6 | 7 | 8 | 0 | 0 |  |
@@ -135,7 +134,7 @@ Each marking-menu category's one Slots class (`slots/<category>.py`) over its `u
 | scene | 7 | 0 / 0 | 24 | 7 | 50 | 64 | 9 | 0 |  |
 | selection | 19 | 0 / 1 | 21 | 10 | 18 | 18 | 0 | 0 |  |
 | settings | 5 | 0 / 0 | 4 | 0 | 1 | 1 | 0 | 0 |  |
-| subdivision | 9 | 0 / 0 | 8 | 2 | 9 | 11 | 0 | 0 |  |
+| subdivision | 10 | 0 / 0 | 13 | 4 | 11 | 14 | 0 | 0 |  |
 | symmetry | 5 | 0 / 0 | 0 | 0 | 3 | 8 | 0 | 0 |  |
 | transform | 12 | 0 / 0 | 30 | 13 | 16 | 21 | 0 | 0 |  |
 | utilities | 4 | 0 / 0 | 0 | 0 | 2 | 2 | 0 | 0 |  |

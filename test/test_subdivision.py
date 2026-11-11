@@ -241,6 +241,62 @@ class TestDecimateOptions(_SlotsCase):
         menu.chk013.setEnabled.assert_called_with(False)
 
 
+def _lods_widget(levels=3, ratio=0.5):
+    """A stand-in for tb001's option-box widget."""
+    menu = types.SimpleNamespace(
+        s020=_FakeOption(levels),
+        s021=_FakeOption(ratio),
+        chk020=_FakeOption(True),
+        chk021=_FakeOption(True),
+        chk022=_FakeOption(False),
+    )
+    return types.SimpleNamespace(option_box=types.SimpleNamespace(menu=menu))
+
+
+class TestCreateLods(_SlotsCase):
+    """tb001 Create LODs: ``LodUtils.generate`` with what the host honours
+    (2026-11-10)."""
+
+    MAYA = ("levels", "ratio", "preserve_borders", "preserve_hard_edges", "preserve_uv_borders")
+    BLENDER = ("levels", "ratio")
+
+    def setUp(self):
+        super().setUp()
+        self.sb.tk.CoreUtils.selected_objects.return_value = ["pSphere1"]
+        self.lods = self.sb.tk.LodUtils
+        self.lods.GENERATE_OPTIONS = self.MAYA
+
+    def test_generate_takes_what_the_host_honours(self):
+        self.lods.generate.return_value = ["|pSphere1"]
+        self.slots.tb001(_lods_widget(4, 0.25))
+        self.lods.generate.assert_called_once_with(
+            None, levels=4, ratio=0.25, preserve_borders=True,
+            preserve_hard_edges=True, preserve_uv_borders=False,
+        )
+        self.lods.GENERATE_OPTIONS = self.BLENDER
+        self.slots.tb001(_lods_widget(3, 0.5))
+        self.lods.generate.assert_called_with(None, levels=3, ratio=0.5)
+        self.assertIn("Created", self.sb.message_box.call_args.args[0])
+
+    def test_nothing_selected_and_nothing_made_are_said(self):
+        self.sb.tk.CoreUtils.selected_objects.return_value = []
+        self.slots.tb001(_lods_widget())
+        self.assertIn("Nothing selected", self.sb.message_box.call_args.args[0])
+        self.lods.generate.assert_not_called()
+        self.sb.tk.CoreUtils.selected_objects.return_value = ["pCube1"]
+        self.lods.generate.return_value = []
+        self.slots.tb001(_lods_widget())
+        self.assertIn("No LOD group made", self.sb.message_box.call_args.args[0])
+
+    def test_the_option_box_greys_out_what_the_host_ignores(self):
+        widget = mock.MagicMock()
+        self.lods.GENERATE_OPTIONS = self.BLENDER
+        self.slots.tb001_init(widget)
+        menu = widget.option_box.menu
+        menu.s020.setEnabled.assert_called_with(True)
+        menu.chk020.setEnabled.assert_called_with(False)
+
+
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
 class _MayaCase(_SlotsCase):
     """The same class over the real ``mtk``."""

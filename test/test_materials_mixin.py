@@ -55,7 +55,7 @@ UI_DIR = ROOT / "tentacle" / "ui"
 WIDGET_SLOTS = (
     "b003", "b004", "b006", "b006_init", "b007", "b008", "b009", "b010", "b011",
     "b013", "b014", "b015", "b016", "b018", "b019", "b020", "b021", "b022", "b023",
-    "b024", "b025", "b026", "b027", "b028", "b029", "b030", "b031", "b032", "b033",
+    "b024", "b025", "b027", "b028", "b029", "b030", "b031", "b032", "b033",
     "lbl002", "lbl004", "lbl006", "list000", "list000_init", "list001",
     "list001_init", "tb001", "tb001_init", "tb002", "tb002_init", "tbl000_init",
     "txt000_init", "header_init",
@@ -111,7 +111,7 @@ class TestTheOneClass(unittest.TestCase):
                     if len(rest) == 2:
                         self.assertIn(rest[1], ("maya", "blender"))
                         tagged[slot] = rest[1]
-        self.assertEqual(tagged, {"b026": "maya", "tb002": "maya"})
+        self.assertEqual(tagged, {"tb002": "maya"})
 
     def test_the_list_filters_are_mayas(self):
         """Blender has no built-in default materials and no Arnold shaders."""
@@ -978,7 +978,7 @@ class TestHeaderMenu(_NoMigration):
             _TOOLS_ITEMS = {
                 "Utilities": [
                     ("Reload Scene Textures", "b013", ""),
-                    ("Arnold Preview Shader", "b026", "", "maya"),
+                    ("Maya-Only Row", "b099", "", "maya"),
                 ],
             }
 
@@ -994,7 +994,7 @@ class TestHeaderMenu(_NoMigration):
                     if w.parent_item_text() == "Utilities"
                 }
                 self.assertFalse(rows["Reload Scene Textures"].isHidden())
-                self.assertEqual(rows["Arnold Preview Shader"].isHidden(), hidden)
+                self.assertEqual(rows["Maya-Only Row"].isHidden(), hidden)
 
 
 if __name__ == "__main__":

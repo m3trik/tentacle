@@ -49,7 +49,7 @@ class LightingSlots(Slots):
         self.sb.handlers.marking_menu.show("lightmap_baker")
 
     def b002(self):
-        """Launch Light Rigs: save, swap and restore named light rigs (Maya)."""
+        """Launch Light Rigs: save, swap and restore named light rigs."""
         self.sb.handlers.marking_menu.show("light_rig")
 
     def tb000_init(self, widget):

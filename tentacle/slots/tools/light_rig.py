@@ -9,9 +9,8 @@ is the library: picking a rig only shows it; **Apply** puts it in the scene and
 dropdown (＋ saves the scene's rig; ☰ renames, duplicates, locks, compares with
 the scene and deletes; a double-click renames).
 
-A Maya tool for now (``tentacle.slots.tools.HOSTS``): blendertk has no
-``LightRig`` yet (BACKLOG, "Light Rigs has no blendertk twin"). The panel calls
-only the engine, so the port is the engine alone, plus its host added there.
+Both hosts serve it: ``mtk.LightRig`` and ``btk.LightRig`` bind one engine
+(``ptk.LightRig``), and the panel calls only that engine.
 """
 
 from typing import Optional
