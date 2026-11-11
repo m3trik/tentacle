@@ -11,7 +11,7 @@
 | **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 243 across 27 categories; hidden by `requires` on Maya 6, on Blender 9 *(presence)*; 0 hollow handlers |
 | **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 379 chains at 469 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
 | **3. Tool panels** | the shared tools, per host | 49 tools: 49 both; 755 chains at 1097 sites; 42 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1555/2435 names); 0 modules absent |
+| **4. Helper surface** | public names, Blender covers of mayatk | **64%** (1579/2451 names); 0 modules absent |
 
 **Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 64% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
@@ -29,9 +29,9 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | cam_utils | 22 | 22 | 17 | 77% |
 | core_utils | 197 | 103 | 80 | 41% |
 | display_utils | 61 | 63 | 40 | 66% |
-| edit_utils | 168 | 200 | 134 | 80% |
-| env_utils | 427 | 311 | 247 | 58% |
-| light_utils | 133 | 110 | 88 | 66% |
+| edit_utils | 178 | 210 | 143 | 80% |
+| env_utils | 432 | 316 | 252 | 58% |
+| light_utils | 130 | 127 | 105 | 81% |
 | mat_utils | 420 | 341 | 312 | 74% |
 | node_utils | 170 | 87 | 78 | 46% |
 | nurbs_utils | 20 | 31 | 9 | 45% |
@@ -41,7 +41,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 82 | 130 | 39 | 48% |
 | uv_utils | 131 | 116 | 105 | 80% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2435** | **1981** | **1555** | **64%** |
+| **TOTAL (unique)** | **2451** | **2006** | **1579** | **64%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
