@@ -37,8 +37,7 @@ the Assign list (``list000``), Get + Select (``b003``) and Tools.
 
 Options only one host serves are tagged ``requires`` and hidden on the other: the list
 filters and Exclude Default Materials (Maya's built-in defaults and Arnold shaders; Blender
-has neither), Enable Viewport Opacity and the Arnold Preview Shader (Maya's Viewport 2.0 and
-Arnold).
+has neither) and Enable Viewport Opacity (Maya's Viewport 2.0).
 
 **Keeping up with the scene:** the table refills on show, after its own actions, on a
 scene opened or new and on Undo / Redo while it shows (a burst of them -- a held Ctrl+Z --
@@ -103,8 +102,8 @@ class MaterialsSlots(Slots):
             "chk_hide_arnold",
             "Hide Arnold Shaders",
             "Hide Arnold shaders (aiStandardSurface, aiToon, ...) from the list: "
-            "useful when every game material carries a parallel Arnold preview "
-            "shader (Tools > Arnold Preview Shader).",
+            "useful once an Arnold render has given each game material its "
+            "parallel Arnold preview shader.",
             {"exc_renderer": "arnold"},
             "maya",
         ),
@@ -137,13 +136,6 @@ class MaterialsSlots(Slots):
                 "b009",
                 "Build a game-shader material network from texture maps "
                 "(Maya: StingrayPBS; Blender: Principled BSDF).",
-            ),
-            (
-                "Arnold Preview Shader",
-                "b026",
-                "Create a parallel aiStandardSurface so materials preview "
-                "correctly under Arnold in Maya.",
-                "maya",
             ),
             (
                 "Emissive Groups",
@@ -1582,11 +1574,6 @@ class MaterialsSlots(Slots):
     def b021(self, widget=None):
         """Image to Plane."""
         self.sb.handlers.marking_menu.show("image_to_plane")
-
-    def b026(self, widget=None):
-        """Arnold Preview Shader (Maya: a parallel aiStandardSurface for in-Maya
-        Arnold preview; its Tools row is ``requires="maya"``)."""
-        self.sb.handlers.marking_menu.show("arnold_bridge")
 
     def b027(self, widget=None):
         """Emissive Groups."""

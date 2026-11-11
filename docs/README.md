@@ -54,16 +54,16 @@ Change the key under **Settings ▸ Global Shortcuts** (the *Show Marking Menu* 
 
 ## The tools
 
-Fifty panels, each a window over an API a script can call too:
+Forty-nine panels, each a window over an API a script can call too:
 
 | Area | Panels |
 | --- | --- |
 | Modeling | Bevel · Bridge · Mirror · Cut On Axis · Snap · Duplicate Linear · Duplicate Radial · Duplicate Grid · Curve to Tube · Dynamic Pipe · Curtain · Image Tracer · Image to Plane · Exploded View |
 | UVs and textures | Texture Combine · Shell Xform · RizomUV Bridge · Texture Path Editor |
-| Materials | Game Shader · Shader Templates · Material Updater · Color ID · Emissive Groups · Substance Bridge · Marmoset Bridge · Arnold Preview Shader (Maya only) |
+| Materials | Game Shader · Shader Templates · Material Updater · Color ID · Emissive Groups · Substance Bridge · Marmoset Bridge |
 | Rigging | Tube Rig · Wheel Rig · Telescope Rig · Articulated Rig |
 | Animation and shots | Shots · Shot Sequencer · Shot Manifest · Smart Bake · Key Stash · Blendshape Animator · Audio Clips |
-| Lighting and rendering | Lightmap Baker · HDR Manager · Light Rigs (Maya only) · Shadow Rig · Render Effects |
+| Lighting and rendering | Lightmap Baker · HDR Manager · Light Rigs · Shadow Rig · Render Effects |
 | Scene and workflow | Scene Exporter · Hierarchy Sync · Reference Manager · Workspaces · Channels · Naming · DCC Bridge · Calculator |
 
 ### From build sheet to game engine

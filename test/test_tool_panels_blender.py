@@ -101,21 +101,27 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
         """The launcher leaves a Maya tool out (``Tcl.register_shared`` under
         Blender's context): no .ui to load, no Slots class to bind, so no
         menu, UI Browser row or ``marking_menu.show`` can open it."""
+        from unittest import mock
+
         from uitk import Switchboard
 
+        from tentacle.slots.tools import HOSTS
         from tentacle.tcl import Tcl
 
-        self.assertIn("light_rig", self.unserved)
-        sb = Switchboard(context_tags={"blender"})
-        Tcl.register_shared(sb)
+        # Every tool serves both hosts today: a Maya-only row stands in.
+        with mock.patch.dict(HOSTS, {"calculator": ("maya",)}):
+            unserved = Tcl.unserved_tools({"blender"})
+            self.assertEqual(unserved, ["calculator"])
+            sb = Switchboard(context_tags={"blender"})
+            Tcl.register_shared(sb)
         uis = set(sb.registry.ui_registry.get("filename") or [])
         classes = set(sb.registry.slot_registry.get("classname") or [])
-        for name in self.unserved:
+        for name in unserved:
             with self.subTest(tool=name):
                 self.assertNotIn(name, uis)
                 slots = "".join(part.title() for part in name.split("_")) + "Slots"
                 self.assertNotIn(slots, classes)
-        self.assertLessEqual(set(self.names), uis)
+        self.assertLessEqual(set(self.names) - set(unserved), uis)
 
     def _loaded(self, name):
         """The tool's window and Slots, loaded as a host shows it. A Slots class

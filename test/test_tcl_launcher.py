@@ -139,6 +139,11 @@ class TestSharedRoots(unittest.TestCase):
         (``"<tool>.*"``), so nothing there can offer it."""
         from tentacle.slots.tools import HOSTS
 
+        # Every tool serves both hosts today: a one-host row per host stands in.
+        rows = {"calculator": ("maya",), "naming": ("blender",)}
+        patched = mock.patch.dict(HOSTS, rows)
+        patched.start()
+        self.addCleanup(patched.stop)
         left_out_anywhere = 0
         for host in ("maya", "blender"):
             with self.subTest(host=host):

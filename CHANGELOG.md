@@ -1,6 +1,10 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-11-11 -- Light Rigs serves Blender: every tool panel is shared by both hosts (`slots/tools/__init__.py` `HOSTS` empty; `ui/lighting.ui`, `ui/lighting#submenu.ui` `b002` no longer `requires` Maya; `slots/tools/light_rig.py`, `slots/lighting.py` docstrings).** blendertk's `LightRig` binds the same engine mayatk's does (`ptk.LightRig`), so the panel runs unchanged. `HOSTS` keeps its mechanism for a future one-host tool.
+  - Test(s): `test_light_rig_panel.py` `test_both_hosts_serve_it`; `test_tcl_launcher.py` / `test_tool_panels_blender.py` hold the one-host registration with a stand-in row (red with no row: the checks were vacuous); `test_tool_panels_blender.py` loads all 49 tools over blendertk.
+- **2026-11-11 -- Removed: the Arnold Preview Shader panel (`slots/tools/arnold_bridge.py`, `ui/tools/arnold_bridge.ui`; `slots/materials.py` its Tools row and `b026`; `__init__.py` `MOVED_NAMES` rows `ArnoldBridgeSlots`, `MaterialsSlots.b026`).** Its job is done where it is needed: an Arnold render and preview (`RenderUtils.prepare_arnold_preview`) and a bake (`TextureBaker`) bridge every material Arnold cannot translate on their own. The engine (`mtk.ArnoldBridge`) stays. Its saved names left the baseline on purpose.
+  - Test(s): `test_arnold_bridge_panel.py` removed with the panel; `test_materials_mixin.py` (the Tools rows, the one-host row test over a stand-in); `check_api_surface.py tentacle --semver`: minor, nothing unaccounted.
 - **2026-11-08 -- The Shadow Rig panel's note says where the preview fade lives (`slots/tools/shadow_rig.py`).** The plane's material previews the fade, and nothing keys it: mayatk moved the preview off the plane's `opacity` (the authored value) onto the material.
 - **2026-11-08 -- The Shadow Rig panel no longer says the fade is keyed (`slots/tools/shadow_rig.py` the usage note and the Bake to Keyframes tooltip).** The engine evaluates the fade from the shadows record; the plane's `opacity` previews it and is never keyed.
   - Test(s): text only; `affected_tests.py` over it: 38 passed headless, `test_shadow_rig_panel` 64 passed in a fresh GUI Maya.
