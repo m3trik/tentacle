@@ -179,7 +179,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Make a LOD group of each selected mesh: the mesh becomes &lt;name&gt;_LOD0 and each lower level a reduced copy, named &lt;name&gt;_LOD1, _LOD2 ... (Unity reads these names). Set the levels and the reduction in the option box.</string>
+            <string>Make a LOD group of each selected mesh: the mesh becomes &amp;lt;name&amp;gt;_LOD0 and each lower level a reduced copy, named &amp;lt;name&amp;gt;_LOD1, _LOD2 ... (Unity reads these names). Set the levels and the reduction in the option box.</string>
            </property>
            <property name="text">
             <string>Create LODs</string>
