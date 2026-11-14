@@ -49,7 +49,7 @@ desktop.ini
 *_ui.py
 # ...except this hand-written bench harness — its name just happens to
 # collide with the compiled-`.ui` naming convention above.
-!test/bench/standalone_ui.py
+!tests/bench/standalone_ui.py
 .vscode
 .test
 **/grepWin_backup
@@ -185,7 +185,7 @@ uitk/slots/maya/shader_utils_maya/resources/hdr/aircraft_workshop_01_4k.exr
 
 upload_errors.txt
 
-test/temp_tests/
+tests/temp_tests/
 
 # Test runner output (regenerated each run)
-test/logs/
+tests/logs/

@@ -1,6 +1,7 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-11-12 -- Tests: the test folder is `tests/`, the pytest convention (was `test/`).** `test` is the standard library's own package name, so `from test.x import ...` could resolve to it.
 - **2026-11-12 -- Fixed: the Create LODs tooltip shows whole (`ui/subdivision.ui` `tb001`).** It wrote the level names as `&lt;name&gt;_LOD0` in the `.ui`, which the XML read turns into a bare `<name>`: Qt took it for an unclosed tag and cut the tooltip short. It is now escaped twice, as `blendshape_animator.ui` does; m3trik's tooltip gate had held m3trik's CI red on it since 2026-11-11.
   - Test(s): `m3trik/test/test_check_tooltips.py` `TestWorkspaceSweep.test_workspace_is_clean` (red on CI and locally: `subdivision.ui -- mismatched tag`; green after, 22 passed); `check_tooltips.py --workspace .` 0 malformed.
 - **2026-11-10 -- Test: the marking menu's GUI tests skip, saying why, where the cursor cannot be placed (`test/test_marking_menu_gui.py`).** On the hidden (private-desktop) Maya the `--in-maya` leg launches, `QCursor.pos()` reads garbage, so the five tests that hover or place a menu by the pointer failed on every full run; `setUp` now checks that a warp lands and those five skip with the reason (a visible owned Maya runs them). The other ten run as before.
