@@ -500,6 +500,29 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
         """).strip()
 
 
+def _run_passed(passed_flag, results_file: Path) -> bool:
+    """Whether the in-Maya run passed: Maya's own flag, or, when the port gave
+    none, the counts the run wrote to *results_file*.
+
+    Maya refuses its command port while its main thread is busy, and a refused
+    read answers ``None``: it did so for this last read after the summary had
+    come back (2026-11-13: ``3866 passed, 0 failed`` and exit 1). ``None`` is no
+    verdict, so the run's own ``failures=`` / ``errors=`` lines decide; a file
+    without them (the driver's own traceback) is a failed run.
+    """
+    flag = str(passed_flag).strip().lower()
+    if flag in ("true", "false"):
+        return flag == "true"
+    try:
+        text = results_file.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    counts = [
+        re.search(rf"^{key}=(\d+)$", text, re.MULTILINE) for key in ("failures", "errors")
+    ]
+    return all(counts) and not any(int(found.group(1)) for found in counts)
+
+
 def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                      no_badge: bool, keep_maya: bool, root_dir: Path,
                      modules=(), patterns=(), timeout: int = 2400,
@@ -659,7 +682,7 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                                     if cand.exists():
                                         update_readme_badge(p, f_, cand)
 
-                    return 0 if str(passed_flag).strip().lower() == "true" else 1
+                    return 0 if _run_passed(passed_flag, results_file) else 1
             except Exception:
                 pass
 

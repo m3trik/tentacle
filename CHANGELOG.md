@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-11-13 -- Tests: the Maya-hosted run is judged by its own counts when Maya's port refuses the last read (`tests/run_tests.py` new `_run_passed`).** `--in-maya` asks the launched Maya for its pass flag over the command port, which refuses while Maya's main thread is busy; a refused read answers `None`, and the runner took that for a failure: a full run reporting `3866 passed, 0 failed` exited 1. With no flag, the `failures=` / `errors=` lines the run wrote decide, and a results file without them is a failed run.
+  - Test(s): `test_run_tests.py` new `test_a_refused_flag_read_is_judged_by_the_run_s_own_counts` (7 cases: Maya's word wins either way, the counts with no word, a traceback-only file, no file).
 - **2026-11-13 -- Fixed: the Substance Bridge panel follows one job at a time (`slots/tools/substance_bridge.py` `b000`, `_watch`).** A Run while a job was followed replaced it: Cancel Script reached the newer job only, and the first one's end cleared the panel's state under the second. A Run is now refused, saying so, until the job ends or is cancelled.
   - Test(s): red first, then green: `test_substance_bridge_panel.py` new `test_a_run_while_a_job_is_followed_sends_nothing`; the module 32 passed in a launched Maya.
 - **2026-11-12 -- Tests: the test folder is `tests/`, the pytest convention (was `test/`).** `test` is the standard library's own package name, so `from test.x import ...` could resolve to it.

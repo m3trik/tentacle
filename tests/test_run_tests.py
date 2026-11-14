@@ -120,6 +120,33 @@ class TestPointedRuns(unittest.TestCase):
                 self.assertEqual(code, 2)
                 self.assertIs(conn.connect.call_args.kwargs.get("hidden"), hidden)
 
+    def test_a_refused_flag_read_is_judged_by_the_run_s_own_counts(self):
+        """Maya's port can refuse the last read (the call answers ``None``): the
+        counts the run wrote decide, and a file without them is a failed run
+        (2026-11-13: ``3866 passed, 0 failed`` exited 1)."""
+        import tempfile
+
+        scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(scratch.cleanup)
+        results = Path(scratch.name) / "results.txt"
+        green = "PASSED\n--- METRICS ---\ntests=3\nfailures=0\nerrors=0\nskipped=1\npassed=2\n"
+        red = green.replace("errors=0", "errors=1")
+        for flag, text, passed in (
+            ("True", red, True),      # Maya's own word wins
+            ("False", green, False),
+            (None, green, True),      # no word: the counts
+            ("", green, True),
+            (None, red, False),
+            (None, "Traceback (most recent call last):\n", False),
+            (None, None, False),      # no file at all
+        ):
+            if text is None:
+                results.unlink(missing_ok=True)
+            else:
+                results.write_text(text, encoding="utf-8")
+            with self.subTest(flag=flag, text=(text or "")[:20]):
+                self.assertIs(bool(rt._run_passed(flag, results)), passed)
+
     def test_an_unknown_module_exits_two_before_any_run(self):
         argv = ["run_tests.py", "definitely_not_a_module"]
         with mock.patch.object(sys, "argv", argv), \

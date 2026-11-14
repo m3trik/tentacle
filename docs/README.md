@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-3865%20passed-brightgreen.svg)](../tests/)
+[![Tests](https://img.shields.io/badge/Tests-3867%20passed-brightgreen.svg)](../tests/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 [![Maya](https://img.shields.io/badge/Maya-2025+-orange.svg)](https://www.autodesk.com/products/maya/)
