@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-3865%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-3867%20passed-brightgreen.svg)](../tests/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 [![Maya](https://img.shields.io/badge/Maya-2025+-orange.svg)](https://www.autodesk.com/products/maya/)
@@ -150,10 +150,10 @@ Chord syntax, gesture mechanics and the rest of the menu's options: [uitk's mark
 ```bash
 git clone https://github.com/m3trik/tentacle
 pip install -e ./tentacle
-cd tentacle && python -m pytest test/
+cd tentacle && python -m pytest tests/
 ```
 
-CI runs the structural suites (`test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`) and the module suites ([workflow](https://github.com/m3trik/tentacle/blob/main/.github/workflows/tests.yml)); the full run, `python test/run_tests.py --in-maya`, launches a fresh Maya of its own. Search every public class and method with `python -m pythontk ops run api.search "query=<words>"`. Contributor conventions: [AGENTS.md](https://github.com/m3trik/tentacle/blob/main/AGENTS.md); history: [CHANGELOG.md](https://github.com/m3trik/tentacle/blob/main/CHANGELOG.md).
+CI runs the structural suites (`test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`) and the module suites ([workflow](https://github.com/m3trik/tentacle/blob/main/.github/workflows/tests.yml)); the full run, `python tests/run_tests.py --in-maya`, launches a fresh Maya of its own. Search every public class and method with `python -m pythontk ops run api.search "query=<words>"`. Contributor conventions: [AGENTS.md](https://github.com/m3trik/tentacle/blob/main/AGENTS.md); history: [CHANGELOG.md](https://github.com/m3trik/tentacle/blob/main/CHANGELOG.md).
 
 ## License
 

@@ -29,7 +29,7 @@ Proven end-to-end on `telescope_rig` / `wheel_rig` (see those files as the refer
    `*Slots` are discovered by `BlenderUiHandler`, NOT listed in `DEFAULT_INCLUDE`, NOT compiled).
 4. **Menu wiring** — add a button/combo entry in the matching `tentacle/tentacle/slots/blender/
    <domain>.py` that calls `marking_menu.show("<tool>")`. Mirror the Maya slot's wiring.
-5. **Test** — headless `blendertk/test/test_<tool>.py` run via fresh Blender
+5. **Test** — headless `blendertk/tests/test_<tool>.py` run via fresh Blender
    (`blender --background --factory-startup --python ...`). Slots-logic tests stub `ui`/`sb`.
    Add the tool to `test_blender_ui_handler.py`'s `PANELS` list.
 
@@ -224,7 +224,7 @@ fresh instance. Forbidden: `--reuse`, attaching to a live session.
   through any tentacle slot (BLENDER_FEATURE_GAPS.md lists it shelf-launched, out of tentacle parity
   scope) — adding a Blender nav button would be a *divergence*, not parity. Both DCCs reach it the
   same way: the handler (`*UiHandler.instance().get("dynamic_pipe")` / `marking_menu.show`).
-- **Tests:** `blendertk/test/test_dynamic_pipe.py` (17/17) — build, bevel cross-section, hooks bound,
+- **Tests:** `blendertk/tests/test_dynamic_pipe.py` (17/17) — build, bevel cross-section, hooks bound,
   **live follow** (move a handle → evaluated pipe follows in 3D, read via depsgraph `to_mesh` bbox),
   in-between insertion, under-selection guard, `DynamicPipeSlots.b000` name-ordered routing.
   Discovery: `test_blender_ui_handler.py` 87/87.
@@ -261,7 +261,7 @@ fresh instance. Forbidden: `--reuse`, attaching to a live session.
   the cv2 path.
 - **Menu wiring:** handler/shelf-launched (`marking_menu.show("image_tracer")`) — like the other
   co-located tools and like mayatk (the `nurbs` *menu* itself stays native `bpy.ops`).
-- **Tests:** `blendertk/test/test_image_tracer.py` is **dual-mode** — under Blender (bpy, no cv2):
+- **Tests:** `blendertk/tests/test_image_tracer.py` is **dual-mode** — under Blender (bpy, no cv2):
   `NurbsUtils.create_curve`/`add_spline`/`curve_to_mesh` (fill + bevel + orphan purge),
   `create_mesh` (fill + nested-hole area check), `create_negative_space_mesh`, Slots guards (15/15).
   Under `.venv` (cv2, no bpy): `_contours_from_image` on a synthetic square-with-hole image
@@ -313,7 +313,7 @@ fresh instance. Forbidden: `--reuse`, attaching to a live session.
   in-place-beveled source); `PRESERVE_GEOMETRY=True`.
 - **Menu wiring:** handler/shelf-launched (`marking_menu.show("curve_to_tube")`) — like mayatk (the
   `nurbs` *menu* itself stays native `bpy.ops`).
-- **Tests:** `blendertk/test/test_curve_to_tube.py` 20/20 — nurbs live (in-place curve) / baked
+- **Tests:** `blendertk/tests/test_curve_to_tube.py` 20/20 — nurbs live (in-place curve) / baked
   (duplicate, source preserved), polygon mesh (exact sides, Path-Res ring density, caps add faces,
   quads→triangulate), polygon-live keeps source, non-curve guard, `perform_operation` + Select
   Result routing. Discovery: `test_blender_ui_handler.py` 95/95.
@@ -521,7 +521,7 @@ files" and labelled the rest Maya-only. mayatk's RM (2914 ln, inherits `Workspac
 - **Presentation divergence (only):** operations are driven from the row **context menu** +
   double-click + an editable **Notes** column rather than Maya's clickable **icon columns** (same
   capabilities; `widget.actions.add` exists but the per-row state machine is hard to verify headless).
-- **Tests:** `blendertk/test/test_reference_manager.py` **41/41** — every engine helper
+- **Tests:** `blendertk/tests/test_reference_manager.py` **41/41** — every engine helper
   (workspaces, open/save/rename/delete with naming + subfolder, display-mode tri-state incl. the
   all-must-agree rule, make-local) + the bulk slot ops. pythontk `test_reveal_in_file_manager`.
   The slot is now **bpy-guarded** (table degrades to a file list without live linked-status when bpy

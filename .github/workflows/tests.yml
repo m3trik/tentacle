@@ -73,7 +73,7 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           set +e
-          OUTPUT=$(pytest --tb=short -v test/ 2>&1)
+          OUTPUT=$(pytest --tb=short -v tests/ 2>&1)
           EXIT_CODE=$?
           echo "$OUTPUT"
 

@@ -94,15 +94,15 @@ So — like `maya_menus` — **these pages carry no Slots class at all** (the st
   open, unlike Maya's real actions); asset-catalog entries (`layout.template_*`), icons, and
   shortcut hints are not reproduced.
 
-Guarded by `test/blender/blender_menus_check.py` (headless, fresh Blender).
+Guarded by `tests/blender/blender_menus_check.py` (headless, fresh Blender).
 
 ### Editing
 
 After changing a `.ui`, refresh its companion:
 `python -m uitk.compile tentacle/tentacle/ui/blender_menus --force`. Structure is guarded by
-`test/test_blender_menu_nav.py` (offscreen); native-menu ids + firing by
-`test/blender/blender_menus_check.py` (live Blender); hover-nav + anchor alignment by
-`test/blender/chord_nav_check.py` (fresh GUI Blender, real cursor).
+`tests/test_blender_menu_nav.py` (offscreen); native-menu ids + firing by
+`tests/blender/blender_menus_check.py` (live Blender); hover-nav + anchor alignment by
+`tests/blender/chord_nav_check.py` (fresh GUI Blender, real cursor).
 
 `MenuButton` **objectNames are free** — the marking menu pairs a launcher with the arriving
 submenu's self-anchor by `target` (uitk `_find_pair_widget`), so there is no cross-file naming

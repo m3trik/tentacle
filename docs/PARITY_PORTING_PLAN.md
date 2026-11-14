@@ -57,9 +57,9 @@ A tool is one shared tentacle panel over two API halves (CODE_STANDARD §3, §14
    `.ui`'s `<customwidgets>` (else it silently loads as a plain QWidget — the sweep's lint
    catches this).
 3. **Menu wiring** — the shared category Slots open it (`marking_menu.show("<tool>")`).
-4. **Test** — headless `blendertk/test/test_<tool>.py` via fresh
+4. **Test** — headless `blendertk/tests/test_<tool>.py` via fresh
    `blender --background --factory-startup` (session safety: NEVER attach to a running DCC);
-   the panel's own `tentacle/test/test_<tool>_panel.py`.
+   the panel's own `tentacle/tests/test_<tool>_panel.py`.
 5. **Gate** — `compare_panel_surface.py --panel <tool>`: close every gap (the operation in
    the host's library, or the call hidden or guarded where it is missing).
 
@@ -140,7 +140,7 @@ effective visibility, whether a control *works*. The measurement that closes thi
 every `*_init`, walk `findChildren` (+ per-mode states for dynamic panels like TubeRig), and
 serialize objectName/class/label/enabled/min/max/default to JSON; diff Maya vs Blender by name.
 
-The Blender half has a template: `test/test_tool_panels_blender.py` loads every shared tool
+The Blender half has a template: `tests/test_tool_panels_blender.py` loads every shared tool
 through a real `BlenderUiHandler` under the workspace `.venv` (`QT_QPA_PLATFORM=offscreen`, no
 bpy) and checks each one binds, but walks no widget tree and drives no per-mode state (blendertk's
 `test_blender_ui_handler.py` loads no panel). The Maya half runs the same walk

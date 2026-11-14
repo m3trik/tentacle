@@ -86,10 +86,10 @@ operator** calling `show()` (GHOST consumes keys before Qt; F12 collides with Re
 
 **Key maintainability debt — the structural tests are hardcoded to Maya.** Four files pin a
 module-level `SLOTS_DIR = PKG / "slots" / "maya"` (two also pin `maya_menus`), so they would
-**silently never cover Blender**: [test_slot_integrity.py](../test/test_slot_integrity.py),
-[test_ui_integrity.py](../test/test_ui_integrity.py),
-[test_slot_method_coverage.py](../test/test_slot_method_coverage.py),
-[test/slots/_helpers.py](../test/slots/_helpers.py). See M1.
+**silently never cover Blender**: [test_slot_integrity.py](../tests/test_slot_integrity.py),
+[test_ui_integrity.py](../tests/test_ui_integrity.py),
+[test_slot_method_coverage.py](../tests/test_slot_method_coverage.py),
+[tests/slots/_helpers.py](../tests/slots/_helpers.py). See M1.
 
 ### Validated architecture (confirmed in code 2026-06-11)
 
@@ -165,11 +165,11 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       key-up, and focus was stranded (viewport click needed to revive). Release then hands OS
       focus back to GHOST via `_restore_blender_foreground` unless a visible tentacle window
       kept it. Verified end-to-end with real injected input:
-      `test/blender/held_button_activation_check.py` (scenarios + stuck/pairing phases C+D).
+      `tests/blender/held_button_activation_check.py` (scenarios + stuck/pairing phases C+D).
       **Native-modal gate**: the pump + key watcher skip ticks while `GetGUIThreadInfo`
       reports a modal size/move (or native-menu) loop — pumping Qt inside a title-bar drag's
       modal loop steals its mouse messages and wedges Blender (reproduced + fixed:
-      `test/blender/native_drag_check.py`). Key translation is
+      `tests/blender/native_drag_check.py`). Key translation is
       alias-mapped (`Key_Meta`→`OSKEY` etc.) so the key is freely reconfigurable. Verified headless 19/19
       (`phase0_addon_test.py`: key-translate inc. special keys / register / keymap / mute+restore /
       activation-routes-to-show / re-install-safe / error-report / no-active-menu / teardown / host+add-on
@@ -181,7 +181,7 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       `createWindowContainer` reparenting (which would take ownership of the GHOST window);
       best-effort with full fallback to the proven top-level behavior off-Windows/on failure.
 - [x] **Real OS input routing** — ✅ VERIFIED CONCLUSIVELY (2026-06-12) via
-      [test/blender/gui_keypress_check.py](../test/blender/gui_keypress_check.py): the keymap is
+      [tests/blender/gui_keypress_check.py](../tests/blender/gui_keypress_check.py): the keymap is
       pointed at a **stub** (the real overlay is always-visible + focus-grabbing, so `isVisible()`
       was a false-positive signal), the GHOST window is forced foreground (injected-Alt +
       `SetForegroundWindow` — Windows denies foreground to background-launched processes), the
@@ -210,7 +210,7 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       "smart_bake"]` pattern). More helpers grow lazily per slice (§5).
 - [x] `blendertk/CLAUDE.md` (session-safety, mirror-mayatk/don't-reinvent design, `bpy`/`bmesh`
       conventions) + `docs/README.md` + `CHANGELOG.md`.
-- [x] **Headless harness:** `test/blender_smoke_test.py` runs under `blender --background
+- [x] **Headless harness:** `tests/blender_smoke_test.py` runs under `blender --background
       --factory-startup --python` (fresh instance). **All checks PASS** on Blender 5.1.2:
       `import blendertk`, `btk.undoable`/`btk.get_env_info`/`btk.CoreUtils` resolve,
       `get_env_info('blenderVersion')` → `5.1.2`, `undoable` wraps/runs/pushes-undo.
@@ -228,7 +228,7 @@ Prove tentacle's Qt UI can live over a running Blender *before* investing in sca
       (was `blender_host.py`, folded in 2026-06-12).
 - [x] `slots/blender/__init__.py` + `_slots_blender.py` (`SlotsBlender(Slots)`); `ui/blender_menus/`
       (README placeholder, empty by design).
-- [x] **M1 (focused):** [test_blender_slots.py](../test/test_blender_slots.py) guards the package
+- [x] **M1 (focused):** [test_blender_slots.py](../tests/test_blender_slots.py) guards the package
       + `SlotsBlender` base + launcher parse + carries the DCC-agnostic slot invariants
       (one-base-subclass, unique objectNames) ready for Phase 3. 6 tests pass in `.venv`.
 - [x] **PROVEN LIVE:** `host.launch()` constructs `TclBlender` in Blender 5.1.2, establishes
@@ -397,7 +397,7 @@ tier/order notes follow for reference.
       (`bpy.ops.mesh.primitive_*`) + list001 Convert (`object.convert` Mesh/Curve) — previously dead
       shared-`.ui` widgets — and `clean_geometry` gained `merge=` (degenerate dissolve no longer
       silently disabled when merging is off). Headless-tested: edit_utils suite + durable harness
-      [test/blender/edit_slot_check.py](../test/blender/edit_slot_check.py) 6/6. Deferred (no Blender
+      [tests/blender/edit_slot_check.py](../tests/blender/edit_slot_check.py) 6/6. Deferred (no Blender
       analogue / Data-Transfer): tb001 delete-history (no construction history), tb004 node-lock,
       b000 axis-cut, b021/b022/b023 transfers, b027 shading-sets.
 - [x] **NAV-APP `main`/`preferences`/`settings`** — ✅ DONE & TESTED (2026-06-12).
@@ -450,7 +450,7 @@ All three landed as uitk features, applied centrally at `MainWindow.register_wid
       object-align, normal/UV Data-Transfer, target-weld toggle, texel density get/set, UV
       pin/transform/cut-hard-edges, key spacing/transfer/align/visibility-keys) — see the
       tentacle + blendertk CHANGELOGs. **Every Blender menu verified in a live GUI session**
-      (`test/blender/menus_load_check.py`, 27/27 through the real `tcl.show()` path). Still
+      (`tests/blender/menus_load_check.py`, 27/27 through the real `tcl.show()` path). Still
       deferred by design: external-addon (LoopTools), Maya-window (shot sequencer/manifest,
       Quick Rig, Render Opacity), modal-tool, and UV-editor-align-bound features.
 
@@ -584,7 +584,7 @@ Maya-specific** — it ports almost directly onto `fcurve.keyframe_points`. Volu
 
 | # | Lever | Why it matters | Effort |
 |:--|:---|:---|:--|
-| **M1** | **DCC-coverage for the structural tests — ✅ COMPLETE (2026-06-12).** The DCC-agnostic invariants (package/base wiring, exactly-one-base-subclass, unique objectNames) now live ONCE in the parametrized [test_dcc_invariants.py](../test/test_dcc_invariants.py) (`DCCS = {maya: SlotsMaya, blender: SlotsBlender}` — a new DCC is one entry); the per-DCC files keep only what is genuinely DCC-specific ([test_slot_integrity.py](../test/test_slot_integrity.py): pymel ban + cmds perf; [test_blender_slots.py](../test/test_blender_slots.py): launcher/add-on surface, cross-DCC objectName semantics, the M2 contract). | Blender slots get structural CI coverage as they land. | S |
+| **M1** | **DCC-coverage for the structural tests — ✅ COMPLETE (2026-06-12).** The DCC-agnostic invariants (package/base wiring, exactly-one-base-subclass, unique objectNames) now live ONCE in the parametrized [test_dcc_invariants.py](../tests/test_dcc_invariants.py) (`DCCS = {maya: SlotsMaya, blender: SlotsBlender}` — a new DCC is one entry); the per-DCC files keep only what is genuinely DCC-specific ([test_slot_integrity.py](../tests/test_slot_integrity.py): pymel ban + cmds perf; [test_blender_slots.py](../tests/test_blender_slots.py): launcher/add-on surface, cross-DCC objectName semantics, the M2 contract). | Blender slots get structural CI coverage as they land. | S |
 | **M2** | **Shared-UI contract test.** For each shared domain, assert the Blender slot implements the same widget-named methods the Maya slot does — or the widget is explicitly hidden (Phase 5). | This is the real safety net for contract #1; catches a renamed/dropped widget that would otherwise be a silent dead button. | S–M |
 | **M3** | **`blendertk` API registry from day one.** Wire it into [generate_api_registry.py](../../m3trik/scripts/generate_api_registry.py) + the shadow report. | Enforces the name-mirror, surfaces drift vs. mayatk, prevents DRY violations (re-implementing an upstream pythontk helper). | S |
 | **M4** | **Pick one slot-class naming convention for blender.** Maya is mixed (≈half bare `Selection`/`Transform`, half `PolygonsSlots`/`SceneSlots`); resolution is by class-not-name so it's cosmetic, but mirror the Maya counterpart's name per domain for grep-ability. | Low-stakes polish, but cheap to get right at greenfield and annoying to retrofit. | S |

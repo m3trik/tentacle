@@ -1,0 +1,943 @@
+#!/usr/bin/python
+# coding=utf-8
+"""
+Main test runner for tentacle package.
+
+Three execution modes:
+
+1. Plain Python (workstation, no Maya):
+       python run_tests.py
+   Maya-dependent tests skip cleanly.
+
+2. mayapy.standalone (CI / fast iteration, no GUI):
+       mayapy.exe run_tests.py --include-slots
+   Initializes maya.standalone in-process. The overlay widget test still
+   skips here because mayapy.standalone's Qt is a non-GUI stub.
+
+   KNOWN BROKEN (2026-07-28): this mode native-crashes partway through the
+   run — exit 0xC0000409 (STATUS_STACK_BUFFER_OVERRUN), the same signature
+   mayatk quarantines modules for via its GUI_REQUIRED registry, raised by
+   Qt-widget tests hosted on the standalone Qt stub. Fixing it properly
+   needs the same per-module deferral registry mayatk carries. Until then
+   use mode 3; mode 2 cannot complete, and never stamps the badge.
+
+3. Real Maya GUI (canonical "everything passes" run):
+       python run_tests.py --in-maya
+   Uses mayatk.MayaConnection to launch a FRESH Maya instance, dispatches
+   the full suite (main + slots) over the command port, polls for
+   completion, then closes Maya. Gives genuine 100% — overlay widget
+   tests run against real Qt. The Maya runs on a private desktop
+   (Windows), where it takes neither your focus nor your input; --show
+   puts it on yours, and --keep-maya shows it too.
+
+   Per the monorepo hard rule (mayatk/AGENTS.md), --in-maya always uses
+   force_new_instance=True. There is no --reuse path; existing Maya
+   sessions are never touched.
+
+Pointed runs (any mode):
+    python run_tests.py test_scene test_uv          # named modules (tests/ or tests/slots/)
+    python run_tests.py test_scene -k footer        # ...and only tests matching "footer"
+    python run_tests.py test_marking_menu_gui --in-maya   # Maya-hosted modules, fresh Maya
+    python run_tests.py --in-blender                      # headless Blender checks, fresh Blender each
+    python run_tests.py edit_slot uv_slot --in-blender    # ...named ones only
+A pointed run never stamps the badge. For the modules a change reaches:
+``python m3trik/scripts/affected_tests.py <files> --run``.
+
+Headless by default: a plain run sets ``QT_QPA_PLATFORM=offscreen`` unless one is
+given explicitly (the in-Maya run is a real GUI Maya by design).
+
+Other flags:
+    -v / --verbose      Increase verbosity
+    --log               Save results to a log file
+    -q / --quiet        Minimal output
+    --no-badge          Skip README badge update
+    --keep-maya         Keep Maya open after tests, shown (only with --in-maya)
+    --show              Show the --in-maya Maya on your desktop (default: hidden)
+    --timeout N         Seconds to wait for an --in-maya run (default 2400)
+"""
+import argparse
+import datetime
+import importlib.util
+import io
+import os
+import re
+import sys
+import textwrap
+import time
+import unittest
+from pathlib import Path
+
+# cp1252 consoles can't encode characters test docstrings legitimately use
+# ("→"); unittest's printErrors then dies MID-REPORT, eating the failure list
+# and the summary (bitten in uitk's runner). Degrade gracefully instead.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(errors="replace")
+        except (ValueError, OSError):
+            pass
+
+# Keep the run off the developer's live QSettings / preset stores. tentacle constructs real
+# marking menus, and MarkingMenu PERSISTS ITS BINDINGS ON CONSTRUCTION — unisolated, a run
+# rewrites the user's activation key and chord table, which surfaces much later as "my hotkey
+# keeps resetting itself" with no failing test to point at.
+#
+# Here as well as in conftest.py because this runner discovers with ``unittest``, which never
+# imports a conftest — so the pytest-only path would have left the canonical (and only in-Maya)
+# run unprotected. Before discovery, since the redirect replaces the QSettings class. Best-effort:
+# a checkout without uitk importable must still be able to run the structural tests.
+try:
+    from uitk.testing import TestSandbox
+
+    TestSandbox.activate()
+except Exception as _sandbox_error:  # pragma: no cover - depends on the checkout
+    print(f"# Warning: live-settings sandbox not active: {_sandbox_error!r} #")
+
+
+class TestResult:
+    """Container for test result statistics."""
+
+    def __init__(self, result: unittest.TestResult, duration: float):
+        self.tests_run = result.testsRun
+        self.failures = len(result.failures)
+        self.errors = len(result.errors)
+        self.skipped = len(result.skipped)
+        self.passed = self.tests_run - self.failures - self.errors - self.skipped
+        self.duration = duration
+        self.failure_details = result.failures
+        self.error_details = result.errors
+        self.success = self.failures == 0 and self.errors == 0
+
+    @property
+    def summary(self) -> str:
+        """Return a one-line summary of results."""
+        status = "PASSED" if self.success else "FAILED"
+        return (
+            f"{status}: {self.tests_run} tests, "
+            f"{self.passed} passed, "
+            f"{self.failures} failed, "
+            f"{self.errors} errors, "
+            f"{self.skipped} skipped "
+            f"({self.duration:.2f}s)"
+        )
+
+class TestRunner:
+    """Discovers and runs all test modules."""
+
+    def __init__(
+        self,
+        test_dir: Path,
+        verbosity: int = 1,
+        include_slots: bool = False,
+        modules=None,
+        patterns=None,
+    ):
+        self.test_dir = test_dir
+        self.verbosity = verbosity
+        self.include_slots = include_slots
+        #: Named modules (bare or ``test_``-prefixed); empty = discover all.
+        self.modules = list(modules or [])
+        #: ``-k`` filters, unittest's own semantics (no ``*`` = substring).
+        self.patterns = [p if "*" in p else f"*{p}*" for p in (patterns or [])]
+        self.log_buffer = io.StringIO()
+
+    @staticmethod
+    def resolve_modules(test_dir: Path, names):
+        """``(stems, unknown)``: each name as the ``test_*`` stem of a module in
+        ``tests/`` or ``tests/slots/``, and the names neither holds."""
+        stems, unknown = [], []
+        for name in names:
+            stem = name[:-3] if name.endswith(".py") else name
+            stem = stem if stem.startswith("test_") else f"test_{stem}"
+            if (test_dir / f"{stem}.py").is_file() or (test_dir / "slots" / f"{stem}.py").is_file():
+                stems.append(stem)
+            else:
+                unknown.append(name)
+        return stems, unknown
+
+    def discover_tests(self) -> unittest.TestSuite:
+        """Discover test modules — main directory plus optional slot subdir, or
+        just :attr:`modules`; :attr:`patterns` narrows either."""
+        loader = unittest.TestLoader()
+        if self.patterns:
+            loader.testNamePatterns = list(self.patterns)
+        if self.modules:
+            for path in (self.test_dir, self.test_dir / "slots"):
+                if path.is_dir() and str(path) not in sys.path:
+                    sys.path.insert(0, str(path))
+            stems, _unknown = self.resolve_modules(self.test_dir, self.modules)
+            return unittest.TestSuite(loader.loadTestsFromName(stem) for stem in stems)
+        suite = loader.discover(
+            start_dir=str(self.test_dir),
+            pattern="test_*.py",
+            top_level_dir=str(self.test_dir),
+        )
+        if self.include_slots:
+            slots_dir = self.test_dir / "slots"
+            if slots_dir.is_dir():
+                # Slot tests share helpers via top-level imports — make sure
+                # the slots dir is on sys.path *before* discover runs.
+                if str(slots_dir) not in sys.path:
+                    sys.path.insert(0, str(slots_dir))
+                slot_suite = loader.discover(
+                    start_dir=str(slots_dir),
+                    pattern="test_*.py",
+                    top_level_dir=str(slots_dir),
+                )
+                suite.addTests(slot_suite)
+        return suite
+
+    def run(self, log_to_file: bool = False) -> TestResult:
+        """Run all discovered tests and collect results."""
+        suite = self.discover_tests()
+
+        # Create stream that writes to both console and buffer
+        # Deferred like the StatusBadge import below, matching this runner's
+        # convention for ecosystem imports; by the time a tentacle suite runs,
+        # pythontk is importable or nothing in it would import at all.
+        from pythontk import TeeStream
+
+        stream = TeeStream(sys.stdout, self.log_buffer)
+
+        # Print header
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        header = f"""
+{'=' * 70}
+Tentacle Test Suite
+{'=' * 70}
+Started: {timestamp}
+Test Directory: {self.test_dir}
+{'=' * 70}
+"""
+        stream.write(header)
+
+        # Run tests
+        import time
+        start_time = time.perf_counter()
+
+        runner = unittest.TextTestRunner(stream=stream, verbosity=self.verbosity)
+        # unittest writes through `stream`, but product code does not: a bare
+        # print(), or the traceback.print_exc() of a swallowed exception, goes
+        # to the REAL stdout/stderr and never reached the log, leaving a failure
+        # explained only by output nobody kept. Tee both for the duration of the
+        # run; `stream` holds the ORIGINAL stdout object, so unittest's own
+        # output is not doubled by the redirect. Mirrors pythontk's runner,
+        # where the shape is pinned by `test_run_tests.TestRunLogCapture`.
+        real_out, real_err = sys.stdout, sys.stderr
+        sys.stdout = TeeStream(real_out, self.log_buffer)
+        sys.stderr = TeeStream(real_err, self.log_buffer)
+        try:
+            result = runner.run(suite)
+        finally:
+            # In a finally so a runner crash cannot leave the process writing
+            # into a buffer nobody reads.
+            sys.stdout, sys.stderr = real_out, real_err
+
+        duration = time.perf_counter() - start_time
+        test_result = TestResult(result, duration)
+
+        # Print footer
+        footer = f"""
+{'=' * 70}
+{test_result.summary}
+{'=' * 70}
+"""
+        stream.write(footer)
+
+        # The tracebacks are above (unittest's own report); end on the ids, so
+        # the last lines of a run say exactly what failed.
+        if test_result.failure_details or test_result.error_details:
+            stream.write("\nFAILED TESTS:\n")
+            for test, _traceback in test_result.failure_details:
+                stream.write(f"  FAIL:  {test.id()}\n")
+            for test, _traceback in test_result.error_details:
+                stream.write(f"  ERROR: {test.id()}\n")
+
+        if log_to_file:
+            self._save_log(timestamp)
+
+        return test_result
+
+    def _save_log(self, timestamp: str):
+        log_dir = self.test_dir / "logs"
+        log_dir.mkdir(exist_ok=True)
+        safe_timestamp = timestamp.replace(":", "-").replace(" ", "_")
+        log_file = log_dir / f"test_results_{safe_timestamp}.log"
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(self.log_buffer.getvalue())
+        print(f"\nLog saved to: {log_file}")
+
+def update_readme_badge(passed: int, failed: int, readme_path: Path) -> bool:
+    """Stamp the test badge via the ecosystem SSoT (``ptk.StatusBadge``).
+
+    ``passed`` is individual test cases with skips excluded — the same unit
+    every sibling package reports. See m3trik/docs/TEST_BADGE_STANDARD.md.
+    """
+    from pythontk.core_utils.status_badge import StatusBadge
+
+    try:
+        # Link target is resolved against the README's own location (this runner
+        # writes both README.md -> tests/ and docs/README.md -> ../tests/).
+        if not StatusBadge.update_test_badge(
+            readme_path, passed, failed, test_dir=Path(__file__).resolve().parent
+        ):
+            print(f"README badge not updated (missing or unwritable): {readme_path}")
+            return False
+        print(f"\nREADME badge updated: {StatusBadge.test_status(passed, failed)[0]}")
+        return True
+    except Exception as e:
+        print(f"Failed to update badge: {e}")
+        return False
+
+def _initialize_maya_standalone():
+    """Bring up an in-process Maya so slot-suite tests can run.
+
+    Idempotent: a no-op if maya.standalone has already been initialized
+    (re-running run_tests.py inside a live Maya, etc.).
+    """
+    try:
+        import maya.standalone  # noqa: WPS433
+    except ImportError as exc:
+        sys.stderr.write(
+            "ERROR: --include-slots requires a Maya runtime "
+            "(run via mayapy.exe).\n"
+            f"        Underlying error: {exc}\n"
+        )
+        sys.exit(2)
+    try:
+        maya.standalone.initialize(name="python")
+    except RuntimeError:
+        # Already initialized — fine.
+        pass
+
+
+def _sandbox_maya_workspace():
+    """Open a throwaway Maya project inside the sandbox temp root.
+
+    A tool that names no path writes into the CURRENT project, and a fresh Maya
+    opens the user's default one (a GUI Maya restores the project they last had
+    open) -- measured in mayatk's suite: a test fixture's ``untitled_EMask.png``
+    in a production project's sourceimages. Mirror of mayatk's
+    ``_suite_driver._sandbox_workspace``; the in-Maya dispatcher inlines the
+    same two calls. Never fatal.
+    """
+    try:
+        import pythontk as ptk
+        import mayatk as mtk
+
+        root = ptk.TempArtifacts("maya_workspace", policy="session").dir_path()
+        mtk.EnvUtils.create_workspace(root)
+        mtk.EnvUtils.set_current_workspace(root)
+    except Exception as exc:
+        print(f"# Warning: maya workspace sandbox not active: {exc!r} #")
+
+
+def _ensure_ecosystem_paths(monorepo: Path):
+    """Push pythontk / uitk / mayatk onto sys.path when running under mayapy.
+
+    The slot modules import mayatk at module top level; in a fresh mayapy
+    process those packages aren't on sys.path automatically.
+    """
+    for pkg in ("pythontk", "uitk", "mayatk"):
+        p = monorepo / pkg
+        if p.is_dir() and str(p) not in sys.path:
+            sys.path.insert(0, str(p))
+
+
+def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
+                              results_file: Path, verbosity: int,
+                              modules=(), patterns=()) -> str:
+    """Return the Python source executed inside the Maya GUI process.
+
+    The dispatcher discovers and runs both the main suite and the slots
+    subdir, writes a parseable summary to *results_file*, and signals
+    completion via __main__._tentacle_test_complete so the launcher can
+    poll over the command port.
+    """
+    monorepo_str = str(monorepo).replace("\\", "/")
+    test_dir_str = str(test_dir).replace("\\", "/")
+    slots_dir_str = str(test_dir / "slots").replace("\\", "/")
+    results_file_str = str(results_file).replace("\\", "/")
+    # Literals the dispatcher reads: a pointed run loads only these modules.
+    modules_repr = repr(list(modules))
+    patterns_repr = repr([p if "*" in p else f"*{p}*" for p in patterns])
+
+    return textwrap.dedent(f"""
+        import sys, os, io, time, datetime, traceback, unittest
+
+        for p in (
+            r'{monorepo_str}',
+            r'{monorepo_str}/pythontk',
+            r'{monorepo_str}/uitk',
+            r'{monorepo_str}/mayatk',
+            r'{monorepo_str}/tentacle',
+            r'{test_dir_str}',
+            r'{slots_dir_str}',
+        ):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+
+        # Keep the run off the user's live QSettings / preset stores. Repeated here because
+        # this dispatcher is a standalone source string executed inside Maya: it imports
+        # neither run_tests.py nor any conftest, so neither of their activations reaches it --
+        # and this is the run that actually constructs marking menus (which persist their
+        # bindings on construction). Before discovery, since the redirect swaps the QSettings
+        # class. Never fatal: a checkout without uitk importable must still report results.
+        try:
+            from uitk.testing import TestSandbox
+            TestSandbox.activate()
+        except Exception as _sandbox_error:
+            print('# Warning: live-settings sandbox not active: %r #' % (_sandbox_error,))
+        # And off the user's real Maya project: a GUI Maya restores the one they
+        # last had open, and a tool that names no path writes into it
+        # (run_tests._sandbox_maya_workspace).
+        try:
+            import pythontk as _ptk
+            import mayatk as _mtk
+            _ws = _ptk.TempArtifacts('maya_workspace', policy='session').dir_path()
+            _mtk.EnvUtils.create_workspace(_ws)
+            _mtk.EnvUtils.set_current_workspace(_ws)
+        except Exception as _ws_error:
+            print('# Warning: maya workspace sandbox not active: %r #' % (_ws_error,))
+
+        import __main__ as _main
+        _main._tentacle_test_complete = False
+        _main._tentacle_test_passed = False
+        _main._tentacle_test_summary = ''
+
+        try:
+            buf = io.StringIO()
+
+            class _Tee:
+                def __init__(self, *streams): self._s = streams
+                def write(self, t):
+                    for s in self._s:
+                        try: s.write(t)
+                        except Exception: pass
+                def flush(self):
+                    for s in self._s:
+                        try: s.flush()
+                        except Exception: pass
+
+            stream = _Tee(sys.__stdout__, buf)
+            ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            stream.write('\\n' + '='*70 + '\\n')
+            stream.write('Tentacle Test Suite (in Maya GUI)\\n')
+            stream.write('='*70 + '\\n')
+            stream.write(f'Started: {{ts}}\\n')
+            stream.write('='*70 + '\\n')
+
+            loader = unittest.TestLoader()
+            _patterns = {patterns_repr}
+            if _patterns:
+                loader.testNamePatterns = _patterns
+            _modules = {modules_repr}
+            if _modules:
+                suite = unittest.TestSuite(loader.loadTestsFromName(m) for m in _modules)
+            else:
+                suite = loader.discover(
+                    start_dir=r'{test_dir_str}',
+                    pattern='test_*.py',
+                    top_level_dir=r'{test_dir_str}',
+                )
+                slot_suite = loader.discover(
+                    start_dir=r'{slots_dir_str}',
+                    pattern='test_*.py',
+                    top_level_dir=r'{slots_dir_str}',
+                )
+                suite.addTests(slot_suite)
+
+            t0 = time.perf_counter()
+            runner = unittest.TextTestRunner(stream=stream, verbosity={verbosity})
+            result = runner.run(suite)
+            duration = time.perf_counter() - t0
+
+            tests_run = result.testsRun
+            failures = len(result.failures)
+            errors = len(result.errors)
+            skipped = len(result.skipped)
+            passed = tests_run - failures - errors - skipped
+            success = failures == 0 and errors == 0
+            status = 'PASSED' if success else 'FAILED'
+            summary = (
+                f'{{status}}: {{tests_run}} tests, {{passed}} passed, '
+                f'{{failures}} failed, {{errors}} errors, '
+                f'{{skipped}} skipped ({{duration:.2f}}s)'
+            )
+
+            stream.write('\\n' + '='*70 + '\\n')
+            stream.write(summary + '\\n')
+            stream.write('='*70 + '\\n')
+
+            if result.failures or result.errors:
+                stream.write('\\nDETAILED FAILURES AND ERRORS:\\n')
+                stream.write('-'*70 + '\\n')
+                for t, tb in result.failures:
+                    stream.write(f'\\nFAILED: {{t}}\\n{{tb}}\\n')
+                for t, tb in result.errors:
+                    stream.write(f'\\nERROR: {{t}}\\n{{tb}}\\n')
+
+            with open(r'{results_file_str}', 'w', encoding='utf-8') as f:
+                f.write(buf.getvalue())
+                f.write('\\n--- METRICS ---\\n')
+                f.write(f'tests={{tests_run}}\\nfailures={{failures}}\\n'
+                        f'errors={{errors}}\\nskipped={{skipped}}\\n'
+                        f'passed={{passed}}\\n')
+
+            _main._tentacle_test_summary = summary
+            _main._tentacle_test_passed = success
+        except Exception:
+            tb = traceback.format_exc()
+            try:
+                with open(r'{results_file_str}', 'w', encoding='utf-8') as f:
+                    f.write('UNHANDLED ERROR IN TEST DISPATCHER\\n')
+                    f.write(tb)
+            except Exception:
+                pass
+            sys.__stderr__.write(tb)
+        finally:
+            _main._tentacle_test_complete = True
+        """).strip()
+
+
+def _run_passed(passed_flag, results_file: Path) -> bool:
+    """Whether the in-Maya run passed: Maya's own flag, or, when the port gave
+    none, the counts the run wrote to *results_file*.
+
+    Maya refuses its command port while its main thread is busy, and a refused
+    read answers ``None``: it did so for this last read after the summary had
+    come back (2026-11-13: ``3866 passed, 0 failed`` and exit 1). ``None`` is no
+    verdict, so the run's own ``failures=`` / ``errors=`` lines decide; a file
+    without them (the driver's own traceback) is a failed run.
+    """
+    flag = str(passed_flag).strip().lower()
+    if flag in ("true", "false"):
+        return flag == "true"
+    try:
+        text = results_file.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    counts = [
+        re.search(rf"^{key}=(\d+)$", text, re.MULTILINE) for key in ("failures", "errors")
+    ]
+    return all(counts) and not any(int(found.group(1)) for found in counts)
+
+
+def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
+                     no_badge: bool, keep_maya: bool, root_dir: Path,
+                     modules=(), patterns=(), timeout: int = 2400,
+                     show: bool = False) -> int:
+    """Launch a FRESH Maya GUI and dispatch the full suite over command port.
+
+    This is the canonical "100% verified" path — every test runs against
+    real Qt, including the overlay widget test that mayapy.standalone
+    cannot host.
+
+    The Maya runs on a private desktop, where it takes neither the user's
+    focus nor their input, unless *show*n -- or kept (*keep_maya*): a Maya
+    left open is the user's from then on, and a hidden one would end with
+    this process.
+
+    Hard rule (mayatk/AGENTS.md): force_new_instance=True always. Never
+    --reuse, never attach to a live session.
+    """
+    if str(monorepo) not in sys.path:
+        sys.path.insert(0, str(monorepo))
+
+    try:
+        from mayatk.env_utils.maya_connection import MayaConnection
+    except ImportError as exc:
+        sys.stderr.write(
+            f"ERROR: --in-maya requires mayatk on sys.path (looked under "
+            f"{monorepo}). Underlying: {exc}\n"
+        )
+        return 2
+
+    temp_dir = test_dir / "temp_tests"
+    temp_dir.mkdir(exist_ok=True)
+    results_file = temp_dir / "_in_maya_results.txt"
+    dispatcher_file = temp_dir / "_in_maya_dispatcher.py"
+    if results_file.exists():
+        results_file.unlink()
+
+    dispatcher_code = _build_in_maya_dispatcher(
+        test_dir, monorepo, results_file, verbosity, modules, patterns
+    )
+    # A pointed run is not the suite's number (TEST_BADGE_STANDARD).
+    no_badge = no_badge or bool(modules) or bool(patterns)
+    dispatcher_file.write_text(dispatcher_code, encoding="utf-8")
+
+    print("\n" + "=" * 70)
+    print("Tentacle Test Suite — launching FRESH Maya GUI")
+    print("=" * 70)
+    print("A new Maya instance is being launched on an unused port.")
+    print("Existing Maya sessions are NOT touched (per monorepo hard rule).")
+    print("Maya UI startup typically takes 30-60s; tests follow.")
+    print("=" * 70)
+
+    conn = MayaConnection.get_instance()
+    if not conn.connect(
+        mode="auto",
+        force_new_instance=True,  # HARD RULE — never False
+        launch=True,
+        confirm_existing=True,
+        hidden=not (show or keep_maya),
+    ):
+        sys.stderr.write("[ERROR] Could not launch / connect to Maya.\n")
+        return 2
+
+    if conn.mode != "port":
+        sys.stderr.write(
+            f"[ERROR] Expected port mode for fresh Maya GUI launch, got "
+            f"mode={conn.mode!r}.\n"
+        )
+        return 2
+
+    print(f"[OK] Connected to Maya in {conn.mode} mode (port={conn.port})")
+
+    try:
+        # Send a small bootstrap that imports the on-disk dispatcher.
+        # Keeps the wire payload trivial regardless of dispatcher size.
+        temp_dir_str = str(temp_dir).replace("\\", "/")
+        bootstrap = (
+            f"import sys\n"
+            f"if r'{temp_dir_str}' not in sys.path:\n"
+            f"    sys.path.insert(0, r'{temp_dir_str}')\n"
+            f"if '_in_maya_dispatcher' in sys.modules:\n"
+            f"    del sys.modules['_in_maya_dispatcher']\n"
+            f"import _in_maya_dispatcher  # runs the suite at import time\n"
+        )
+        print("\n[INFO] Dispatching test suite to Maya...\n")
+        conn.execute(bootstrap, wait_for_response=False)
+
+        # Poll for completion via socket sentinel. Maya refuses the port while
+        # its main thread runs the suite, so a refusal is "still running" until
+        # *timeout*: the whole suite takes ~25 min in one Maya, a module list less.
+        poll = 2.0
+        start = time.monotonic()
+        last_size = 0
+        print(f"Waiting for tests to finish (timeout: {timeout}s) ...")
+
+        while (time.monotonic() - start) < timeout:
+            elapsed = int(time.monotonic() - start)
+            try:
+                done = conn.execute(
+                    "getattr(__import__('__main__'), "
+                    "'_tentacle_test_complete', False)",
+                    wait_for_response=True,
+                    timeout=5,
+                )
+                if done and str(done).strip().lower() == "true":
+                    summary = conn.execute(
+                        "getattr(__import__('__main__'), "
+                        "'_tentacle_test_summary', '')",
+                        wait_for_response=True,
+                        timeout=5,
+                    ) or ""
+                    passed_flag = conn.execute(
+                        "getattr(__import__('__main__'), "
+                        "'_tentacle_test_passed', False)",
+                        wait_for_response=True,
+                        timeout=5,
+                    )
+                    print(f"\n  Tests finished in {elapsed}s")
+                    print(f"  Maya reports: {summary.strip()}")
+
+                    if results_file.exists():
+                        print("\n" + "-" * 70)
+                        print("IN-MAYA OUTPUT")
+                        print("-" * 70)
+                        try:
+                            content = results_file.read_text(encoding="utf-8")
+                            try:
+                                print(content)
+                            except UnicodeEncodeError:
+                                # Windows cp1252 console can't render UTF-8
+                                # arrows etc. — fall back to a safe write.
+                                enc = (sys.stdout.encoding or "ascii")
+                                sys.stdout.write(
+                                    content.encode(enc, errors="replace")
+                                    .decode(enc)
+                                )
+                                sys.stdout.write("\n")
+                        except Exception as e:
+                            print(f"[WARN] Could not read results: {e}")
+
+                        if not no_badge:
+                            content = results_file.read_text(encoding="utf-8")
+                            mp = re.search(r"^passed=(\d+)$", content, re.MULTILINE)
+                            mf = re.search(r"^failures=(\d+)$", content, re.MULTILINE)
+                            me = re.search(r"^errors=(\d+)$", content, re.MULTILINE)
+                            if mp and mf and me:
+                                p = int(mp.group(1))
+                                f_ = int(mf.group(1)) + int(me.group(1))
+                                # Every front door that exists, not just the
+                                # first: a repo keeping both a landing README
+                                # and a packaged docs/README must not show two
+                                # different counts.
+                                for cand in (
+                                    root_dir / "docs" / "README.md",
+                                    root_dir / "README.md",
+                                ):
+                                    if cand.exists():
+                                        update_readme_badge(p, f_, cand)
+
+                    return 0 if _run_passed(passed_flag, results_file) else 1
+            except Exception:
+                pass
+
+            if results_file.exists():
+                try:
+                    cur = results_file.stat().st_size
+                    if cur != last_size:
+                        print(
+                            f"\r  [{elapsed}s] writing results "
+                            f"({cur} bytes) ...",
+                            end="",
+                            flush=True,
+                        )
+                        last_size = cur
+                except Exception:
+                    pass
+
+            time.sleep(poll)
+
+        print(f"\n[TIMEOUT] No completion after {timeout}s.")
+        if results_file.exists():
+            print("\n[PARTIAL]")
+            print(results_file.read_text(encoding="utf-8"))
+        return 2
+    finally:
+        if not keep_maya and conn.is_connected:
+            print("\nClosing Maya instance ...")
+            try:
+                conn.shutdown(force=True)
+                print("[OK] Maya closed.")
+            except Exception as e:
+                print(f"[WARN] Failed to close Maya gracefully: {e}")
+
+
+def headless_blender_checks(blender_dir: Path, names=None) -> list:
+    """The Blender checks a fresh background Blender runs: each
+    ``*_check.py`` in *blender_dir* whose usage line runs it with
+    ``blender --background``. One that drives a real window says plain
+    ``blender --python`` and is run by hand (its docstring says how).
+
+    Parameters:
+        blender_dir: ``tests/blender``.
+        names: Check names to keep (``uv_slot``, ``uv_slot_check`` or
+            ``uv_slot_check.py``); ``None`` keeps all.
+    """
+    checks = sorted(
+        path
+        for path in blender_dir.glob("*_check.py")
+        if "blender --background" in path.read_text(encoding="utf-8", errors="ignore")
+    )
+    if names:
+        wanted = {n[:-3] if n.endswith(".py") else n for n in names}
+        wanted |= {f"{n}_check" for n in wanted}
+        checks = [path for path in checks if path.stem in wanted]
+    return checks
+
+
+def _run_in_blender(test_dir: Path, monorepo: Path, names, blender=None) -> int:
+    """``--in-blender``: each headless Blender check in its own FRESH background
+    Blender, through blendertk's runner -- the one launcher (a throwaway temp
+    root, uitk's settings sandbox, ``--factory-startup``), never an open
+    session. Returns the exit code."""
+    blender_dir = test_dir / "blender"
+    unknown = [n for n in names or () if not headless_blender_checks(blender_dir, [n])]
+    if unknown:
+        print(f"[ERROR] No headless Blender check named: {', '.join(unknown)}")
+        return 2
+    runner_file = monorepo / "blendertk" / "tests" / "run_tests.py"
+    if not runner_file.is_file():
+        print(f"[ERROR] --in-blender needs the blendertk checkout beside tentacle ({runner_file}).")
+        return 2
+    spec = importlib.util.spec_from_file_location("_blendertk_run_tests", runner_file)
+    runner_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runner_module)
+    exe = runner_module.find_blender(blender)
+    if not exe:
+        print("[ERROR] Blender not found (pass --blender or set BLENDERTK_BLENDER).")
+        return 2
+
+    class _Runner(runner_module.BlenderTestRunner):
+        def discover(self, patterns=None):
+            return headless_blender_checks(blender_dir, patterns)
+
+    result = _Runner(exe, test_dir=blender_dir).run(names or None)
+    return 0 if result["suites"] and not result["failed_suites"] else 1
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run tentacle test suite")
+    parser.add_argument(
+        "modules",
+        nargs="*",
+        help="Test modules to run (bare or test_-prefixed; tests/ or tests/slots/); none = all",
+    )
+    parser.add_argument(
+        "-k",
+        dest="patterns",
+        action="append",
+        default=[],
+        help="Only tests whose id matches (substring, or a * pattern); repeatable",
+    )
+    parser.add_argument("-v", "--verbose", action="count", default=1, help="Increase verbosity")
+    parser.add_argument("--log", action="store_true", help="Save results to a log file")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output")
+    parser.add_argument("--no-badge", action="store_true", help="Skip updating README badge")
+    parser.add_argument(
+        "--include-slots",
+        action="store_true",
+        help="Also run the Maya-required slot migration tests "
+        "(requires mayapy / maya.standalone). Initializes maya.standalone "
+        "automatically.",
+    )
+    parser.add_argument(
+        "--in-maya",
+        action="store_true",
+        help="Launch a FRESH Maya GUI via mayatk.MayaConnection and run the "
+        "full suite (main + slots) inside it via the command port. "
+        "This is the canonical 100%% verified path — gives genuine pass on "
+        "the overlay widget test that mayapy.standalone cannot host. "
+        "Always uses force_new_instance=True (per monorepo hard rule).",
+    )
+    parser.add_argument(
+        "--keep-maya",
+        action="store_true",
+        help="Keep the launched Maya open after tests (only with --in-maya).",
+    )
+    parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Show the --in-maya Maya on your desktop (default: a private one, "
+        "where it takes neither your focus nor your input).",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=2400,
+        help="Seconds to wait for the --in-maya run to finish (default 2400).",
+    )
+    parser.add_argument(
+        "--in-blender",
+        action="store_true",
+        help="Run the headless Blender checks (tests/blender, each in its own "
+        "FRESH background Blender, through blendertk's runner); the modules "
+        "named are check names. Never an open Blender session.",
+    )
+    parser.add_argument(
+        "--blender",
+        default=None,
+        help="Blender executable for --in-blender (else BLENDERTK_BLENDER, the newest install).",
+    )
+    args = parser.parse_args()
+
+    verbosity = 0 if args.quiet else args.verbose
+    test_dir = Path(__file__).parent
+    root_dir = test_dir.parent
+    monorepo = root_dir.parent
+
+    # Ensure root and test dirs are in path
+    if str(root_dir) not in sys.path:
+        sys.path.insert(0, str(root_dir))
+    if str(test_dir) not in sys.path:
+        sys.path.insert(0, str(test_dir))
+
+    # --in-blender: the Blender checks, by check name, before the test_ modules.
+    if args.in_blender:
+        sys.exit(_run_in_blender(test_dir, monorepo, args.modules, args.blender))
+
+    # A name nothing answers to means the run would not cover what was asked for.
+    stems, unknown = TestRunner.resolve_modules(test_dir, args.modules)
+    if unknown:
+        sys.stderr.write(f"[ERROR] No such test module(s): {', '.join(unknown)}\n")
+        sys.exit(2)
+
+    # --in-maya: hand off to the GUI launcher and exit.
+    if args.in_maya:
+        if args.include_slots:
+            sys.stderr.write(
+                "ERROR: --in-maya and --include-slots are mutually exclusive. "
+                "--in-maya already runs the full suite (main + slots) "
+                "inside Maya GUI.\n"
+            )
+            sys.exit(2)
+        sys.exit(_run_in_maya_gui(
+            test_dir, monorepo, verbosity,
+            no_badge=args.no_badge,
+            keep_maya=args.keep_maya,
+            root_dir=root_dir,
+            modules=stems,
+            patterns=args.patterns,
+            timeout=args.timeout,
+            show=args.show,
+        ))
+
+    # Headless unless a GUI is the point (CODE_STANDARD section 9): the plain and
+    # mayapy runs get the offscreen platform before anything constructs Qt; an
+    # explicit value is honored. (--in-maya above is a real GUI Maya on purpose.)
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+    # Maya-bound: bootstrap maya.standalone and the ecosystem packages.
+    if args.include_slots:
+        _ensure_ecosystem_paths(monorepo)
+        _initialize_maya_standalone()
+        _sandbox_maya_workspace()
+
+    # Try to verify package import
+    try:
+        if (root_dir / "tentacle").exists():
+             import tentacle
+             print(f"DEBUG: tentacle imported from: {getattr(tentacle, '__file__', 'namespace')}")
+    except ImportError:
+        print("DEBUG: Could not import tentacle")
+
+    runner = TestRunner(
+        test_dir,
+        verbosity=verbosity,
+        include_slots=args.include_slots,
+        modules=stems,
+        patterns=args.patterns,
+    )
+    result = runner.run(log_to_file=args.log)
+
+    # ONLY --in-maya stamps, and it does so from its own path -- so nothing here
+    # ever does. A plain run has no Maya at all (~344 of 541 tests skip);
+    # publishing its count silently replaced a canonical "534 passed, 2 failed"
+    # badge with a green "197 passed" -- a 63% understatement AND two real
+    # failures hidden. --include-slots is fuller but still NOT the full suite:
+    # mayapy.standalone's Qt is a non-GUI stub, so the marking-menu and overlay
+    # widget tests skip there too, and stamping it would clobber the canonical
+    # count with a smaller one -- the same bug in a quieter costume.
+    if not args.no_badge:
+        print(
+            "\nSkipping README badge: only --in-maya runs the whole suite, and a "
+            "partial count must not replace a full one. "
+            "See m3trik/docs/TEST_BADGE_STANDARD.md"
+        )
+
+    code = 0 if result.success else 1
+
+    # A run that booted maya.standalone must NOT exit through interpreter
+    # teardown: Maya's own static destructors fault at DLL_PROCESS_DETACH, so
+    # an ordinary green exit files a crash minidump and an
+    # `untitled[Recovered-...].ma` beside it -- litter that reads as a real
+    # crash (measured 2026-09-10; `os._exit` does not avoid it on Windows,
+    # because it routes to ExitProcess which still runs the detach callbacks).
+    # Only --include-slots initializes Maya here; the plain and --in-maya paths
+    # have nothing hostile to tear down, so they keep normal exit semantics.
+    # Guarded: the log is already written, and a missing pythontk must not turn
+    # a finished run into a traceback.
+    if args.include_slots:
+        try:
+            from pythontk import ProcessExit
+        except Exception:
+            sys.exit(code)
+        ProcessExit.hard_exit(code)
+    sys.exit(code)
+
+if __name__ == "__main__":
+    main()
