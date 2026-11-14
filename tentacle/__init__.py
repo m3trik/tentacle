@@ -3,7 +3,7 @@
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.19.3"
+__version__ = "0.19.4"
 
 
 DEFAULT_INCLUDE = {

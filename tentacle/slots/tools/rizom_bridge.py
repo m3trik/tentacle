@@ -194,6 +194,15 @@ class RizomBridgeSlots(HostBridge):
         try:
             with self.sb.progress(text=f"Working: RizomUV {preset}"):
                 self.bridge.run_preset(selection, preset, params=params)
+        except (RuntimeError, ValueError, FileNotFoundError) as error:
+            # The engine's own sentence (a timeout, a crash and its known
+            # causes, a preset the installed RizomUV cannot run, a token no
+            # setting provides): it says what to do, and a traceback above it
+            # buried that line. The types are not the engine's alone (every
+            # maya.cmds failure is a RuntimeError), so the traceback is kept,
+            # a level down.
+            self.bridge.logger.error(f"RizomUV {preset}: {error}")
+            self.bridge.logger.debug("Bridge raised:\n" + traceback.format_exc())
         except Exception:
             self.bridge.logger.error("Bridge raised:\n" + traceback.format_exc())
 

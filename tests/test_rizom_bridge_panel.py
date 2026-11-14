@@ -269,14 +269,42 @@ class TestRizomBridgeProcess(unittest.TestCase):
             slots._bridge.logger.said("error"), [_FakeRizom.APP.not_found_message]
         )
 
-    def test_an_engine_error_lands_in_the_log(self):
+    def test_the_engines_own_sentence_is_logged_as_it_is(self):
+        """A timeout, a crash and its causes, a preset this RizomUV cannot run:
+        the engine words each for the person, and a Python traceback above it
+        buried the one line that says what to do."""
         slots = _stub()
         _scoped(slots, ["|a"])
-        slots._bridge.run_preset = mock.MagicMock(side_effect=RuntimeError("no save"))
+        slots._bridge.run_preset = mock.MagicMock(side_effect=RuntimeError("RizomUV crashed. Known causes: ..."))
+        slots.b000()
+        (error,) = slots._bridge.logger.said("error")
+        self.assertIn("RizomUV crashed. Known causes", error)
+        self.assertNotIn("Traceback", error)
+
+    def test_a_sentence_type_from_elsewhere_keeps_its_traceback_in_the_log(self):
+        """Every ``maya.cmds`` failure is a RuntimeError too, and a bug may
+        raise a ValueError: their traceback goes to the log's debug level, so
+        nothing is lost (found in the release review), and the error line stays
+        the one sentence."""
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        slots._bridge.run_preset = mock.MagicMock(side_effect=RuntimeError("# Error: No object matches name"))
+        slots.b000()
+        (error,) = slots._bridge.logger.said("error")
+        self.assertNotIn("Traceback", error)
+        self.assertTrue(
+            any("Traceback" in msg and "No object matches name" in msg for msg in slots._bridge.logger.said("debug")),
+            slots._bridge.logger.records,
+        )
+
+    def test_an_unexpected_error_keeps_its_traceback(self):
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        slots._bridge.run_preset = mock.MagicMock(side_effect=TypeError("a bug"))
         slots.b000()
         error = slots._bridge.logger.said("error")[0]
         self.assertTrue(error.startswith("Bridge raised:"), error)
-        self.assertIn("no save", error)
+        self.assertIn("a bug", error)
 
 
 # ---------------------------------------------------------------------------
