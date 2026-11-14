@@ -239,6 +239,13 @@ class SubstanceBridgeSlots(HostBridge):
         if self._starting:
             self.bridge.logger.warning("Painter is still starting or opening the project: Run again once the script is queued.")
             return None
+        if self._running is not None:
+            # The panel follows one job: a second would take its place, and
+            # Cancel Script would reach the wrong one.
+            self.bridge.logger.warning(
+                "A script is still running in Painter: Run again when it ends, or stop it first (Cancel Script)."
+            )
+            return None
 
         # A script on a project works on one Painter already holds (or the
         # Project row's): no selection needed, and no warning for its absence.
@@ -309,7 +316,8 @@ class SubstanceBridgeSlots(HostBridge):
         task = self.sb.BackgroundTask(lambda: self.bridge_class.follow(result), "substance-script")
 
         def done() -> None:
-            self._running = None
+            if self._running is result:
+                self._running = None
             status = self.bridge.conclude(task)
             if footer is not None:
                 footer.finish_progress(f"{label}: {status.get('state', 'failed')} in Painter.")

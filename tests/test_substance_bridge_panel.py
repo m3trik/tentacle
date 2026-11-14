@@ -478,6 +478,40 @@ class TestSubstanceBridgeSend(unittest.TestCase):
         self.assertEqual(task.name, "substance-script")
         self.assertEqual(slots._bridge.reported, [{"state": "done", "job": "j1"}])
 
+    def test_a_run_while_a_job_is_followed_sends_nothing(self):
+        """The panel follows one job: a second Run replaced the one it
+        followed, so Cancel Script reached the wrong job and the first one's
+        end cleared the panel's state under the second."""
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        sends, tasks = [], []
+        slots._bridge.send = lambda **kw: sends.append(kw) or {"job": f"j{len(sends)}", "connection": object()}
+
+        class _Task:
+            def __init__(self, fn, name):
+                self.fn, self.later = fn, None
+                tasks.append(self)
+
+            def result(self):
+                return self.fn()
+
+            def when_done(self, _ui, done):
+                self.later = done  # the job is still running in Painter
+
+        slots.sb.BackgroundTask = _Task
+        slots.ui = types.SimpleNamespace(footer=None)
+        slots.refresh_painters = lambda: None
+        slots.b000()
+        first = slots._running
+        slots.b000()
+        self.assertEqual(len(sends), 1)
+        self.assertIs(slots._running, first, "Cancel Script still reaches the job under way")
+        self.assertIn("still running in Painter", slots._bridge.logger.said("warning")[-1])
+        tasks[0].later()  # it ended
+        self.assertIsNone(slots._running)
+        slots.b000()
+        self.assertEqual(len(sends), 2)
+
     def test_while_painter_starts_the_run_waits_off_the_main_thread_then_follows(self):
         """A launch (or a project opening) is waited on in a BackgroundTask; the
         job is followed once queued, and a second Run meanwhile launches nothing."""
