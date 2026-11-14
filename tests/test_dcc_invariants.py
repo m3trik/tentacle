@@ -204,7 +204,7 @@ class TestSlotImportDiscipline(unittest.TestCase):
 
     def test_a_maya_plugin_loads_through_mayatks_door(self):
         """``mtk.Plugins.load`` loads by name, never into GUI Maya's untrusted-plug-in
-        prompt; mayatk's own guard (``mock_tests/test_plugins.py``) covers mayatk."""
+        prompt; mayatk's own guard (``mock_tests/test_plugins_mock.py``) covers mayatk."""
         offenders = [
             f"{f.relative_to(SLOTS_ROOT)}:{node.lineno}"
             for f in _all_slot_modules()

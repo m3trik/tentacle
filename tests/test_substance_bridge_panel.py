@@ -116,7 +116,7 @@ class _FakeSubstance:
     def report(self, status):
         self.reported.append(status)
 
-    def conclude(self, task):
+    def conclude(self, task, job=None):  # the engine's: the job a failed wait names
         status = task.result()
         self.report(status)
         return status
@@ -511,6 +511,37 @@ class TestSubstanceBridgeSend(unittest.TestCase):
         self.assertIsNone(slots._running)
         slots.b000()
         self.assertEqual(len(sends), 2)
+
+    def test_a_follower_that_could_not_be_wired_leaves_the_panel_runnable(self):
+        """Nothing would ever end the wait: every later Run was refused as
+        "still running" until the panel was reopened."""
+        slots = _stub()
+        _scoped(slots, ["|a"])
+        slots._bridge.send = lambda **kw: {"job": "j1", "connection": object()}
+
+        class _Unwired:
+            def __init__(self, fn, name):
+                pass
+
+            def when_done(self, _ui, _done):
+                raise RuntimeError("no event loop to come back on")
+
+        class _Footer:  # the panel's footer: is it still saying "running"?
+            busy = False
+
+            def start_progress(self, text=""):
+                self.busy = True
+
+            def finish_progress(self, text=None):
+                self.busy = False
+
+        footer = _Footer()
+        slots.sb.BackgroundTask = _Unwired
+        slots.ui = types.SimpleNamespace(footer=footer)
+        with self.assertRaises(RuntimeError):
+            slots.b000()
+        self.assertIsNone(slots._running)
+        self.assertFalse(footer.busy, "the footer still says the job is running")
 
     def test_while_painter_starts_the_run_waits_off_the_main_thread_then_follows(self):
         """A launch (or a project opening) is waited on in a BackgroundTask; the
