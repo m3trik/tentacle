@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-11-27 -- Tests: the local-sheet narration test reads an absolute path on any OS (`tests/test_shot_manifest_csv_load.py`).** It passed `X:/docs/sheet.csv`, which Linux reads as relative (the loader's `abspath` put the checkout before it), so CI failed it; the path is now the running OS's root joined with `docs`.
+  - Test(s): `LoadCsvNarrationTest.test_a_local_sheets_narration_is_read_beside_it`.
 - **2026-11-26 -- Tests: a run's start ages out `tests/temp_tests` (`tests/conftest.py`; tentacle also `tests/run_tests.py`, a guarded step of its own).** Through `ptk.TestSandbox.sweep_scratch`: an entry untouched for `SCRATCH_DAYS` goes unless the folder's `.keep` names it.
 - **2026-11-26 -- Emissive Groups panel: a State pick is one undo step, Key States one for every group, a Weight edit keys only a keyed weight, and the State column asks nothing more (`slots/tools/emissive_groups.py` `EmissiveGroupsSlots._on_state_chosen`, `key_states`, `_set_weight`, `_state_box`, `_refresh_table`).** A pick on a group with no states of its own called `set_states` then `set_state` (one undo left the states stored); the model's state now stores them in its own step. Key States keyed each group in its own step; it calls `key_states`, one. The Weight column keyed on `keyed` (weight or tint), so an edit on a group whose tint alone was keyed keyed its weight; it reads `weight_keyed`. The State dropdown takes its names from the listing, not a `default_states` scan per row.
   - Test(s): `test_emissive_groups_panel.py` `test_a_first_pick_is_one_undo_step`, `test_key_states_keys_every_group_in_one_undo_step`, `test_a_weight_edit_on_a_group_whose_tint_alone_is_keyed_rests_it` (the last two red against the old panel).

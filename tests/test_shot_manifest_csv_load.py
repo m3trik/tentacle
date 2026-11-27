@@ -201,13 +201,15 @@ class LoadCsvNarrationTest(unittest.TestCase):
             seen["base"] = base
             return [MagicMock()]
 
+        # An absolute path on whichever OS runs it: a drive path is relative on Linux.
+        sheet = os.path.join(os.path.abspath(os.sep), "docs", "sheet.csv")
         with (
             patch("os.path.isfile", return_value=True),
             patch("pythontk.core_utils.engines.shots.manifest.mapping.Mapping.resolve", side_effect=resolve),
         ):
-            ShotManifestController._load_csv(ctrl, "X:/docs/sheet.csv")
+            ShotManifestController._load_csv(ctrl, sheet)
 
-        self.assertEqual(os.path.normpath(seen["base"]), os.path.normpath("X:/docs"))
+        self.assertEqual(os.path.normpath(seen["base"]), os.path.dirname(sheet))
 
 
 class LoadCsvUrlSourceTest(unittest.TestCase):
