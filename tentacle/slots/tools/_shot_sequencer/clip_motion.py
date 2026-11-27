@@ -290,7 +290,7 @@ class ClipMotionMixin:
                 orig_start,
                 new_start,
                 shot_id,
-                getattr(widget, "shift_held_at_press", False),
+                getattr(widget, "shift_held_in_drag", False),
             )
             self._lift_make_room_land(
                 clip,
@@ -302,7 +302,7 @@ class ClipMotionMixin:
                     obj_name, lo, lo + d
                 ),
             )
-            shift_held = getattr(widget, "shift_held_at_press", False)
+            shift_held = getattr(widget, "shift_held_in_drag", False)
             if shift_held:
                 shot = self.sequencer.shot_by_id(shot_id)
                 if shot and (new_start < shot.start or new_start > shot.end):
@@ -327,10 +327,10 @@ class ClipMotionMixin:
             shot_id,
             shot.start if shot else "?",
             shot.end if shot else "?",
-            getattr(widget, "shift_held_at_press", False),
+            getattr(widget, "shift_held_in_drag", False),
         )
 
-        shift_held = getattr(widget, "shift_held_at_press", False)
+        shift_held = getattr(widget, "shift_held_in_drag", False)
 
         if shift_held:
             self.sequencer.move_object_keys(obj_name, orig_start, orig_end, new_start)
@@ -448,7 +448,7 @@ class ClipMotionMixin:
         boundaries without changing them".
         """
         widget = self._get_sequencer_widget()
-        if getattr(widget, "shift_held_at_press", False):
+        if getattr(widget, "shift_held_in_drag", False):
             self.logger.debug("[EXPAND] skipped -- shift held")
             return
         if self.sequencer is None:

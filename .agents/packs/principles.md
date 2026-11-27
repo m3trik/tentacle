@@ -11,6 +11,7 @@ Every repo in this ecosystem follows these, whatever its language. One line each
 
 ## Design
 - **Composable primitives** over one-offs: public APIs take plain values (str, dict, callable) and hide factories.
+- **Solve the general problem; the case is its configuration** (§14): before designing a tool, reduce the need to its basics and build the generic tool that answers those, the case that prompted it arriving as data (a template, a registered part, a settings file), never in its name or its shape. One real case proves it, and its needs bound it (YAGNI).
 - **SOLID via composition**: extend through hooks, registries and strategy callables, never by editing stable paths or growing conditional trees; pass collaborators in. A large object is a facade over small collaborators; mixins only for capabilities several classes share.
 - **Host behavior is injected**: a small adapter interface beside the model with a `Pure*` default, never a per-host subclass.
 - **YAGNI**: no speculative features. **Unify over duplicate**: a drift-guarded vendored copy is the one sanctioned duplicate (§6).

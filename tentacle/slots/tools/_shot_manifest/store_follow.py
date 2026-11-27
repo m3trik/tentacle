@@ -304,8 +304,11 @@ class StoreFollowMixin:
     def _refresh_timing(self) -> None:
         """Write each built row's Start / End from its shot (the active
         store's, through the pairing), and each "not in doc" row's from its
-        own: the store is the truth for every row that has a shot."""
+        own: the store is the truth for every row that has a shot.  The
+        cells' tip says the shot's length and the takes it holds, each with
+        its frames (``ShotStore.takes_of``)."""
         from qtpy.QtCore import Qt
+        from qtpy.QtGui import QBrush
 
         store = self._active_store()
         timing_map = self._pairing().shots
@@ -326,8 +329,21 @@ class StoreFollowMixin:
                     continue
                 parent.setText(COL_START, f"{shot.start:.0f}")
                 parent.setText(COL_END, f"{shot.end:.0f}")
-                parent.setToolTip(COL_START, f"{shot.end - shot.start:.0f}f")
-                parent.setToolTip(COL_END, f"{shot.end - shot.start:.0f}f")
+                tip = f"{shot.end - shot.start:.0f}f"
+                takes = ptk.ShotStore.takes_of(shot)
+                if takes:
+                    tip += "".join(f"\ntake {name}: {a:.0f}-{b:.0f}" for name, a, b in takes)
+                elif takes is not None:
+                    tip += "\nno take: the step only speaks"
+                for col in (COL_START, COL_END):
+                    parent.setToolTip(col, tip)
+                    # Its shot's frames, plain: the keys are there now (where
+                    # Build moves it is in its tip, ``_note_moves``).
+                    parent.setForeground(col, QBrush())
+                    font = parent.font(col)
+                    if font.italic():
+                        font.setItalic(False)
+                        parent.setFont(col, font)
         finally:
             tree.blockSignals(False)
         self._refresh_export_preview()  # an open one shows these frames

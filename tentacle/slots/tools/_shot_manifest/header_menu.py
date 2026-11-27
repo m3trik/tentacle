@@ -8,6 +8,9 @@ One copy for both hosts: every host call goes through the controller's
 ``manifest_host``, the host library's ``ManifestHost`` (from ``Slots.tk``).
 """
 
+from typing import List
+
+import pythontk as ptk
 from pythontk import SHOT_PALETTE
 
 from .manifest_data import PASTEL_STATUS, ManifestData
@@ -18,13 +21,20 @@ class HeaderMenuMixin:
 
     Uses the controller's ``ui`` (``header``), ``sb``, ``_settings``,
     ``_editor``, ``_steps``, ``_last_results``, ``assess()``, ``_redraw()``,
-    ``_shown_steps()``, ``_update_build_button()`` and ``_set_footer()``.
+    ``_shown_steps()``, ``_update_build_button()``, ``_set_footer()`` and the
+    mapping picker's ``_loaded_sheet()``.
     """
 
     _COLOR_SETTINGS_NS = "ShotManifest/colors"
     #: What Build does with a behavior type (the header menu's choice per
     #: type): key it, mark it on the timeline instead, or leave it alone.
     BEHAVIOR_MODES = (("Key", "key"), ("Marker", "marker"), ("Off", "off"))
+    #: What each mode does, as its choice's tooltip says it (``{label}``: the behavior).
+    BEHAVIOR_MODE_TIPS = {
+        "key": "Build keys {label} on every row it is listed on.",
+        "marker": "Build marks where {label} would go on the timeline, keying nothing.",
+        "off": "Build leaves {label} out on every row.",
+    }
     #: The full guide; the header's help is its short form.
     HELP_URL = "https://github.com/m3trik/mayatk/blob/main/docs/shot_manifest.md"
 
@@ -111,7 +121,9 @@ class HeaderMenuMixin:
                             "<b>Step</b> \u2014 Step ID (e.g. A01), or the name Local Edits gave it.",
                             "<b>Section</b> \u2014 Read-only grouping label from the sheet.",
                             "<b>Description</b> \u2014 Audio narration or step notes.",
-                            "<b>Behaviors</b> \u2014 Per-object actions; click the child row label to toggle.",
+                            "<b>Behaviors</b> \u2014 A chip per behavior of an object, in its "
+                            "state's colour and glyph; click one for its menu, <b>+</b> to give "
+                            "the object another.",
                             "<b>Start / End</b> \u2014 Frame range. Solid text = user-entered; dim italic = auto-filled "
                             "-- once shots exist, an unbuilt step's are where Build inserts it.",
                         ],
@@ -121,11 +133,15 @@ class HeaderMenuMixin:
                         [
                             "Double-click Start or End to type a frame. Downstream steps re-flow.",
                             "Right-click a range cell: Set Start to Current Frame, Auto-fill from Gaps, Clear Range.",
-                            "<b>Assess</b> \u2014 Read-only comparison. A row's icon takes the colour of its "
-                            "worst issue, and its tooltip lists them: \u2716 error, \u25b2 warning, "
-                            "\u25cf note, \u25a0 locked or edited. While it shows it stays current: a shot edit "
+                            "<b>Assess</b> \u2014 Read-only comparison. A step row's icon is its state "
+                            "(a check: in order; a note: Build has work for it; a warning; an error; a "
+                            "pencil: edited by hand; a padlock: locked), the Status column says its worst "
+                            "issue in a few words, and its tooltip lists them all. "
+                            "While it shows it stays current: a shot edit "
                             "made anywhere, a Local Edit, a hide or a sheet read again runs it again.",
-                            "<b>Build</b> \u2014 Create or update shots from loaded steps. Locked shots are never modified, "
+                            "<b>Build</b> \u2014 Create or update shots from loaded steps: the button counts the steps it "
+                            "changes, and its tooltip says the plan (to create, to update, kept, locked, waiting on you). "
+                            "Locked shots are never modified, "
                             "and neither is a shot edited by hand since its last Build (renamed, resized, its members "
                             "or description changed) unless <b>Edits</b> is set to <b>Rebuild Hand-Edited "
                             "Shots</b> (header menu); Assess shows such a step as edited. Once shots exist, a step "
@@ -161,6 +177,8 @@ class HeaderMenuMixin:
                             "<b>Hide</b> / <b>Show</b> \u2014 the selected steps or their "
                             "sections (Local Edits; a built step stays), and the steps "
                             "without a shot (a view: Assess and Build skip them).",
+                            "<b>Search</b> — only the steps whose words match every "
+                            "word typed show; a view alone.",
                         ],
                     ),
                     (
@@ -189,12 +207,14 @@ class HeaderMenuMixin:
                             "behavior type. <b>Key</b>: Build keys it. <b>Marker</b>: Build "
                             "keys nothing -- it puts a marker on the Shot Sequencer's timeline "
                             "where the keys would go, naming the objects, for keying by hand; "
-                            "Assess checks the marker is there, and its labels show "
+                            "Assess checks the marker is there, and its chips show "
                             f"{ManifestData.MARKED_GLYPH}. <b>Off</b>: neither keyed nor "
-                            "marked, and not reported by Assess; its labels show it struck "
+                            "marked, and not reported by Assess; its chips show it struck "
                             "through. Marker and Off leave the keys a type already has. "
-                            "Every type is Off until you choose; the choices are kept per "
-                            "user, for every scene.",
+                            "A behavior the sheet asks for by its word (a row in cells: "
+                            "<i>highlight</i>, <i>fade_out</i>) starts at Key, any other is Off "
+                            "until you choose; the choices are kept with the scene, for its "
+                            "sheet (your own seed a scene that keeps none).",
                         ],
                     ),
                     (
@@ -210,6 +230,15 @@ class HeaderMenuMixin:
                             "manifest like any other; <b>Compare to Original Sheet</b> "
                             "\u2014 the sheet as delivered, to compare: read-only, Build "
                             "off. Pick another mode to return; nothing is lost.",
+                            "A step row leads its right-click menu with its own fix, in "
+                            "bold: <b>Build</b> where a Build would change its built shot, "
+                            "<b>Rebuild from Sheet</b> where a hand edited it. That shot "
+                            "takes the sheet's name, description, objects and behaviors and "
+                            "keeps its range; no other row is built.",
+                            "A step that plays no animation has <i>no shot</i> in its Start "
+                            "cell (the template's Shots option: steps with an animation clip): "
+                            "Build makes none. Right-click a step: <b>Mark as No Shot</b> / "
+                            "<b>Mark as a Shot</b>, a Local Edit.",
                             "Double-click a step's name or description, or an object's "
                             "name, to edit it.  An object's name says which scene object "
                             "the step means -- the object itself is never renamed.",
@@ -217,7 +246,8 @@ class HeaderMenuMixin:
                             "selected steps, its section, or every step without a shot) "
                             "/ Show Hidden (a built step stays: Build never removes a "
                             "shot), Move an object to another step, Rename All of one "
-                            "object, Revert.  Behavior ticks are edits too.",
+                            "object, Revert.  A behavior turned off or given on its row "
+                            "(its chip, its +) is an edit too.",
                             "Renaming a built step renames its shot on the next Build -- "
                             "and the clip it exports as.  Edited cells are italic; their "
                             "tooltip shows the sheet's value.  <b>Reset</b> (beside "
@@ -276,26 +306,57 @@ class HeaderMenuMixin:
         settings.setValue("keyed_behaviors", keyed)
         self._behavior_sets.clear()
 
-    def _behavior_set(self, key: str) -> frozenset:
-        """A behavior-type list the header menu keeps per user
-        (``keyed_behaviors``, ``marked_behaviors``).
+    def _behavior_cache(self) -> dict:
+        """What the behavior lists and modes read once (:meth:`_behavior_set`,
+        :meth:`_behavior_mode`, :meth:`_family_members`) are kept in: emptied
+        for another scene or sheet and a sheet read again, and kept in step by
+        a choice (:meth:`_set_behavior_mode`) -- every chip asks, on every
+        table rebuild."""
+        store = self._active_store()
+        who = (id(store) if store is not None else None, self._loaded_sheet())
+        if self._behavior_sets.get("@") != who:
+            self._behavior_sets.clear()
+            self._behavior_sets["@"] = who
+        return self._behavior_sets
 
-        Read once and kept in step by :meth:`_set_behavior_mode`: every
-        behavior label asks, on every table rebuild.
-        """
-        names = self._behavior_sets.get(key)
-        if names is None:
-            raw = self._settings.value(key, [])
-            names = frozenset(raw if isinstance(raw, list) else ())
-            self._behavior_sets[key] = names
-        return names
+    def _behavior_set(self, key: str) -> frozenset:
+        """A behavior-type list in force (``keyed_behaviors``,
+        ``marked_behaviors``): :meth:`_modes_in_force`'s, read once per scene
+        and sheet."""
+        cache = self._behavior_cache()
+        if key not in cache:
+            cache["keyed_behaviors"], cache["marked_behaviors"] = self._modes_in_force()
+        return cache[key]
+
+    def _modes_in_force(self):
+        """``(keyed, marked)``: the behavior modes in force for the loaded
+        sheet (``ManifestEdits.modes_in_force``, the rule every builder reads):
+        the scene's own (maintainer 2026-11-23: "with the scene"), else those a
+        scene that keeps none starts with -- Key for what the sheet's cells
+        name, the user's own seeding them."""
+        modes = ptk.ManifestEdits.modes_in_force(
+            self._active_store(),
+            self._loaded_sheet() or "",
+            getattr(self, "_sheet_steps", None) or (),
+            self._behavior_types(),
+            self._own_behavior_set("keyed_behaviors"),
+            self._own_behavior_set("marked_behaviors"),
+        )
+        return frozenset(modes["key"]), frozenset(modes["marker"])
+
+    def _own_behavior_set(self, key: str) -> frozenset:
+        """The user's own list *key* (kept per user): their choices alone, the
+        seed of a scene that keeps no modes."""
+        raw = self._settings.value(key, [])
+        return frozenset(raw if isinstance(raw, list) else ())
 
     def _behavior_types(self) -> frozenset:
         """Every behavior type (``Behaviors.list_behaviors``, which lists the
         template folders), read once with the lists above."""
-        types = self._behavior_sets.get("")
+        cache = self._behavior_cache()
+        types = cache.get("")
         if types is None:
-            types = self._behavior_sets[""] = frozenset(self.behaviors.list_behaviors())
+            types = cache[""] = frozenset(self.behaviors.list_behaviors())
         return types
 
     def _keyed_behaviors(self) -> frozenset:
@@ -315,25 +376,57 @@ class HeaderMenuMixin:
         )
 
     def _behavior_mode(self, name: str) -> str:
-        """``"key"``, ``"marker"`` or ``"off"``: what Build does with *name*."""
-        if name in self._keyed_behaviors():
-            return "key"
-        return "marker" if name in self._marked_behaviors() else "off"
+        """``"key"``, ``"marker"`` or ``"off"``: what Build does with *name*
+        -- a behavior or a family of them (``Behaviors.family_of``: ``fade``),
+        whose members share one mode (:meth:`_set_behavior_mode`): its first's.
+        Read once per name (:meth:`_behavior_cache`)."""
+        modes = self._behavior_cache().setdefault("mode", {})
+        mode = modes.get(name)
+        if mode is None:
+            first = self._family_members(name)[0]
+            if first in self._keyed_behaviors():
+                mode = "key"
+            else:
+                mode = "marker" if first in self._marked_behaviors() else "off"
+            modes[name] = mode
+        return mode
+
+    def _family_members(self, name: str) -> List[str]:
+        """The behavior types of *name*'s family (``fade_in`` or ``fade``:
+        ``["fade_in", "fade_out"]``), else ``[name]``: one Key / Marker / Off
+        choice sets them all. Every type's family is read once
+        (:meth:`_behavior_cache`)."""
+        cache = self._behavior_cache()
+        families = cache.get("family")
+        if families is None:
+            families = {}
+            for family, members in self.behaviors.families(sorted(self._behavior_types())).items():
+                for key in [family] + members:
+                    families[key] = members
+            cache["family"] = families
+        members = families.get(name)
+        if members is None:
+            members = families[name] = families.get(self.behaviors.family_of(name)) or [name]
+        return members
 
     def _add_build_options(self, menu) -> None:
         """The header menu's Behaviors: a Key / Marker / Off choice per
-        behavior template, Off until the user chooses.
+        behavior template: Key for one the loaded sheet asks for by its word
+        (:meth:`_modes_in_force`), else Off until the user chooses.
 
-        Global, not per scene: what a build does with each behavior is how
-        this user works (2026-10-07: "ability to disable/enable certain
-        behaviors"; 2026-10-11: "a third option ... of adding a marker in the
-        sequencer instead of keying"; 2026-10-12: "behaviors should default
-        to off").
+        Kept with the scene, per sheet (maintainer 2026-11-23: "with the
+        scene"): whoever opens it builds the same, and its delivery says the
+        same; the user's own choices seed a scene that keeps none, and stay
+        their default for the next (2026-10-07: "ability to disable/enable
+        certain behaviors"; 2026-10-11: "a third option ... of adding a marker
+        in the sequencer instead of keying"; 2026-10-12: "behaviors should
+        default to off").
         """
         self._migrate_behavior_modes()
         menu.add("Separator", setTitle="Behaviors")
         self._behavior_modes = {}
-        for name in self.behaviors.list_behaviors():
+        # A family (fade_in and fade_out: fade) is one behavior, one choice.
+        for name in self.behaviors.families(self.behaviors.list_behaviors()):
             label = ManifestData.fmt_behavior(name)
             cmb = menu.add(
                 "QComboBox",
@@ -350,27 +443,62 @@ class HeaderMenuMixin:
             )
             for text, mode in self.BEHAVIOR_MODES:
                 cmb.addItem(text, mode)
-            cmb.setCurrentIndex(cmb.findData(self._behavior_mode(name)))
             cmb.currentIndexChanged.connect(
                 lambda _i, n=name, c=cmb: self._set_behavior_mode(n, c.currentData())
             )
             self._behavior_modes[name] = cmb
+        self._sync_behavior_modes()
+
+    def _sync_behavior_modes(self) -> None:
+        """Show each behavior's mode in force in its header-menu combo
+        (:meth:`_behavior_mode`): the scene's for the loaded sheet, which a
+        sheet loaded or a scene swapped changes. A display: no mode is set."""
+        for name, cmb in self._behavior_modes.items():
+            index = cmb.findData(self._behavior_mode(name))
+            if cmb.currentIndex() != index:
+                blocked = cmb.blockSignals(True)
+                try:
+                    cmb.setCurrentIndex(index)
+                finally:
+                    cmb.blockSignals(blocked)
 
     def _set_behavior_mode(self, name: str, mode: str) -> None:
-        """Set what Build does with the behavior type *name*: ``"key"``,
-        ``"marker"`` or ``"off"`` (Assess follows)."""
+        """Set what Build does with the behavior type *name* and the rest of
+        its family (:meth:`_family_members`): ``"key"``, ``"marker"`` or
+        ``"off"`` (Assess follows). The scene keeps the modes in force
+        (:meth:`_record_behavior_modes`); the user's own lists take this
+        choice alone, their default for the next scene -- never what a sheet
+        asked for by its word."""
+        family = self._family_members(name)
+        cache = self._behavior_cache()
         for key, member in (
             ("keyed_behaviors", mode == "key"),
             ("marked_behaviors", mode == "marker"),
         ):
-            names = set(self._behavior_set(key))
-            if member:
-                names.add(name)
-            else:
-                names.discard(name)
-            self._settings.setValue(key, sorted(names))
-            self._behavior_sets[key] = frozenset(names)
+            own, now = set(self._own_behavior_set(key)), set(self._behavior_set(key))
+            for names in (own, now):
+                if member:
+                    names.update(family)
+                else:
+                    names.difference_update(family)
+            self._settings.setValue(key, sorted(own))
+            cache[key] = frozenset(now)
+        cache.pop("mode", None)
+        self._record_behavior_modes()
         self._build_options_changed()
+
+    def _record_behavior_modes(self, store=None) -> bool:
+        """Keep the behavior modes in force with the scene, for the loaded
+        sheet (``ManifestEdits.set_behavior_modes``): what a change of a type's
+        mode and a Build record. ``False`` with no sheet or scene, or nothing
+        changed."""
+        path = self._loaded_sheet()
+        store = store if store is not None else self._active_store()
+        if not path or store is None:
+            return False
+        return ptk.ManifestEdits.set_behavior_modes(
+            store, path, self._keyed_behaviors(), self._marked_behaviors()
+        )
 
     def _build_options_changed(self) -> None:
         """A showing assessment is judged again under the new options (Build
@@ -402,6 +530,22 @@ class HeaderMenuMixin:
         else:
             self._redraw()
             self._set_footer(self._shown_note())
+
+    def _set_issues_only(self, on: bool) -> None:
+        """Show only the rows that need something (or every row again) -- the
+        view row's Hide / Show -- kept per user. A view alone: nothing is
+        assessed again, and Build builds what it built."""
+        if bool(on) == self._issues_only:
+            return
+        self._settings.setValue("issues_only", bool(on))
+        hidden = self._apply_issues_filter()
+        if on:
+            self._set_footer(
+                f"{hidden} step(s) with nothing to do hidden (Show \u25b8 Steps "
+                "With Nothing to Do): a view, Build still takes every step."
+                if self._last_results
+                else "Steps with nothing to do hide once Assess has run."
+            )
 
     def _shown_note(self) -> str:
         """What the table leaves out: ``"37 steps without a shot hidden."``,
@@ -462,11 +606,40 @@ class HeaderMenuMixin:
         dlg.colors_changed.connect(_apply)
         dlg.exec_()
 
+    #: Status colours that had their own key split off another's (2026-11-22:
+    #: the step's dropped-behavior keys and its shot updates borrowed the
+    #: ``missing_behavior`` and ``missing_shot`` colours): ``{new: old}``.
+    COLOR_KEYS_SPLIT = {
+        "dropped_behavior": "missing_behavior",
+        "shot_update": "missing_shot",
+    }
+    #: The panel setting naming the split keys already carried over.
+    _COLOR_SPLIT_SETTING = "color_keys_split"
+
+    def _carry_split_colors(self, settings) -> None:
+        """Once per key: a user's colour for the old key a split key was
+        drawn in (:attr:`COLOR_KEYS_SPLIT`) becomes the new key's, saved, so
+        what they recoloured stays so -- and the Colors... editor shows it --
+        until they change either one."""
+        done = self._settings.value(self._COLOR_SPLIT_SETTING, [])
+        done = list(done) if isinstance(done, list) else []
+        todo = [new for new in self.COLOR_KEYS_SPLIT if new not in done]
+        for new in todo:
+            if settings.value(f"{new}/fg") or settings.value(f"{new}/bg"):
+                continue  # chosen already
+            for role in ("fg", "bg"):
+                value = settings.value(f"{self.COLOR_KEYS_SPLIT[new]}/{role}")
+                if value:
+                    settings.setValue(f"{new}/{role}", value)
+        if todo:
+            self._settings.setValue(self._COLOR_SPLIT_SETTING, done + todo)
+
     def _restore_color_overrides(self) -> None:
         """Apply any persisted color overrides to the live palette."""
         SettingsManager = self.sb.SettingsManager
 
         settings = SettingsManager(namespace=self._COLOR_SETTINGS_NS)
+        self._carry_split_colors(settings)
         for key in list(PASTEL_STATUS):
             fg_val = settings.value(f"{key}/fg")
             bg_val = settings.value(f"{key}/bg")

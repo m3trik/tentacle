@@ -85,9 +85,9 @@ class TestPanelSurface(_PanelCase):
 
     def test_table_columns(self):
         table = self.ui.tbl000
-        self.assertEqual(table.columnCount(), 4)
+        self.assertEqual(table.columnCount(), 5)
         self.assertEqual(
-            [table.horizontalHeaderItem(i).text() for i in range(4)],
+            [table.horizontalHeaderItem(i).text() for i in range(5)],
             list(self.slots.COLUMNS),
         )
 
@@ -113,6 +113,7 @@ class TestPanelSurface(_PanelCase):
             "weights_all_on",
             "weights_all_off",
             "key_weights",
+            "key_states",
             "remove_keys",
         ):
             self.assertTrue(hasattr(self.ui.tbl000.menu, name), name)
@@ -130,10 +131,11 @@ class TestPanelWorkflow(_PanelCase):
         table = self.ui.tbl000
         self.assertEqual(table.rowCount(), 1)
         self.assertEqual(
-            [table.item(0, c).text() for c in range(4)],
-            ["headlights", "1", "1", "1"],
+            [table.item(0, c).text() for c in range(5)],
+            ["headlights", "1", "", "1", "1"],
         )
-        self.assertEqual(self.ui.txt000.text(), "")  # field cleared
+        # The name stays, so a second Add extends the same group.
+        self.assertEqual(self.ui.txt000.text(), "headlights")
         self.assertTrue(cmds.objExists("glowMat_headlights"))
 
     def test_add_without_name_autonames(self):
@@ -141,6 +143,22 @@ class TestPanelWorkflow(_PanelCase):
         self.ui.txt000.clear()
         self.slots.b000()
         self.assertEqual(self.ui.tbl000.item(0, 0).text(), "group_0")
+        self.assertEqual(self.ui.txt000.text(), "group_0")
+
+    def test_an_auto_name_never_joins_an_existing_group(self):
+        """Reported: with group_0 removed and group_1 left, a blank-name Add
+        was named group_1 (one per group counted) and merged into it."""
+        for face in (0, 1):
+            cmds.select(f"{self.cube}.f[{face}]", replace=True)
+            self.ui.txt000.clear()
+            self.slots.b000()
+        EmissiveGroups.remove_group("group_0")
+        cmds.select(f"{self.cube}.f[2]", replace=True)
+        self.ui.txt000.clear()
+        self.slots.b000()
+        groups = EmissiveGroups.list_groups()
+        self.assertEqual(sorted(groups), ["group_0", "group_1"])
+        self.assertEqual(groups["group_1"]["faces"], 1, "group_1 kept to itself")
 
     def test_rows_are_by_name(self):
         self._add("b", 0)
@@ -196,6 +214,13 @@ class TestPanelWorkflow(_PanelCase):
         self.slots.weights_all_on()
         self.assertTrue(all(g["weight"] == 1.0 for g in EmissiveGroups.list_groups().values()))
 
+    def test_all_off_is_one_undo_step(self):
+        self._add("a", 0)
+        self._add("b", 1)
+        self.slots.weights_all_off()
+        cmds.undo()
+        self.assertTrue(all(g["weight"] == 1.0 for g in EmissiveGroups.list_groups().values()))
+
     def test_key_weights_and_remove_keys(self):
         self._add("headlights", 0)
         self.slots.key_weights()
@@ -203,6 +228,116 @@ class TestPanelWorkflow(_PanelCase):
         self.ui.tbl000.setCurrentCell(0, 0)
         self.slots.remove_keys()
         self.assertFalse(EmissiveGroups.list_groups()["headlights"]["keyed"])
+
+    def test_a_keyed_weight_edit_keys_it_at_the_current_frame(self):
+        """Reported: a keyed group's cell was read-only and Key re-keyed the
+        value it had, so the panel could only key a constant curve."""
+        self._add("headlights", 0)
+        cmds.currentTime(1)
+        self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("0")
+        self.ui.tbl000.setCurrentCell(0, 0)
+        self.slots.key_weights()
+        cmds.currentTime(24)
+        self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("1")
+        keys = cmds.keyframe("glowMat_headlights.emission", query=True, valueChange=True)
+        times = cmds.keyframe("glowMat_headlights.emission", query=True, timeChange=True)
+        self.assertEqual(list(zip(times, keys)), [(1.0, 0.0), (24.0, 1.0)])
+
+    def _pick_state(self, state, row=0):
+        """Pick *state* in the row's State dropdown, as a click does; the
+        refresh it defers runs."""
+        self.ui.tbl000.cellWidget(row, self.slots.STATE_COL).setCurrentText(state)
+        self.sb.QtWidgets.QApplication.processEvents()
+
+    def test_a_picked_state_rests_the_group_in_its_tint_and_weight(self):
+        self._add("led", 0)
+        box = self.ui.tbl000.cellWidget(0, self.slots.STATE_COL)
+        self.assertEqual(
+            [box.itemText(i) for i in range(box.count())],
+            ["", "off", "green", "blue", "amber", "red"],
+            "the indicator states, for a group with none of its own",
+        )
+        self._pick_state("green")
+        colour = [round(cmds.getAttr(f"glowMat_led.emissionColor{c}"), 4) for c in "RGB"]
+        self.assertEqual(colour, [0.0, 1.0, 0.0])
+        self.assertEqual(EmissiveGroups.list_groups()["led"]["state"], "green")
+        self.assertEqual(self.ui.tbl000.item(0, self.slots.STATE_COL).text(), "green")
+        self.assertEqual(self.ui.tbl000.cellWidget(0, self.slots.STATE_COL).currentText(), "green")
+        self._pick_state("off")
+        self.assertEqual(self.weight("led"), 0.0, "off: its weight 0")
+
+    def test_a_group_over_a_mapped_colour_picks_its_weights_states(self):
+        """Review (2026-11-24): the dropdown offered the coloured indicator
+        states to a group that cannot be tinted, and every pick was refused,
+        off included. It offers off and on, and a pick rests it."""
+        glow = cmds.shadingNode("file", asTexture=True, name="glowMap")
+        cmds.connectAttr(f"{glow}.outColor", f"{self.mat}.emissionColor")
+        self._add("screen", 0)
+        box = self.ui.tbl000.cellWidget(0, self.slots.STATE_COL)
+        self.assertEqual([box.itemText(i) for i in range(box.count())], ["", "off", "on"])
+        self._pick_state("off")
+        self.assertEqual(self.weight("screen"), 0.0)
+        self.assertEqual(EmissiveGroups.list_groups()["screen"]["state"], "off")
+
+    def test_key_states_then_a_pick_keys_the_next_state_stepped(self):
+        self._add("led", 0)
+        cmds.currentTime(1)
+        self._pick_state("off")
+        self.ui.tbl000.setCurrentCell(0, 0)
+        self.slots.key_states()
+        cmds.currentTime(12)
+        self.slots._refresh_table()
+        self._pick_state("red")
+        times = cmds.keyframe("glowMat_led.emissionColorR", query=True, timeChange=True)
+        self.assertEqual(times, [1.0, 12.0])
+        self.assertAlmostEqual(cmds.getAttr("glowMat_led.emissionColorR", time=12), 1.0)
+        self.assertAlmostEqual(cmds.getAttr("glowMat_led.emissionColorG", time=12), 0.0)
+        self.assertEqual(set(cmds.keyTangent("glowMat_led.emission", query=True, outTangentType=True)), {"step"})
+
+    def test_a_first_pick_is_one_undo_step(self):
+        """Review (2026-11-26): a pick on a group with no states of its own
+        stored the defaults and then rested the state, two undo steps; one
+        undo left the states stored. One pick, one step."""
+        self._add("led", 0)
+        self._pick_state("green")
+        self.assertEqual(list(EmissiveGroups.states("led")), list(EmissiveGroups.DEFAULT_STATES))
+        cmds.undo()
+        self.assertEqual(EmissiveGroups.states("led"), {}, "the defaults go with the pick")
+        colour = [round(cmds.getAttr(f"glowMat_led.emissionColor{c}"), 4) for c in "RGB"]
+        self.assertEqual(colour, [1.0, 1.0, 1.0])
+
+    def test_key_states_keys_every_group_in_one_undo_step(self):
+        self._add("a", 0)
+        self._add("b", 1)
+        for row, state in ((0, "green"), (1, "red")):
+            self._pick_state(state, row)
+        self.ui.tbl000.setCurrentCell(-1, -1)
+        cmds.currentTime(5)
+        self.slots.key_states()
+        groups = EmissiveGroups.list_groups()
+        self.assertTrue(groups["a"]["keyed"] and groups["b"]["keyed"])
+        cmds.undo()
+        groups = EmissiveGroups.list_groups()
+        self.assertFalse(groups["a"]["keyed"] or groups["b"]["keyed"], "one undo takes both")
+
+    def test_a_weight_edit_on_a_group_whose_tint_alone_is_keyed_rests_it(self):
+        """Review (2026-11-26): ``keyed`` counted the tint's keys, so a Weight
+        edit on a group whose tint alone was keyed keyed its weight."""
+        self._add("led", 0)
+        EmissiveGroups.key_tint("led", [0, 1, 0], frame=1)
+        self.slots._refresh_table()
+        self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("0.5")
+        self.assertFalse(cmds.keyframe("glowMat_led.emission", query=True, keyframeCount=True))
+        self.assertAlmostEqual(cmds.getAttr("glowMat_led.emission"), 0.5)
+
+    def test_key_weights_keys_only_the_highlighted_group(self):
+        self._add("a", 0)
+        self._add("b", 1)
+        self.ui.tbl000.setCurrentCell(0, 0)  # rows by name: a
+        self.slots.key_weights()
+        groups = EmissiveGroups.list_groups()
+        self.assertTrue(groups["a"]["keyed"])
+        self.assertFalse(groups["b"]["keyed"])
 
     def test_select_members(self):
         self._add("headlights", 0)

@@ -18,6 +18,8 @@ from typing import Callable, List, Optional, Tuple
 import pythontk as ptk
 from pythontk import BuilderObject, BuilderStep
 
+from .manifest_data import COL_BEHAVIORS, COL_DESC, COL_STATUS, COL_STEP, ManifestData
+
 #: One row of a view combo: (label, action, enabled, tooltip).
 ViewAction = Tuple[str, Callable[[], None], bool, str]
 
@@ -59,6 +61,140 @@ class ViewCombosMixin:
             cmb.currentIndexChanged.connect(
                 lambda index, c=cmb: self._run_view_action(c, index)
             )
+
+    def _setup_search(self) -> None:
+        """The view row's search field, at its right end (as the Unity manifest's): only the steps
+        whose words match every word typed show -- the step's ID, name and Status, and its objects'
+        names, behaviors and statuses. A view alone: Assess and Build still take every step.
+
+        The field is the ``.ui``'s ``txt_search``, the view row's last. Its text
+        is never kept (a filter forgotten in a closed panel would hide steps on
+        the next open), and a clear button empties it."""
+        field = self.ui.txt_search
+        field.restore_state = False
+        field.option_box.clear_option = True
+        field.textChanged.connect(lambda _text: self._apply_issues_filter())
+        self._search_field = field
+
+    def _setup_detail(self) -> None:
+        """The detail of the selection, under the table (as the Unity manifest's): the selected
+        row's step or object, its words, its behaviors with their states and every issue -- what
+        its tooltips say, kept in view. In a splitter with the table, so it folds away."""
+        from qtpy import QtCore, QtWidgets
+
+        tree = self.ui.tbl_steps
+        detail = QtWidgets.QTextBrowser()
+        detail.setObjectName("txt_detail")
+        detail.setOpenLinks(False)
+        detail.setMinimumHeight(0)
+        detail.setToolTip(
+            "The selected row: its words, its behaviors' states and every issue."
+        )
+        self._detail = detail
+        parent = tree.parentWidget() if hasattr(tree, "parentWidget") else None
+        layout = parent.layout() if parent is not None else None
+        index = layout.indexOf(tree) if layout is not None else -1
+        if index >= 0:
+            splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+            splitter.setObjectName("split_detail")
+            stretch = layout.stretch(index)
+            layout.insertWidget(index, splitter, stretch)
+            splitter.addWidget(tree)  # out of the layout, into the splitter
+            splitter.addWidget(detail)
+            splitter.setStretchFactor(0, 4)
+            splitter.setStretchFactor(1, 1)
+            splitter.setCollapsible(1, True)
+        tree.itemSelectionChanged.connect(self._show_detail)
+        self._show_detail()
+
+    def _show_detail(self) -> None:
+        """Fill the detail with the selected row (:meth:`_setup_detail`): a step's ID, name and
+        words, or an object's name, step and behaviors; then its status and its issues."""
+        import html
+
+        from qtpy.QtCore import Qt
+
+        detail = getattr(self, "_detail", None)
+        if detail is None:
+            return
+        tree = self.ui.tbl_steps
+        chosen = tree.selectedItems()
+        if not chosen:
+            detail.setHtml(
+                "<span style='color:gray'>Select a row: its words, its behaviors' states and "
+                "every issue show here.</span>"
+            )
+            return
+        item = chosen[0]
+        data = item.data(0, Qt.UserRole)
+        lines = []
+        if isinstance(data, BuilderStep):
+            name = getattr(data, "name", "") or ""
+            lines.append(
+                f"<b>{html.escape(data.step_id)}</b>&nbsp; {html.escape(name)}"
+            )
+            if data.description:
+                lines.append(html.escape(data.description))
+        elif isinstance(data, BuilderObject):
+            parent = item.parent()
+            step = parent.data(0, Qt.UserRole) if parent is not None else None
+            where = (
+                f" &nbsp;<span style='color:gray'>in {html.escape(step.step_id)}</span>"
+                if isinstance(step, BuilderStep)
+                else ""
+            )
+            lines.append(f"<b>{html.escape(data.name or '')}</b>{where}")
+            # Its behaviors as its chips say them: each one's state line, in its colour.
+            cell = tree.itemWidget(item, COL_BEHAVIORS)
+            for chip in getattr(cell, "shown", ()):
+                color = ManifestData.chip_look(chip.state)[0]
+                line = html.escape(chip.line)
+                lines.append(
+                    f"<span style='color:{color}'>{line}</span>" if color else line
+                )
+        else:
+            lines.append(html.escape(item.text(COL_DESC) or item.text(COL_STEP)))
+        status = item.text(COL_STATUS)
+        if status:
+            lines.append(f"<i>{html.escape(status)}</i>")
+        # The row's issues as its tooltip lists them (TreeWidget.set_row_tooltip).
+        issues = tree.row_tooltip(item)
+        if issues:
+            lines.append(str(issues))
+        if len(chosen) > 1:
+            lines.append(
+                f"<span style='color:gray'>(+{len(chosen) - 1} more selected)</span>"
+            )
+        detail.setHtml("<br>".join(lines))
+
+    def _search_words(self) -> List[str]:
+        """The words typed in the view row's search field, lower case; none when it is empty."""
+        field = getattr(self, "_search_field", None)
+        return field.text().lower().split() if field is not None else []
+
+    @staticmethod
+    def _row_words(item, columns: int) -> str:
+        """Everything a search reads of a step row: its cells and its objects' cells, and the
+        step and objects it holds (the Behaviors cell is a widget, so its behaviors come from them)."""
+        from qtpy.QtCore import Qt
+
+        words = []
+        rows = [item] + [item.child(j) for j in range(item.childCount())]
+        for row in rows:
+            words.extend(row.text(c) for c in range(columns))
+            data = row.data(0, Qt.UserRole)
+            if isinstance(data, BuilderStep):
+                words.extend(
+                    (
+                        data.step_id,
+                        data.shot_name or "",
+                        getattr(data, "name", "") or "",
+                    )
+                )
+            elif isinstance(data, BuilderObject):
+                words.append(data.name or "")
+                words.extend(data.behaviors or ())
+        return " ".join(w for w in words if w).lower()
 
     def _fill_view_combo(self, cmb, title: str, lister: str) -> None:
         """List *lister*'s actions in *cmb* under *title*: each row's action
@@ -107,9 +243,12 @@ class ViewCombosMixin:
         return data if isinstance(data, BuilderStep) else None
 
     @staticmethod
-    def _row_key(item) -> Optional[tuple]:
+    def _view_key(item) -> Optional[tuple]:
         """What a row shows -- ``("step", step_id)`` or ``("shot",
-        shot_id)`` -- by which it is found again after a redraw."""
+        shot_id)`` -- by which a view action finds it again after a redraw.
+        Its own name: ``ManifestTableMixin._row_key`` (a step's ID, else the
+        row's text) comes first in the controller's bases and would shadow
+        it, keying a shot row by its text."""
         from qtpy.QtCore import Qt
 
         data = item.data(0, Qt.UserRole)
@@ -119,14 +258,14 @@ class ViewCombosMixin:
         return None if shot_id is None else ("shot", shot_id)
 
     def _rows_now(self, keys) -> list:
-        """The rows showing *keys* (:meth:`_row_key`) as the table is drawn
+        """The rows showing *keys* (:meth:`_view_key`) as the table is drawn
         now, in table order."""
         wanted = set(keys)
-        return [row for row in self._top_rows() if self._row_key(row) in wanted]
+        return [row for row in self._top_rows() if self._view_key(row) in wanted]
 
     def _keys(self, rows) -> List[tuple]:
-        """*rows*' keys (:meth:`_row_key`), for an action to find them by."""
-        return [key for key in map(self._row_key, rows) if key is not None]
+        """*rows*' keys (:meth:`_view_key`), for an action to find them by."""
+        return [key for key in map(self._view_key, rows) if key is not None]
 
     def _selected_step_ids(self) -> List[str]:
         """The steps of the selected rows, in table order."""
@@ -151,8 +290,7 @@ class ViewCombosMixin:
         own members and, once assessed, what animates in their ranges."""
         from qtpy.QtCore import Qt
 
-        key = ptk.ShotStore.member_key
-        listed = {key(o.name) for step in self._steps for o in step.objects}
+        listed = [o.name for step in self._steps for o in step.objects]
         names = []
         for row in self._top_rows():
             for j in range(row.childCount()):
@@ -161,7 +299,9 @@ class ViewCombosMixin:
                     names.append(data.name)
         for r in self._last_results or ():
             names.extend(r.additional_objects)
-        return [n for n in dict.fromkeys(names) if key(n) not in listed]
+        names = list(dict.fromkeys(names))
+        named = {m for _n, m in ptk.ShotStore.name_pairs(listed, names)}  # PANEL|LATCH: never DOOR|LATCH
+        return [n for n in names if n not in named]
 
     def _select_rows(self, rows) -> None:
         """Make *rows* the table's selection, the first scrolled to."""
@@ -360,6 +500,16 @@ class ViewCombosMixin:
                 "A view, not an edit: Assess and Build skip them, and Show "
                 "brings them back.",
             ),
+            (
+                self._counted("Steps With Nothing to Do", len(self._quiet_rows())),
+                lambda: self._set_issues_only(True),
+                not self._issues_only and bool(self._last_results),
+                "Show only the rows that need something: an issue, a build to "
+                "do, a Local Edit, a shot the sheet lacks. A view alone: Assess "
+                "and Build still take every step."
+                if self._last_results
+                else "Assess first: it says which steps need something.",
+            ),
         ]
 
     def _show_actions(self) -> List[ViewAction]:
@@ -386,5 +536,11 @@ class ViewCombosMixin:
                 lambda: self._set_hide_missing(False),
                 self._hide_missing,
                 "Show the steps that have no shot again.",
+            ),
+            (
+                "Steps With Nothing to Do",
+                lambda: self._set_issues_only(False),
+                self._issues_only,
+                "Show every step again.",
             ),
         ]

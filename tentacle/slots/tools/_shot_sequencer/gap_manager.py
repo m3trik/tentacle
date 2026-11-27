@@ -117,11 +117,12 @@ class GapManagerMixin:
             self._gap_edit_epilogue()
 
     def _drag_modifiers(self):
-        """``(ctrl, shift)`` as the widget recorded them at the press."""
+        """``(ctrl, shift)`` as the drag ended under them (the widget follows
+        the chord through the drag, so a modifier changed mid-drag counts)."""
         widget = self._get_sequencer_widget()
         return (
-            bool(getattr(widget, "ctrl_held_at_press", False)),
-            bool(getattr(widget, "shift_held_at_press", False)),
+            bool(getattr(widget, "ctrl_held_in_drag", False)),
+            bool(getattr(widget, "shift_held_in_drag", False)),
         )
 
     # ---- helpers ---------------------------------------------------------
@@ -344,7 +345,7 @@ class GapManagerMixin:
             return
 
         widget = self._get_sequencer_widget()
-        shift_held = getattr(widget, "shift_held_at_press", False)
+        shift_held = getattr(widget, "shift_held_in_drag", False)
         active_id = self.active_shot_id
 
         self._syncing = True

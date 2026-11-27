@@ -116,6 +116,7 @@ from tentacle.slots.tools._shot_manifest.manifest_data import (
     COL_DESC,
     COL_START,
     COL_END,
+    COL_STATUS,
 )
 
 
@@ -147,6 +148,12 @@ class _ControllerHarness:
         slots_instance.tk = mayatk  # what Slots.tk hands the controller
         slots_instance.sb = _UitkSwitchboard()
         slots_instance.ui.tbl_steps = self.tree
+        # The view row's search field, as the .ui declares it (a uitk LineEdit).
+        from uitk.widgets.lineEdit import LineEdit
+
+        self.search_holder = QtWidgets.QWidget()
+        QtWidgets.QHBoxLayout(self.search_holder).addWidget(LineEdit())
+        slots_instance.ui.txt_search = self.search_holder.layout().itemAt(0).widget()
         slots_instance.ui.footer = MagicMock()
         slots_instance.ui.btn_build = MagicMock()
         slots_instance.sb.get_setting.return_value = None
@@ -774,7 +781,7 @@ class TestLocalEditsCells(unittest.TestCase, _ControllerHarness):
     def test_a_moved_sheet_keeps_its_edits_and_the_next_edit_re_keys_them(self):
         """Bug: the edit layer was found by the sheet's exact path, so a sheet
         moved or opened through another mount silently lost its edits
-        (SOL_REPLACE_ASSEMBLY keeps its 5 name fixes under a personal Dropbox
+        (a production scene keeps its 5 name fixes under a personal Dropbox
         folder's path).
         Fixed: 2026-10-11 -- the path, else the one layer of that file name
         (``ManifestEdits.layer_key``); a save re-keys it to the new path."""
@@ -830,20 +837,176 @@ class TestLocalEditsCells(unittest.TestCase, _ControllerHarness):
         )
 
         self._load()
-        label = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
+        chips = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
         for _ in range(2):
-            label.clicked.emit()  # opens the menu; nothing ticked
-            menus = label.findChildren(Menu)
+            chips.plus.click()  # opens the add menu; nothing ticked
+            menus = chips.findChildren(Menu)
             self.assertEqual(len(menus), 1)
             menus[0].hide()
             QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
-        self.assertEqual(label.findChildren(Menu), [])
+        self.assertEqual(chips.findChildren(Menu), [])
+
+    def test_each_behavior_is_a_chip_coloured_by_its_state_with_its_own_menu(self):
+        """The Behaviors cell, the Unity manifest's design: a chip a behavior,
+        coloured by its state, its own tooltip; a click opens its own menu
+        (on or off here, its mode for every row); + adds one.
+        Added: 2026-11-23"""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
+
+        self._load()
+        child = self.tree.topLevelItem(0).child(0)
+        chips = self.tree.itemWidget(child, COL_BEHAVIORS)
+        obj = child.data(0, __import__("qtpy").QtCore.Qt.UserRole)
+        self.assertEqual([c.property("behavior_raw") for c in chips.chips], list(obj.behaviors))
+        self.assertTrue(all(c.toolTip() for c in chips.chips), "each its own tooltip")
+        self.assertIsNotNone(chips.plus, "+ adds one")
+        raw = obj.behaviors[0]
+        self.ctrl._editor.set_behaviors("A01", obj, [b for b in obj.behaviors if b != raw])
+        for _ in range(3):  # the table redraws on the next turn
+            QtWidgets.QApplication.processEvents()
+        # The redrawn row's object (Off types were struck as off, so the stale
+        # one passed for a taken one).
+        obj = self.tree.topLevelItem(0).child(0).data(0, QtCore.Qt.UserRole)
+        self.assertNotIn(raw, obj.behaviors)
+        states = {c.behavior: (c.state, c.struck) for c in self.ctrl._behavior_chips(obj, "A01")}
+        self.assertEqual(states[raw], ("taken", True), "taken away here: struck, to give back with a click")
+
+    def test_a_chip_on_an_unbuilt_step_says_to_build_never_built(self):
+        """Bug: a chip said "built" on a step with no shot: the panel judged
+        the chip itself, and an existing object of an unbuilt step assesses
+        valid. Fixed: 2026-11-23 -- pythontk's ``StepStatus.behavior_states``
+        judges it; the panel draws it."""
+        from pythontk import ObjectStatus, StepStatus
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
+
+        self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
+        self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
+        self._load()
+        child = self.tree.topLevelItem(0).child(0)
+        obj = child.data(0, QtCore.Qt.UserRole)
+        for name in obj.behaviors:
+            self.ctrl._set_behavior_mode(name, "key")
+        # What Assess says of an unbuilt step whose object is in the scene.
+        found = ObjectStatus(obj.name, True, "valid", list(obj.behaviors))
+        self.ctrl._last_results = [StepStatus("A01", built=False, objects=[found])]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        cell = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
+        self.assertTrue(cell.shown)
+        for chip in cell.shown:
+            self.assertEqual(chip.state, "to_build", chip)
+            self.assertNotIn("built)", chip.line.replace("to build", ""))
+            self.assertIn("●", chip.text, "the note's glyph leads it")
+
+    def test_a_marked_behaviors_chip_says_so_on_its_face(self):
+        """Marker and Key read alike in the cell (both green, the tooltip
+        alone told them apart). Fixed: 2026-11-23 -- a marked type's chip
+        leads with the marker's glyph."""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS, ManifestData
+
+        self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
+        self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
+        self._load()
+        obj = self.tree.topLevelItem(0).child(0).data(0, QtCore.Qt.UserRole)
+        self.assertEqual(sorted(obj.behaviors), ["fade_in", "fade_out"])  # one family: one mode
+        def chips():  # the redrawn row's
+            return self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS).shown
+
+        self.ctrl._set_behavior_mode("fade_in", "marker")
+        for chip in chips():
+            self.assertIn(ManifestData.MARKED_GLYPH, chip.text, chip)
+        self.ctrl._set_behavior_mode("fade_in", "key")
+        for chip in chips():
+            self.assertNotIn(ManifestData.MARKED_GLYPH, chip.text, chip)
+
+    def test_a_familys_chips_read_as_one_behavior_with_a_suffix(self):
+        """User 2026-11-23: consolidate the behaviors, a suffix saying how one
+        is set (the Unity manifest's chips). Added: 2026-11-24 -- fade_in and
+        fade_out are one Fade (pythontk ``Behaviors.family_of``): their chips
+        read *Fade · in* / *Fade · out*, and one chip's mode sets both."""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
+
+        self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
+        self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
+        self._load()
+        cell = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
+        self.assertEqual(
+            {c.behavior: c.text for c in cell.shown},
+            {"fade_in": "Fade · in", "fade_out": "Fade · out"},
+        )
+        self.ctrl._set_behavior_mode("fade_out", "key")  # Key for Every Row on one chip
+        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"fade_in", "fade_out"}))
+
+    def test_an_off_types_chip_offers_its_mode_even_on_a_locked_step(self):
+        """Bug: every chip stayed struck whatever was clicked -- every type
+        was Off (the default), its menu led with a per-object toggle that
+        changes nothing an Off type shows, and a locked step's chip opened no
+        menu at all. Fixed: 2026-11-24 -- the Unity manifest's menu: an Off
+        type offers its mode, a build option no step lock refuses."""
+        self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
+        self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
+        self._load()
+        obj = self.tree.topLevelItem(0).child(0).data(0, QtCore.Qt.UserRole)
+        raw = obj.behaviors[0]
+        self.ctrl._set_behavior_mode(raw, "off")
+        opened = []
+
+        def chip_menu():
+            with (
+                patch.object(QtWidgets.QMenu, "popup", lambda menu, _pos: opened.append(menu)),
+                patch.object(self.ctrl, "_refused", return_value=True),  # a locked step
+            ):
+                self.ctrl._chip_menu(obj, "A01", raw, QtCore.QPoint(), self.tree)
+            return {a.text(): a for a in opened[-1].actions() if a.text()}
+
+        items = chip_menu()
+        self.assertFalse([t for t in items if t.startswith("Turn ")], "no per-object toggle on an Off type")
+        self.assertTrue(items["Off"].isChecked())
+        items["Key"].trigger()
+        self.assertEqual(self.ctrl._behavior_mode(raw), "key")
+        chip = next(c for c in self.ctrl._behavior_chips(obj, "A01") if c.behavior == raw)
+        self.assertFalse(chip.struck, chip)
+        items = chip_menu()
+        self.assertIn("Turn Off", items, "a keyed type: the per-object toggle")
+        with patch.object(self.ctrl._editor, "set_behaviors") as edited, patch.object(
+            self.ctrl, "_refused", return_value=True
+        ):
+            items["Turn Off"].trigger()
+        edited.assert_not_called()  # the locked step refuses the object's own edit
+
+    def test_the_plus_shows_only_where_the_kind_has_more_to_give(self):
+        """A + whose menu could only say "Nothing more to give" (CODE_STANDARD
+        section 15: a control with no function is hidden). Fixed: 2026-11-23"""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
+
+        self._load()
+        child = self.tree.topLevelItem(0).child(0)
+        obj = child.data(0, QtCore.Qt.UserRole)
+        cell = self.tree.itemWidget(child, COL_BEHAVIORS)
+        cell.setProperty("choices", list(obj.behaviors))  # its kind has nothing more
+        self.ctrl._color_behavior_chips(obj, cell, step_id="A01")
+        self.assertIsNone(cell.plus)
+        cell.setProperty("choices", list(obj.behaviors) + ["highlight"])
+        self.ctrl._color_behavior_chips(obj, cell, step_id="A01")
+        self.assertIsNotNone(cell.plus)
+
+    def test_the_behaviors_column_holds_its_chips(self):
+        """The column stayed 110 px whatever its chips needed: they clipped.
+        Fixed: 2026-11-23 -- sized from them, within bounds; past the bound a
+        chip is elided (test_behavior_chips)."""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
+        from tentacle.slots.tools._shot_manifest.table_presenter import ManifestTableMixin
+
+        self._load()
+        low, high = ManifestTableMixin.BEHAVIORS_WIDTH
+        cell = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
+        width = self.tree.header().sectionSize(COL_BEHAVIORS)
+        self.assertEqual(width, min(max(cell.preferred_width(), low), high))
 
 
 class TestTheSheetsOptionsLiveOnTheScene(unittest.TestCase, _ControllerHarness):
     """Bug: a sheet's mapping-template options were kept per user, so a scene
     reopened on its sheet read it another way than it was built
-    (SOL_REPLACE_ASSEMBLY, built with Object Case = upper, read As written:
+    (a production scene, built with Object Case = upper, read As written:
     every built object missing, all 5 Local Edits stale).
     Fixed: 2026-10-12 (maintainer) -- per sheet, on the scene, beside its
     Local Edits; the user's own options only seed a sheet the scene never read."""
@@ -903,6 +1066,24 @@ class TestTheSheetsOptionsLiveOnTheScene(unittest.TestCase, _ControllerHarness):
         self.assertEqual(self.store.manifest_options, {}, "reading writes nothing")
         self._user({})
         self.assertEqual(self._open(), ["Red_Door"])
+
+    def test_a_sheet_written_in_cells_is_read_with_its_own_template(self):
+        """The format's own starter sheet, under a new user's template (the tolerant default),
+        did not load: "Column 'description' not found in header row". A sheet in cells names
+        the template it is written for; the user's own stays theirs. Added: 2026-11-25"""
+        from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
+
+        starter = str(Mapping.starter_sheet("interactive"))
+        self.setup_controller()
+        self.ctrl._apply_mapping("default", persist=False)
+        self.assertTrue(self.ctrl._load_csv(starter))
+        self.assertEqual(self.ctrl._mapping_name, "interactive")
+        self.assertEqual(self.ctrl._user_template, "default", "shown for this sheet, never saved as the user's")
+        self.assertEqual(self.ctrl._steps[0].step_id, "IN_01")
+        self.assertEqual(self.store.manifest_options, {}, "reading writes nothing")
+        # A sheet of sentences names no template: the user's reads it, as before.
+        self.assertTrue(self.ctrl._load_csv(self.csv))
+        self.assertEqual(self.ctrl._mapping_name, "default")
 
     def test_an_option_changed_for_the_sheet_is_the_scenes(self):
         self._open()
@@ -1002,10 +1183,10 @@ class TestRowTags(unittest.TestCase, _ControllerHarness):
         from qtpy.QtWidgets import QMenu, QWidgetAction
 
         def chosen(menu, *_args):
-            row = next(
+            row = next(  # the swatch row; the menu's section titles are widget actions too
                 a.defaultWidget()
                 for a in menu.actions()
-                if isinstance(a, QWidgetAction)
+                if isinstance(a, QWidgetAction) and hasattr(a.defaultWidget(), "swatches")
             )
             QTest.mouseClick(row.swatches[swatch], Qt.LeftButton)
             return None
@@ -1933,8 +2114,10 @@ class TestIncrementalPlacement(unittest.TestCase, _ControllerHarness):
         self.assertEqual(self._layout()[-1][1], 300)
 
     def test_the_table_previews_where_build_inserts(self):
-        """An unbuilt step's Start / End is where Build will put it, not the
-        animation regions' guess, and a projection is no collision."""
+        """Where Build will put an unbuilt step is its insert's plan, not the
+        animation regions' guess, and a projection is no collision.  An insert
+        that moves the shots after it shows no frames -- none on the timeline
+        now would hold after Build -- and says where it lands (2026-11-22)."""
         length = self.ctrl._initial_shot_length
         self.ctrl._steps = _make_steps("A01", "A02", "B01", "A03", behaviors=[])
         resolved = {r[0]: r for r in self.ctrl._resolve_ranges()}
@@ -1943,10 +2126,9 @@ class TestIncrementalPlacement(unittest.TestCase, _ControllerHarness):
         self.ctrl._populate_table()  # an Assess, an option: a redraw
         self.ctrl._redraw()
         row = self.ctrl._step_items(["B01"])[0]
-        self.assertEqual(
-            (row.text(COL_START), row.text(COL_END)), ("200", f"{200 + length:.0f}")
-        )
+        self.assertEqual((row.text(COL_START), row.text(COL_END)), ("insert", ""))
         self.assertIn("after shot 'A02'", row.toolTip(COL_START))
+        self.assertIn(f"lands at 200-{200 + length:.0f}", row.toolTip(COL_START))
 
     def test_a_step_whose_shot_was_deleted_is_inserted_not_put_back(self):
         """A load seeds each built step's range from its shot: once the shot
@@ -1993,17 +2175,38 @@ class TestIncrementalPlacement(unittest.TestCase, _ControllerHarness):
         self.assertEqual(a01.toolTip(COL_START), "99f")
         self.assertEqual(self.ctrl._projected, {})
 
+    def test_a_built_rows_tip_names_the_takes_its_shot_holds(self):
+        """A shot is its step and holds the takes its rows play: the Start and
+        End cells' tip lists each with its frames, and says a step that only
+        speaks plays none."""
+        self._preview("A01", "A02", "B01", "A03")
+        self.sb.message_box.return_value = "Insert"
+        self.ctrl.build()
+        store = self.ctrl._active_store()
+        shots = self.ctrl._pairing().shots
+        a01, a02 = shots["A01"], shots["A02"]
+        store.set_takes(a01.shot_id, [("A01_1", a01.start, a01.start + 40), ("A01_2", a01.start + 50, a01.end)])
+        store.set_takes(a02.shot_id, [])
+        self.ctrl._refresh_timing()
+        tip = self.ctrl._step_items(["A01"])[0].toolTip(COL_START)
+        self.assertEqual(
+            tip.splitlines()[1:],
+            [f"take A01_1: {a01.start:.0f}-{a01.start + 40:.0f}", f"take A01_2: {a01.start + 50:.0f}-{a01.end:.0f}"],
+        )
+        self.assertEqual(self.ctrl._step_items(["A01"])[0].toolTip(COL_END), tip)
+        self.assertIn("no take: the step only speaks", self.ctrl._step_items(["A02"])[0].toolTip(COL_START))
+
     def test_a_shot_resized_elsewhere_moves_the_preview(self):
         """Bug: a shot resized in the Shot Sequencer left the unbuilt rows
         previewing the frames from before.
         Fixed: 2026-10-12"""
         self.ctrl._first_shown = True
         self._preview("A01", "A02", "B01", "A03")
-        self.assertEqual(self.ctrl._step_items(["B01"])[0].text(COL_START), "200")
+        self.assertIn("lands at 200-", self.ctrl._step_items(["B01"])[0].toolTip(COL_START))
         a02 = self.store.shot_by_name("A02")
         self.store.update_shot(a02.shot_id, end=250)
         self.ctrl._follow_store()
-        self.assertEqual(self.ctrl._step_items(["B01"])[0].text(COL_START), "250")
+        self.assertIn("lands at 250-", self.ctrl._step_items(["B01"])[0].toolTip(COL_START))
 
     def test_showing_the_steps_without_a_shot_previews_them(self):
         """Bug: Show > Steps Without a Shot (no Assess showing) re-applied the
@@ -2013,7 +2216,7 @@ class TestIncrementalPlacement(unittest.TestCase, _ControllerHarness):
         self._preview("A01", "A02", "B01", "A03")
         self.ctrl._set_hide_missing(False)
         row = self.ctrl._step_items(["B01"])[0]
-        self.assertEqual(row.text(COL_START), "200")
+        self.assertEqual(row.text(COL_START), "insert")
         self.assertIn("after shot 'A02'", row.toolTip(COL_START))
 
     def test_assess_marks_each_row_once_by_its_own_results(self):
@@ -2109,6 +2312,211 @@ class TestIncrementalPlacement(unittest.TestCase, _ControllerHarness):
         self.assertEqual(_ShotManifestInternal._measure_audio_obj(obj, 24.0), 48.0)
 
 
+class TestAStepWithNoShot(unittest.TestCase, _ControllerHarness):
+    """A step that plays no animation has no shot: its frames say "no shot",
+    Build makes none and places nothing for it, and a right-click marks a
+    step either way as a Local Edit (a redline on its Start cell, the sheet's
+    word in its tooltip).  (The user, 2026-11-22: "a way to mark shots that
+    have no animation ... and a manual way to mark and unmark as an actual
+    shot"; their sheet's 37 page-only steps were projected and counted.)
+    Added: 2026-11-22"""
+
+    SHEET = "/some/file.csv"
+
+    def setUp(self):
+        self.store = _fresh_store()
+        self.setup_controller()
+        _mock_undo_info(self)
+        self.store.gap = 10.0
+        self.store.initial_shot_length = 50
+        self.store.define_shot("A01", 0, 50, metadata={"step": "A01"})
+        steps = _make_steps("A01", "A02", "A03", behaviors=[])
+        for step in steps:
+            step.objects = []  # nothing to find: the statuses are the shots'
+        steps[1].animated = False  # A02: the sheet names no clip for it
+        self.ctrl._load_data(steps, csv_path=self.SHEET)
+        self.ctrl._refresh_ranges()  # as a sheet read over a scene with shots does
+        self.addCleanup(lambda: self.ctrl._editor.reset(confirm=False))
+
+    def _row(self, step_id):
+        return self.ctrl._step_items([step_id])[0]
+
+    def _settle(self):
+        for _ in range(4):
+            QtWidgets.QApplication.processEvents()
+
+    def _menu(self, step_id, selected=()):
+        menu = QtWidgets.QMenu()
+        self.addCleanup(menu.deleteLater)
+        self.ctrl._editor.add_menu_actions(menu, self._row(step_id), list(selected))
+        return {a.text(): a for a in menu.actions() if not a.isSeparator()}
+
+    def test_its_frames_say_no_shot_and_take_no_typed_range(self):
+        row = self._row("A02")
+        self.assertEqual((row.text(COL_START), row.text(COL_END)), ("no shot", ""))
+        self.assertIn("plays no animation", row.toolTip(COL_START))
+        with patch.object(self.tree, "editItem") as edit:
+            self.ctrl._on_range_double_clicked(row, COL_START)
+        edit.assert_not_called()
+        self.assertNotIn("A02", self.ctrl._projected, "no insert planned for it")
+        self.assertIn("A03", self.ctrl._projected)
+
+    def test_assess_leaves_it_quiet_and_counts_it_apart(self):
+        self.ctrl.assess()
+        row = self._row("A02")
+        self.assertEqual(row.text(COL_STATUS), "", "nothing to do: the frames say it")
+        self.assertIsNone((row.data(0, QtCore.Qt.UserRole + 100) or {}).get("icon_name"))
+        (a02,) = [r for r in self.ctrl._last_results if r.step_id == "A02"]
+        self.assertFalse(a02.needs_build)
+        footer = self.ui.footer.setText.call_args[0][0]
+        self.assertIn("1/2 steps built", footer)
+        self.assertIn("1 with no shot", footer)
+
+    def test_a_right_click_marks_a_step_a_shot_and_back(self):
+        from tentacle.slots.tools._shot_manifest.manifest_data import EDIT_COLOR
+
+        self._menu("A02")["Mark 'A02' as a Shot"].trigger()
+        self._settle()
+        row = self._row("A02")
+        self.assertNotEqual(row.text(COL_START), "no shot", "a shot: Build places it")
+        self.assertIn("A02", self.ctrl._projected)
+        self.assertEqual(row.foreground(COL_START).color().name().lower(), EDIT_COLOR.lower())
+        self.assertIn("Sheet: no shot", row.toolTip(COL_START))
+
+        self._menu("A02")["Mark 'A02' as No Shot"].trigger()
+        self._settle()
+        self.assertEqual(self._row("A02").text(COL_START), "no shot")
+        self.assertNotIn("animated", self.ctrl._editor.edits.step_record("A02"), "the sheet's again: no edit")
+
+    def test_the_selection_is_marked_and_a_built_step_keeps_its_shot(self):
+        offered = self._menu("A03", selected=["A01", "A03"])
+        self.assertIn("Mark 'A03' as No Shot", offered, "A01 is built: its shot stays")
+        self._menu("A03")["Mark 'A03' as No Shot"].trigger()
+        self._settle()
+        self.assertEqual(self._row("A03").text(COL_START), "no shot")
+        self.assertEqual(self._row("A03").foreground(COL_START).color().name().lower(), "#e0a040")
+        built = self._menu("A01")["Mark 'A01' as No Shot"]
+        self.assertFalse(built.isEnabled())
+        self.assertIn("Build never removes a shot", built.toolTip())
+
+
+class TestARowsOwnFix(unittest.TestCase, _ControllerHarness):
+    """A step row leads its menu with its own fix, the menu's default action:
+    "Rebuild from Sheet" where a hand edited its shot (rebuilt though edited,
+    every other row left as it is), "Build" where a Build would change its
+    built shot (built alone).  The header's Edits mode and the Build button
+    decide for every shot at once (the Edits control: the user's own,
+    2026-10-12); these are one row's answer beside them.  Added: 2026-11-22"""
+
+    def setUp(self):
+        self.setup_controller()
+        self.store = _fresh_store()
+        self.store.gap = 10.0
+        self.store.initial_shot_length = 50
+        self.ctrl._csv_path, self.ctrl._source = "/fake.csv", "csv"
+        _mock_undo_info(self)
+        SettingsManager(namespace="ShotManifest").clear("rebuild_edited")
+        self.ctrl._steps = _make_steps("A01", "A02", "A03", behaviors=[])
+        self.ctrl._manifest(self.store).update(self.ctrl._steps, initial_shot_length=50)
+        for name in ("A01", "A02"):  # A03 stays as the build left it
+            shot = self.store.shot_by_name(name)
+            self.store.update_shot(shot.shot_id, description="the artist's note")
+        self.ctrl._populate_table()
+        self.ctrl.assess()
+
+    def _offered(self, step_id, selected=()):
+        """The labels of the shot actions *step_id*'s row offers."""
+        menu = QtWidgets.QMenu()
+        self.addCleanup(menu.deleteLater)
+        step = next(s for s in self.ctrl._steps if s.step_id == step_id)
+        self.ctrl._add_fix_actions(menu, step, list(selected))
+        self._menu = menu
+        return [a.text() for a in menu.actions() if not a.isSeparator()]
+
+    def _status(self, step_id):
+        for i in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(i)
+            if getattr(item.data(0, QtCore.Qt.UserRole), "step_id", None) == step_id:
+                return item.text(COL_STATUS)
+        raise AssertionError(step_id)
+
+    def test_the_row_offers_it_where_a_hand_edited_the_shot(self):
+        self.assertIn("Rebuild 'A01' from Sheet", self._offered("A01"))
+        self.assertFalse(
+            [label for label in self._offered("A03") if "from Sheet" in label],
+            "nothing of a hand's to replace",
+        )
+        self.assertIn(
+            "Rebuild 2 Steps from Sheet",
+            self._offered("A01", selected=["A01", "A02", "A03"]),
+            "the selection, counting the rows a hand edited",
+        )
+        shot = self.store.shot_by_name("A01")
+        self.store.update_shot(shot.shot_id, locked=True)
+        self.assertFalse(
+            [label for label in self._offered("A01") if "from Sheet" in label],
+            "locked is final: unlock it first",
+        )
+
+    def test_it_rebuilds_that_shot_and_no_other(self):
+        self.assertEqual(self._status("A01"), "edited by hand")
+        self.ctrl._rebuild_from_sheet(["A01"])
+        self.assertEqual(self.store.shot_by_name("A01").description, "Content for A01")
+        self.assertEqual(self.store.shot_by_name("A02").description, "the artist's note")
+        # Judged like any built row again (here: its object is not in the scene).
+        self.assertNotEqual(self._status("A01"), "edited by hand")
+        self.assertEqual(self._status("A02"), "edited by hand")
+        self.assertIn("Rebuilt 1 shot from the sheet", self.ui.footer.setText.call_args[0][0])
+        self.assertFalse(self.ctrl._rebuild_edited, "the Edits mode is not touched")
+
+    def test_a_step_with_no_shot_is_not_built_by_it(self):
+        self.ctrl._steps = _make_steps("A01", "A02", "A03", "A04", behaviors=[])
+        self.ctrl._populate_table()
+        self.ctrl._rebuild_from_sheet(["A01", "A04"])
+        self.assertIsNone(self.store.shot_by_name("A04"), "Build places a new shot, not this")
+        self.assertEqual(self.store.shot_by_name("A01").description, "Content for A01")
+
+    def test_comparing_to_the_original_sheet_refuses_it(self):
+        self.ctrl._editor.viewing_original = True
+        self.assertEqual(self._offered("A01"), [], "a view: nothing is built there")
+        self.ctrl._rebuild_from_sheet(["A01"])
+        self.assertEqual(self.store.shot_by_name("A01").description, "the artist's note")
+
+    def test_the_fix_leads_the_menu_as_its_default_action(self):
+        labels = self._offered("A01")
+        self.assertEqual(labels[0], "Rebuild 'A01' from Sheet")
+        self.assertEqual(self._menu.defaultAction().text(), labels[0])
+        self.assertEqual(self._offered("A03"), [], "nothing to fix: the menu is as it was")
+
+    def test_a_built_row_a_build_would_change_is_built_alone(self):
+        self.ctrl._steps[2].description = "Reworded in the sheet"  # A03
+        self.ctrl._populate_table()
+        self.ctrl.assess()
+        self.assertEqual(self._offered("A03"), ["Build 'A03'"])
+        self.assertEqual(
+            self._offered("A03", selected=["A01", "A02", "A03"]),
+            ["Build 'A03'", "Rebuild 2 Steps from Sheet"],
+            "each kind takes its own rows of the selection",
+        )
+        self.ctrl._build_rows(["A03"])
+        self.assertEqual(self.store.shot_by_name("A03").description, "Reworded in the sheet")
+        self.assertEqual(self.store.shot_by_name("A01").description, "the artist's note")
+        self.assertIn("Built 1 step", self.ui.footer.setText.call_args[0][0])
+        self.assertEqual(self._offered("A03"), [], "built: nothing left to fix")
+
+    def test_a_step_with_no_shot_has_no_row_build(self):
+        self.ctrl._steps = _make_steps("A01", "A02", "A03", "A04", behaviors=[])
+        self.ctrl._populate_table()
+        self.ctrl.assess()
+        self.assertEqual(self._offered("A04"), [], "Build places a new shot among the others")
+
+    def test_under_rebuild_hand_edited_the_rows_build_is_the_one_entry(self):
+        self.addCleanup(self.ctrl._settings.clear, "rebuild_edited")
+        self.ctrl._set_rebuild_edited(True)
+        self.ctrl.assess()
+        self.assertEqual(self._offered("A01"), ["Build 'A01'"])
+
+
 class TestTypedRangesRideTheInserts(unittest.TestCase, _ControllerHarness):
     """A range typed for an unbuilt step is in the timeline's current frames:
     Build moves it with every shot an earlier insert moves (maintainer
@@ -2149,20 +2557,22 @@ class TestTypedRangesRideTheInserts(unittest.TestCase, _ControllerHarness):
     def test_the_table_shows_it_where_build_puts_it(self):
         self._load("A01", "A02", "A03", "A04", typed={"A04": (220.0, 270.0)})
         resolved = {r[0]: r for r in self.ctrl._refresh_ranges()}
-        self.assertEqual(resolved["A04"], ("A04", 280, 330, True))
+        self.assertEqual(resolved["A04"], ("A04", 280, 330, True), "checked where Build leaves it")
         row = self.ctrl._step_items(["A04"])[0]
-        self.assertEqual((row.text(COL_START), row.text(COL_END)), ("280", "330"))
-        self.assertIn("220", row.toolTip(COL_START))
+        # Shown as typed: the frames hold on the timeline as it is now
+        # (changed 2026-11-22: it showed where Build moves it).
+        self.assertEqual((row.text(COL_START), row.text(COL_END)), ("220", "270"))
+        self.assertIn("to 280-330", row.toolTip(COL_START))
         self.assertEqual(self.ctrl._range_issues, {})
         self.assertEqual(self.ctrl._user_ranges["A04"], (220.0, 270.0), "kept as typed")
 
     def test_an_edit_reads_the_cell_it_changed_and_keeps_the_other(self):
-        """The other cell shows the moved frame; it is not read back as a
-        typed one (which would move it twice)."""
+        """Both cells show the range as typed, so the one not edited reads
+        back as it stands (never moved twice)."""
         self._load("A01", "A02", "A03", "A04", typed={"A04": (220.0, 270.0)})
         self.ctrl._refresh_ranges()
         row = self.ctrl._step_items(["A04"])[0]
-        row.setText(COL_END, "300")  # committed; its start cell still reads 280
+        row.setText(COL_END, "300")  # committed; its start cell reads 220, as typed
         self.assertEqual(self.ctrl._user_ranges["A04"], (220.0, 300.0))
 
     def test_a_typed_range_over_a_projected_insert_is_an_overlap(self):
@@ -2217,6 +2627,86 @@ class TestTypedRangesRideTheInserts(unittest.TestCase, _ControllerHarness):
         self.ctrl._refresh_ranges()
         self.assertIn("A04", self.ctrl._projected, "inserted, not put back")
         self.assertNotIn("A04", self.ctrl._typed_shift)
+
+
+class TestEveryFrameShownHoldsNow(unittest.TestCase, _ControllerHarness):
+    """Start / End show only frames that hold on the timeline as it is now:
+    a shot's own (solid: its keys are there), a typed range as typed, and
+    where Build places a new shot without moving one (dim, italic).  A new
+    shot that needs room made shows "insert" and no frames -- any number
+    would be wrong now or after Build -- and where it lands, and how far the
+    shots after it move, is said in the tooltips.
+
+    Two displays came before: a new row at its landing frames beside built
+    rows at their current ones (read as overlapping shots), then every moved
+    row at its landing frames too (a real shot then looked like one Build
+    would make: the user, 2026-11-22, "now it doesn't designate between shots
+    with actual keys that exist and ones that would be built").
+    Added: 2026-11-22"""
+
+    def setUp(self):
+        self.setup_controller()
+        self.store = _fresh_store()
+        self.store.gap = 10.0
+        self.store.initial_shot_length = 50
+        self.store.define_shot("A01", 0, 100, ["obj_A01"])
+        self.store.define_shot("A03", 110, 210, ["obj_A03"])
+        self.store.define_shot("Extra", 220, 260, [])  # a shot no step lists
+        self.ctrl._csv_path, self.ctrl._source = "/fake.csv", "csv"
+        _mock_undo_info(self)
+        self.ctrl._steps = _make_steps("A01", "A02", "A03", "A04", behaviors=[])
+        self.ctrl._populate_table()
+        self.ctrl._refresh_ranges()
+
+    def _row(self, key):
+        tree = self.tree
+        for i in range(tree.topLevelItemCount()):
+            item = tree.topLevelItem(i)
+            data = item.data(0, QtCore.Qt.UserRole)
+            if key in (getattr(data, "step_id", None), getattr(data, "name", None)):
+                return item
+        raise AssertionError(key)
+
+    def _cells(self, key):
+        row = self._row(key)
+        return row.text(COL_START), row.text(COL_END)
+
+    def test_a_real_shot_shows_its_own_frames_and_says_where_build_moves_it(self):
+        a03 = self._row("A03")
+        self.assertEqual(self._cells("A03"), ("110", "210"), "its keys are there now")
+        self.assertFalse(a03.font(COL_START).italic())
+        self.assertIn("60 frames later, to 170-270", a03.toolTip(COL_START))
+        self.assertIn("60 frames later, to 280-320", self._row("Extra").toolTip(COL_START))
+        self.assertNotIn("later", self._row("A01").toolTip(COL_START), "not moved")
+
+    def test_a_new_shot_that_needs_room_shows_no_frames_and_says_where_it_lands(self):
+        a02 = self._row("A02")
+        self.assertEqual(self._cells("A02"), ("insert", ""))
+        self.assertTrue(a02.font(COL_START).italic())
+        self.assertIn("lands at 110-160", a02.toolTip(COL_START))
+        self.assertIn("moves the shots after it 60 frames later", a02.toolTip(COL_START))
+
+    def test_a_new_shot_that_moves_nothing_shows_its_frames(self):
+        a04 = self._row("A04")
+        before = self._cells("A04")
+        self.assertTrue(before[0].isdigit() and a04.font(COL_START).italic())
+        self.assertIn("no shot moves", a04.toolTip(COL_START))
+        self.sb.message_box.return_value = "Insert"
+        self.ctrl.build()
+        self.assertEqual(self._cells("A04"), before, "the frames shown were the result")
+
+    def test_what_the_tips_said_is_what_build_does(self):
+        self.sb.message_box.return_value = "Insert"
+        self.ctrl.build()
+        self.assertEqual(self._cells("A02"), ("110", "160"))
+        self.assertEqual(self._cells("A03"), ("170", "270"))
+        self.assertEqual(self._cells("Extra"), ("280", "320"))
+        self.assertNotIn("later", self._row("A03").toolTip(COL_START), "built: nothing moves now")
+
+    def test_a_typed_start_reads_back_as_shown_beside_a_row_with_no_frames(self):
+        row = self._row("A02")
+        row.setText(COL_START, "300")  # typed over "insert": the End cell is read as empty
+        self.assertEqual(self.ctrl._user_ranges["A02"], (300.0, None))
 
 
 class TestTypedRangesOnTheTimelineFrames(unittest.TestCase, _ControllerHarness):
@@ -2324,7 +2814,7 @@ class TestTreeStateSaveRestore(unittest.TestCase, _ControllerHarness):
         """Saved state uses step-ID strings, not indices."""
         self.ctrl._populate_table()
         self.tree.topLevelItem(1).setExpanded(True)
-        expanded, _ = self.ctrl._save_tree_state()
+        expanded = self.ctrl._save_tree_state()[0]
         self.assertIn("A02", expanded)
         self.assertNotIn("A01", expanded)
 
@@ -2362,17 +2852,23 @@ class TestLongNamesToggle(unittest.TestCase, _ControllerHarness):
         parent = self.tree.topLevelItem(0)
         child = parent.child(0)
         self.assertEqual(child.text(COL_DESC), "obj_A01")
-        # Tooltip has full path
-        self.assertEqual(child.toolTip(COL_DESC), "|group1|subgrp|obj_A01")
+        self.assertIsNone(child.data(COL_DESC, self.tree.TAIL_ROLE), "a leaf alone reads plain")
+        # Its tooltip names the leaf and the whole path (on one line: a word
+        # joiner after each "|" keeps Qt from breaking it there).
+        tip = child.toolTip(COL_DESC).replace(chr(0x2060), "")
+        self.assertIn("<b>obj_A01</b>", tip)
+        self.assertIn("|group1|subgrp|obj_A01", tip)
 
     def test_child_rows_show_long_names_when_toggled(self):
-        """Child row text uses full path when long names enabled."""
+        """Child row text uses full path when long names enabled: the
+        parents faded, the leaf the tail (``TreeWidget.set_cell_tail``)."""
         self.ctrl._settings.setValue("long_names", True)
         self.ctrl._steps[0].objects[0].name = "|group1|subgrp|obj_A01"
         self.ctrl._populate_table()
         parent = self.tree.topLevelItem(0)
         child = parent.child(0)
         self.assertEqual(child.text(COL_DESC), "|group1|subgrp|obj_A01")
+        self.assertEqual(child.data(COL_DESC, self.tree.TAIL_ROLE), len("|group1|subgrp|"))
 
 
 class TestColorOverrideRestore(unittest.TestCase, _ControllerHarness):
@@ -2399,6 +2895,36 @@ class TestColorOverrideRestore(unittest.TestCase, _ControllerHarness):
                 orig_fg,
                 str(PASTEL_STATUS["missing_object"][1]),
             )
+
+    def test_a_colour_for_a_key_since_split_carries_over_once(self):
+        """Bug: the dropped behaviors' keys and a shot's updates got their own
+        status keys (``dropped_behavior``, ``shot_update``), so a colour a
+        user had set for the ones they were drawn in (``missing_behavior``,
+        ``missing_shot``) stopped applying to them. Fixed: 2026-11-23 -- it
+        is carried over once, saved, so the Colors editor shows it too; a
+        choice made since is the user's."""
+        from uitk.managers.settings_manager import SettingsManager
+        from tentacle.slots.tools._shot_manifest.manifest_data import PASTEL_STATUS
+
+        settings = SettingsManager(namespace=self.ctrl._COLOR_SETTINGS_NS)
+        keys = ("missing_behavior/fg", "dropped_behavior/fg", "dropped_behavior/bg", "shot_update/fg")
+        saved = {k: PASTEL_STATUS[k] for k in ("missing_behavior", "dropped_behavior", "shot_update")}
+        for key in keys:
+            self.addCleanup(settings.clear, key)
+        self.addCleanup(self.ctrl._settings.clear, self.ctrl._COLOR_SPLIT_SETTING)
+        self.addCleanup(PASTEL_STATUS.update, saved)
+        self.ctrl._settings.clear(self.ctrl._COLOR_SPLIT_SETTING)
+        for key in keys:
+            settings.clear(key)
+        settings.setValue("missing_behavior/fg", "#AA0000")
+        self.ctrl._restore_color_overrides()
+        self.assertEqual(str(PASTEL_STATUS["dropped_behavior"][0]), "#AA0000")
+        self.assertEqual(settings.value("dropped_behavior/fg"), "#AA0000", "saved: the editor shows it")
+        self.assertIsNone(settings.value("shot_update/fg"), "nothing set for the old key: nothing")
+        settings.clear("dropped_behavior/fg")  # the user resets it in the editor
+        PASTEL_STATUS.update(saved)
+        self.ctrl._restore_color_overrides()
+        self.assertIsNone(settings.value("dropped_behavior/fg"), "once: a reset stays")
 
 
 class TestRowStatus(unittest.TestCase, _ControllerHarness):
@@ -2454,6 +2980,290 @@ class TestRowStatus(unittest.TestCase, _ControllerHarness):
         missing = a01.child(0)
         self.assertIn("Not found", self.tree.row_tooltip(missing))
         self.assertFalse(missing.icon(COL_STEP).isNull(), "its status icon")
+
+    def test_a_row_shows_what_the_sheets_check_found_before_and_after_an_assess(self):
+        """The reader kept each row's issues and the panel read none: a sheet with a word no
+        template has, or a needed cell left empty, loaded with nothing said but a log line.
+        Added: 2026-11-25"""
+        from pythontk import StepStatus
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_STATUS, ManifestData
+
+        steps = _make_steps("A01", "A02")
+        steps[0].rows = [{"issues": [("Clip", "use needs its Clip: write the take it plays")], "warnings": []}]
+        steps[1].rows = [{"issues": [], "warnings": [("Clip", "the take OPEN is not named for its step: A02 says it")]}]
+        self.ctrl._steps = steps
+        self.ctrl._populate_table()
+        a01, a02 = self._row("A01"), self._row("A02")
+        # As the sheet loads, with no Assess: the sheet's own problems need no scene to be known.
+        self.assertEqual(a01.text(COL_STATUS), StepStatus.LABELS["sheet"])
+        self.assertIn("row 1 (Clip): use needs its Clip: write the take it plays", self.tree.row_tooltip(a01))
+        self.assertIn(ManifestData.glyph_html("sheet"), self.tree.row_tooltip(a01))
+        self.assertEqual(a02.text(COL_STATUS), StepStatus.LABELS["sheet_warning"])
+        self.assertEqual(self.ctrl._sheet_issue_note(), "The sheet has 1 issue and 1 warning: hover a marked step.")
+        # And in the assessment, where the step's status is the sheet's.
+        results = [
+            StepStatus(step_id="A01", built=True, sheet=steps[0].sheet_issues()),
+            StepStatus(step_id="A02", built=True, sheet=steps[1].sheet_issues()),
+        ]
+        self.ctrl._last_results = results
+        self.ctrl._apply_assessment(results)
+        a01, a02 = self._row("A01"), self._row("A02")
+        self.assertEqual(a01.text(COL_STATUS), StepStatus.LABELS["sheet"])
+        tip = self.tree.row_tooltip(a01)
+        self.assertIn(StepStatus.HELP["sheet"], tip)
+        self.assertIn("row 1 (Clip): use needs its Clip", tip)
+        self.assertIn("the take OPEN is not named for its step", self.tree.row_tooltip(a02))
+
+    def test_a_row_says_its_cause_in_words_without_a_hover(self):
+        """The cause was in the tooltip alone: a row had to be hovered to learn
+        why its icon was red. Added: 2026-11-22"""
+        from pythontk import StepStatus
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_STATUS
+
+        self._assess()
+        a01, a02 = self._row("A01"), self._row("A02")
+        self.assertEqual(a01.text(COL_STATUS), StepStatus.LABELS["missing_object"])
+        self.assertEqual(a02.text(COL_STATUS), StepStatus.LABELS["missing_shot"])
+        self.assertEqual(a01.child(0).text(COL_STATUS), StepStatus.LABELS["missing_object"])
+        header = self.tree.header()
+        self.assertEqual(header.visualIndex(COL_STATUS), 1, "drawn beside the step it marks")
+        self.assertEqual(self._tinted(a01), [], "in plain words: still nothing tinted")
+
+    def test_a_users_own_column_order_survives_a_redraw(self):
+        """The Status column's place is a default: once the user drags it,
+        a redraw leaves it where they put it. (Its first form moved the
+        section on every redraw, and the move saved itself over the user's
+        order.) Fixed: 2026-11-22"""
+        from tentacle.slots.tools._shot_manifest.manifest_data import COL_STATUS
+
+        config = self.tree._column_settings
+        self.addCleanup(config.clear, "column_order")
+        self._assess()
+        header = self.tree.header()
+        self.assertEqual(header.visualIndex(COL_STATUS), 1)
+        header.moveSection(1, 4)  # the user drags Status further right
+        self.ctrl._redraw()
+        self.assertEqual(header.visualIndex(COL_STATUS), 4)
+
+    def test_a_hand_edited_step_is_not_drawn_as_a_locked_one(self):
+        """Edited-by-hand and locked shared the lock's glyph and grey.
+        Fixed: 2026-11-22"""
+        from pythontk import StepStatus
+        from tentacle.slots.tools._shot_manifest.manifest_data import (
+            COL_STATUS,
+            ManifestData,
+        )
+
+        self.ctrl._last_results = [
+            StepStatus(step_id="A01", built=True, edited=True),
+            StepStatus(step_id="A02", built=True, locked=True),
+        ]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        self.assertEqual(self._row("A01").text(COL_STATUS), StepStatus.LABELS["edited"])
+        self.assertEqual(self._row("A02").text(COL_STATUS), StepStatus.LABELS["locked"])
+        self.assertNotEqual(ManifestData.level("edited"), ManifestData.level("locked"))
+        self.assertNotEqual(ManifestData.glyph_html("edited"), ManifestData.glyph_html("locked"))
+        self.assertNotEqual(ManifestData.status_color("edited"), ManifestData.status_color("locked"))
+
+    def test_a_step_rows_icon_is_its_state(self):
+        """Every step row wore the same staircase, its colour the one sign of
+        its state: a shape that said "step" sixty times (and stepped keys, to
+        an animator) while the tooltips and Build's plan had a shape per
+        state.  The icon is the row's state now: none before an Assess, then
+        one shape each.  Changed: 2026-11-22 (the user: "the icons that look
+        like step for each shot main row seem a bit awkward")."""
+        from pythontk import ObjectStatus, StepStatus
+
+        ids = ("A01", "A02", "A03", "A04", "A05")
+
+        def icons():
+            # Each row's icon by its uitk name: what TreeWidget.set_item_icon
+            # keeps to draw it again on a theme change (uitk has no public
+            # reader; the panel's own role for it is gone, 2026-11-23).
+            def name(item):
+                record = item.data(0, QtCore.Qt.UserRole + 100)
+                return record.get("icon_name") if isinstance(record, dict) else None
+
+            return {sid: name(self._row(sid)) for sid in ids}
+
+        def obj(name, status):
+            return ObjectStatus(name=name, exists=status != "missing_object", status=status, behaviors=[])
+
+        self.ctrl._load_data(_make_steps(*ids), csv_path="/some/file.csv")
+        self.assertEqual(set(icons().values()), {None}, "not assessed: no state to show")
+        self.assertFalse(
+            self._row("A01").icon(COL_STEP).isNull(), "a blank keeps the step's text in line"
+        )
+        self.ctrl._last_results = [
+            StepStatus(step_id="A01", built=True, objects=[obj("obj_A01", "valid")]),
+            StepStatus(step_id="A02", built=False),
+            StepStatus(step_id="A03", built=True, objects=[obj("obj_A03", "missing_object")]),
+            StepStatus(step_id="A04", built=True, edited=True),
+            StepStatus(step_id="A05", built=True, objects=[obj("obj_A05", "not_in_shot")]),
+        ]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        self.assertEqual(
+            icons(),
+            {"A01": "check", "A02": "info", "A03": "error", "A04": "edit", "A05": "warning"},
+        )
+        self.ctrl._last_results = []  # the assessment dropped: the states go with it
+        self.ctrl._populate_table()
+        self.assertEqual(set(icons().values()), {None})
+
+    def test_the_build_button_says_how_many_steps_it_changes_and_its_plan(self):
+        """Build said nothing of what it would do until pressed.
+        Added: 2026-11-22"""
+        self.ui.b003.toolTip.return_value = "Build the shots."
+        self._assess()
+        self.ctrl._update_build_button()
+        self.ui.b003.setText.assert_called_with("Build (1)")
+        said = self.ui.b003.setToolTip.call_args[0][0]
+        self.assertIn("1 to create", said)
+        self.assertIn("1 needs you", said, "the object no Build can supply")
+        self.ctrl._last_results = []
+        self.ctrl._update_build_button()
+        self.ui.b003.setText.assert_called_with("Build")
+        self.ui.b003.setToolTip.assert_called_with("Build the shots.")
+
+    def test_the_issues_view_hides_what_needs_nothing_and_builds_the_same(self):
+        """Hide > Steps With Nothing to Do: only the rows that need something
+        show; a view, so Assess and Build still take every step.
+        Added: 2026-11-22"""
+        from pythontk import ObjectStatus, StepStatus
+
+        self.addCleanup(self.ctrl._settings.clear, "issues_only")
+        self.ctrl._steps = _make_steps("A01", "A02", "A03")
+        self.ctrl._populate_table()
+        missing = ObjectStatus(name="obj_A01", exists=False, status="missing_object", behaviors=[])
+        fine = ObjectStatus(name="obj_A03", exists=True, status="valid", behaviors=[])
+        self.ctrl._last_results = [
+            StepStatus(step_id="A01", built=True, objects=[missing]),
+            StepStatus(step_id="A02", built=False),
+            StepStatus(step_id="A03", built=True, objects=[fine]),
+        ]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        def rows():
+            return {sid: self._row(sid).isHidden() for sid in ("A01", "A02", "A03")}
+
+        self.assertEqual(rows(), {"A01": False, "A02": False, "A03": False})
+        self.ctrl._set_issues_only(True)
+        self.assertEqual(rows(), {"A01": False, "A02": False, "A03": True}, "in sync: out of the way")
+        self.assertEqual(len(self.ctrl._shown_steps()), 3, "a view: Build still takes every step")
+        hide = dict((label.split(" (")[0], on) for label, _a, on, _t in self.ctrl._hide_actions())
+        show = dict((label.split(" (")[0], on) for label, _a, on, _t in self.ctrl._show_actions())
+        self.assertEqual((hide["Steps With Nothing to Do"], show["Steps With Nothing to Do"]), (False, True))
+        self.ctrl._redraw()
+        self.assertTrue(self._row("A03").isHidden(), "kept across a redraw")
+        self.ctrl._set_issues_only(False)
+        self.assertEqual(rows(), {"A01": False, "A02": False, "A03": False})
+
+    def test_the_search_shows_the_steps_whose_words_match(self):
+        """The view row's search field, as the Unity manifest's: only the
+        steps whose words match every word typed show (a step's ID, an
+        object's name); a view, so Build still takes every step.
+        Added: 2026-11-23"""
+        self.ctrl._steps = _make_steps("A01", "A02", "A03")
+        self.ctrl._populate_table()
+        def rows():
+            return {sid: self._row(sid).isHidden() for sid in ("A01", "A02", "A03")}
+
+        self.ctrl._search_field.setText("a02")
+        self.assertEqual(rows(), {"A01": True, "A02": False, "A03": True})
+        self.assertEqual(len(self.ctrl._shown_steps()), 3, "a view: Build still takes every step")
+        self.ctrl._search_field.setText("obj_a03")
+        self.assertEqual(rows(), {"A01": True, "A02": True, "A03": False}, "an object's name finds its step")
+        self.ctrl._redraw()
+        self.assertTrue(self._row("A01").isHidden(), "kept across a redraw")
+        self.ctrl._search_field.clear()
+        self.assertEqual(rows(), {"A01": False, "A02": False, "A03": False})
+
+    def test_the_detail_shows_the_selected_rows_words_and_issues(self):
+        """The detail of the selection, under the table, as the Unity
+        manifest's: a step's ID and words, an object's name and step, and the
+        issues its tooltips list, kept in view.
+        Added: 2026-11-23"""
+        from pythontk import ObjectStatus, StepStatus
+
+        self.ctrl._steps = _make_steps("A01", "A02")
+        self.ctrl._populate_table()
+        missing = ObjectStatus(name="obj_A01", exists=False, status="missing_object", behaviors=[])
+        self.ctrl._last_results = [
+            StepStatus(step_id="A01", built=True, objects=[missing]),
+            StepStatus(step_id="A02", built=False),
+        ]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        tree = self.ctrl.ui.tbl_steps
+        tree.clearSelection()
+        self.assertIn("Select a row", self.ctrl._detail.toPlainText())
+        self._row("A01").setSelected(True)
+        said = self.ctrl._detail.toPlainText()
+        self.assertIn("A01", said)
+        self.assertIn("Content for A01", said, "the step's words")
+        self.assertIn("obj_A01", said, "its issue, as its tooltip lists it")
+        tree.clearSelection()
+        self._row("A01").setExpanded(True)
+        tree.setCurrentItem(self._row("A01").child(0))
+        self.ctrl._show_detail()
+        said = self.ctrl._detail.toPlainText()
+        self.assertIn("obj_A01", said)
+        self.assertIn("in A01", said, "an object says its step")
+
+    def test_the_detail_says_what_the_selected_row_says_now(self):
+        """Bug: the detail was filled on a selection change alone, so a row
+        marked again under it (its range colliding, a new assessment) kept its
+        old words there; and a redraw dropped the selection, emptying it.
+        Fixed: 2026-11-23 -- filled again after each marking, and a redraw
+        keeps the rows selected (by what they show)."""
+        from pythontk import StepStatus
+
+        self.ctrl._steps = _make_steps("A01", "A02")
+        self.ctrl._populate_table()
+        self._row("A02").setSelected(True)
+        self.assertNotIn("overlaps", self.ctrl._detail.toPlainText())
+        self.ctrl._user_ranges.update({"A01": (1.0, 40.0), "A02": (30.0, 60.0)})
+        self.ctrl._validate_range_collisions(
+            [("A01", 1.0, 40.0, True), ("A02", 30.0, 60.0, True)]
+        )
+        self.assertIn("overlaps", self.ctrl._detail.toPlainText(), "marked under it")
+        self.ctrl._user_ranges.clear()
+        self.ctrl._range_issues.clear()
+        self.ctrl._last_results = [StepStatus(step_id="A02", built=False)]
+        self.ctrl._redraw()
+        self.assertTrue(self._row("A02").isSelected(), "a redraw keeps the selection")
+        said = self.ctrl._detail.toPlainText()
+        self.assertIn("A02", said)
+        self.assertIn(StepStatus.HELP["missing_shot"], said, "the new assessment's words")
+        child = self._row("A02").child(0)
+        self.tree.clearSelection()
+        child.setSelected(True)
+        self.ctrl._redraw()
+        self.assertTrue(self._row("A02").child(0).isSelected(), "an object row too")
+
+    def test_the_issues_view_keeps_every_row_that_says_something(self):
+        """A step whose only finding is an object the sheet does not list, and
+        a step a Local Edit changed, are not "nothing to do": the view goes by
+        what the row says, not by whether Build has work. Added: 2026-11-22"""
+        from pythontk import ObjectStatus, StepStatus
+
+        self.addCleanup(self.ctrl._settings.clear, "issues_only")
+        self.ctrl._load_data(_make_steps("A01", "A02", "A03"), csv_path="/some/file.csv")
+        self.ctrl._editor.edits.set_step("A02", "description", "Reworded", sheet="")
+        self.ctrl._editor.refresh()
+        def fine(n):
+            return ObjectStatus(name=n, exists=True, status="valid", behaviors=[])
+
+        self.ctrl._last_results = [
+            StepStatus(step_id="A01", built=True, objects=[fine("obj_A01")], additional_objects=["stray"]),
+            StepStatus(step_id="A02", built=True, objects=[fine("obj_A02")]),
+            StepStatus(step_id="A03", built=True, objects=[fine("obj_A03")]),
+        ]
+        self.ctrl._apply_assessment(self.ctrl._last_results)
+        self.ctrl._set_issues_only(True)
+        self.assertEqual(
+            {sid: self._row(sid).isHidden() for sid in ("A01", "A02", "A03")},
+            {"A01": False, "A02": False, "A03": True},
+            "an unlisted object and a Local Edit both say something",
+        )
 
     def test_a_shots_member_the_step_does_not_list_is_marked_not_tinted(self):
         member = self._row("A01").child(1)
@@ -2547,6 +3357,19 @@ class TestEditsMode(unittest.TestCase, _ControllerHarness):
         self.assertTrue(self.ctrl._manifest(self.store).rebuild_edited)
         self._pick("keep")
         self.assertFalse(self.ctrl._rebuild_edited)
+
+    def test_an_edited_cell_reads_as_a_redline(self):
+        """Italic alone marked an edit, an audio row and a shot's member alike.
+        Added: 2026-11-22"""
+        from tentacle.slots.tools._shot_manifest.manifest_data import EDIT_COLOR
+
+        self.ctrl._editor.edits.set_step("A01", "name", "Renamed", sheet="A01")
+        self.ctrl._editor.refresh()
+        edited, plain = self.tree.topLevelItem(0), self.tree.topLevelItem(1)
+        self.assertEqual(edited.text(COL_STEP), "Renamed")
+        self.assertEqual(edited.foreground(COL_STEP).color().name().lower(), EDIT_COLOR.lower())
+        self.assertIn("Sheet: A01", edited.toolTip(COL_STEP))
+        self.assertEqual(plain.foreground(COL_STEP).style(), QtCore.Qt.NoBrush)
 
     def test_compare_shows_the_sheet_refuses_build_and_returns_to_the_mode(self):
         self._pick("rebuild")
@@ -2880,20 +3703,148 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         self.assertEqual({self.ctrl._behavior_mode(n) for n in every}, {"off"})
         self.assertEqual(self.ctrl._manifest(self.store).disabled_behaviors, every)
 
+    def test_a_behavior_a_sheet_in_cells_names_by_its_word_starts_at_key(self):
+        """A sheet written in cells asks for a highlight with the word ``highlight``, and a new
+        scene still started it Off: the first Build keyed nothing the sheet asked for and every
+        chip showed struck. A behavior a sentence only implies stays Off. Added: 2026-11-25"""
+        from pythontk import BuilderStep
+
+        asks = BuilderStep("A01", "A", "t", "", [])
+        asks.rows = [{"cells": True, "word": "fade_out"}, {"cells": True, "word": "use"}]
+        implied = BuilderStep("A02", "A", "The door is highlighted", "", [])
+        implied.rows = [{"text": "The door is highlighted"}]
+        self.ctrl._loaded_sheet = lambda: "O:/docs/service.csv"
+        self.ctrl._active_store = lambda: self.store
+        self.ctrl._sheet_steps = [asks, implied]
+        self.ctrl._behavior_sets.clear()
+        modes = {name: self.ctrl._behavior_mode(name) for name in ("fade_in", "fade_out", "highlight", "set_clip")}
+        self.assertEqual(modes, {"fade_in": "key", "fade_out": "key", "highlight": "off", "set_clip": "off"})
+        # The Audio option gives a step its clip: chosen for the sheet, so keyed with the rest.
+        from pythontk import BuilderObject
+
+        asks.celled = True
+        asks.objects.append(BuilderObject("A01_Welcome", behaviors=["set_clip"], kind="audio"))
+        self.ctrl._behavior_sets.clear()
+        self.assertEqual(self.ctrl._behavior_mode("set_clip"), "key")
+        asks.objects.pop()
+        self.ctrl._behavior_sets.clear()
+        self.assertEqual(self.ctrl._manifest(self.store).disabled_behaviors,
+                         frozenset(Behaviors.list_behaviors()) - {"fade_in", "fade_out"})
+        # The user's own seed marks fades instead: theirs.
+        self.ctrl._settings.setValue("marked_behaviors", ["fade_in", "fade_out"])
+        self.ctrl._behavior_sets.clear()
+        self.assertEqual(self.ctrl._behavior_mode("fade_out"), "marker")
+        # And a mode chosen for this scene is the scene's from then on: Off stays Off.
+        self.ctrl._settings.clear("marked_behaviors")
+        self.ctrl._behavior_sets.clear()
+        self.ctrl._set_behavior_mode("fade_out", "off")
+        self.ctrl._behavior_sets.clear()
+        self.assertEqual(self.ctrl._behavior_mode("fade_in"), "off")
+
+    def test_the_modes_in_force_are_the_one_rule_every_builder_reads(self):
+        """Bug: the modes a scene that keeps none starts with were the panel's own
+        (it read the reader's rows), so a build from code keyed what the panel left
+        Off. Fixed: 2026-11-26 -- one call, ``ManifestEdits.modes_in_force``."""
+        import pythontk as ptk
+        from pythontk import BuilderStep
+
+        asks = BuilderStep("A01", "A", "t", "", [])
+        asks.rows = [{"cells": True, "word": "highlight"}]
+        sheet = "O:/docs/service.csv"
+        self.ctrl._loaded_sheet = lambda: sheet
+        self.ctrl._active_store = lambda: self.store
+        self.ctrl._sheet_steps = [asks]
+        self.ctrl._settings.setValue("marked_behaviors", ["set_clip"])
+        self.ctrl._behavior_sets.clear()
+        real = ptk.ManifestEdits.modes_in_force
+        with patch.object(ptk.ManifestEdits, "modes_in_force", side_effect=real) as rule:
+            self.assertEqual(self.ctrl._behavior_mode("highlight"), "key")
+            self.assertEqual(self.ctrl._behavior_mode("set_clip"), "marker")
+        rule.assert_called_once_with(
+            self.store, sheet, [asks], frozenset(Behaviors.list_behaviors()), frozenset(), frozenset({"set_clip"})
+        )
+        for gone in ("_asked_behaviors", "_default_modes", "_scene_behavior_modes"):
+            self.assertFalse(hasattr(self.ctrl, gone), f"{gone}: the panel holds no domain rule")
+
+    def test_a_choice_keeps_only_itself_as_the_users_own(self):
+        """Bug: in a scene that keeps no modes, a choice wrote the modes in force --
+        the user's own plus what the sheet asks for by its word -- into the user's
+        own: Set Clip set to Key on a sheet whose rows ask for highlight, and
+        highlight started at Key on every later sheet that never asked. Fixed:
+        2026-11-26 -- the user's own list takes the choice alone; the scene keeps
+        the modes in force."""
+        import pythontk as ptk
+        from pythontk import BuilderStep
+
+        asks = BuilderStep("A01", "A", "t", "", [])
+        asks.rows = [{"cells": True, "word": "highlight"}]
+        sheet = "O:/docs/service.csv"
+        self.ctrl._loaded_sheet = lambda: sheet
+        self.ctrl._active_store = lambda: self.store
+        self.ctrl._sheet_steps = [asks]
+        self.ctrl._behavior_sets.clear()
+        self.ctrl._set_behavior_mode("set_clip", "key")
+        self.assertEqual(self.ctrl._settings.value("keyed_behaviors", []), ["set_clip"], "their choice alone")
+        self.assertEqual(
+            ptk.ManifestEdits.behavior_modes(self.store, sheet),
+            {"key": ["highlight", "set_clip"], "marker": []},
+            "the scene keeps the modes in force",
+        )
+        self.ctrl._set_behavior_mode("highlight", "marker")
+        self.assertEqual(self.ctrl._settings.value("marked_behaviors", []), ["highlight"])
+        self.assertEqual(self.ctrl._settings.value("keyed_behaviors", []), ["set_clip"])
+        self.assertEqual(ptk.ManifestEdits.behavior_modes(self.store, sheet), {"key": ["set_clip"], "marker": ["highlight"]})
+
+    def test_a_behaviors_mode_is_read_once_per_scene_and_sheet(self):
+        """Review (2026-11-26): every chip's tooltip and colour asked its behavior's
+        mode, each a ``Behaviors.families`` over every type (a template read per
+        type): 0.58 ms a chip, ~1.75 s for 3000. Read once with the lists, and
+        at once again after a choice."""
+        with patch.object(self.ctrl.behaviors, "families", side_effect=Behaviors.families) as families:
+            for _ in range(5):
+                for name in ("fade_in", "fade", "highlight"):
+                    self.ctrl._behavior_mode(name)
+            self.assertLessEqual(families.call_count, 1)
+            self.ctrl._set_behavior_mode("fade_in", "key")
+            self.assertEqual(self.ctrl._behavior_mode("fade_out"), "key", "a choice is read at once")
+            self.assertEqual(self.ctrl._behavior_mode("fade"), "key")
+
     def test_the_options_reach_the_engine(self):
         every = frozenset(Behaviors.list_behaviors())
         self.ctrl._set_rebuild_edited(True)
         self.ctrl._set_behavior_mode("highlight", "key")
-        self.ctrl._set_behavior_mode("fade_in", "marker")
+        self.ctrl._set_behavior_mode("fade_in", "marker")  # the whole Fade family
+        fades = {"fade_in", "fade_out"}
         mani = self.ctrl._manifest(self.store)
         self.assertTrue(mani.rebuild_edited)
-        self.assertEqual(mani.disabled_behaviors, every - {"highlight", "fade_in"})
-        self.assertEqual(mani.marked_behaviors, frozenset({"fade_in"}))
+        self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - fades)
+        self.assertEqual(mani.marked_behaviors, frozenset(fades))
         self.ctrl._set_behavior_mode("highlight", "off")
-        self.ctrl._set_behavior_mode("fade_in", "key")
+        self.ctrl._set_behavior_mode("fade_out", "key")
         mani = self.ctrl._manifest(self.store)
-        self.assertEqual(mani.disabled_behaviors, every - {"fade_in"})
+        self.assertEqual(mani.disabled_behaviors, every - fades)
         self.assertEqual(mani.marked_behaviors, frozenset())
+
+    def test_the_modes_are_the_scenes_and_the_users_own_seed_a_scene_without(self):
+        """Maintainer 2026-11-23 ("with the scene"): a scene that keeps modes for
+        its sheet builds by them whatever the user's own are; a change is
+        kept with the scene, and stays the user's default for the next."""
+        every = frozenset(Behaviors.list_behaviors())
+        self.ctrl._loaded_sheet = lambda: "O:/docs/task.csv"
+        self.ctrl._active_store = lambda: self.store
+        self.ctrl._set_behavior_mode("highlight", "key")
+        self.assertEqual(
+            __import__("pythontk").ManifestEdits.behavior_modes(self.store, "O:/docs/task.csv"),
+            {"key": ["highlight"], "marker": []},
+            "kept with the scene",
+        )
+        self.ctrl._settings.setValue("keyed_behaviors", ["fade_in"])  # someone else's preferences
+        self.ctrl._behavior_sets.clear()
+        mani = self.ctrl._manifest(self.store)
+        self.assertEqual(mani.disabled_behaviors, every - {"highlight"}, "the scene's modes, not the user's")
+        other = _fresh_store()
+        self.ctrl._active_store = lambda: other
+        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"fade_in"}), "a scene with none: the user's own seed it")
 
     def test_a_users_old_choices_carry_over(self):
         """Before Off became the default, the settings named the types turned
@@ -2941,17 +3892,47 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         self.addCleanup(menu.deleteLater)
         self.ctrl._add_build_options(menu)
         modes = self.ctrl._behavior_modes
-        self.assertEqual(sorted(modes), sorted(Behaviors.list_behaviors()))
+        # A family is one choice (fade_in and fade_out: Fade).
+        self.assertEqual(sorted(modes), sorted(Behaviors.families(Behaviors.list_behaviors())))
+        self.assertIn("fade", modes)
         cmb = modes["highlight"]
         self.assertEqual(
             [cmb.itemText(i) for i in range(cmb.count())], ["Key", "Marker", "Off"]
         )
         self.assertEqual(cmb.currentData(), "marker")
-        self.assertEqual(modes["fade_in"].currentData(), "off")
+        self.assertEqual(modes["fade"].currentData(), "off")
+        modes["fade"].setCurrentIndex(modes["fade"].findData("key"))
+        self.assertEqual({self.ctrl._behavior_mode(n) for n in ("fade_in", "fade_out")}, {"key"}, "both set")
         cmb.setCurrentIndex(cmb.findData("off"))
         self.ctrl._behavior_sets.clear()  # read back from the settings
         self.assertEqual(self.ctrl._behavior_mode("highlight"), "off")
         self.assertEqual(self.ctrl._marked_behaviors(), frozenset())
+
+    def test_the_menus_modes_follow_the_scene_a_sheet_reads(self):
+        """Bug: the header menu's Behaviors were set once, when the menu was
+        built, so after a scene or sheet that keeps other modes was loaded
+        they showed another sheet's (or the user's) while Assess and Build
+        went by the scene's. Fixed: 2026-11-23 -- set again with every draw,
+        without setting a mode."""
+        import pythontk as ptk
+        from uitk.widgets.menu import Menu
+
+        sheet = "O:/docs/task.csv"
+        self.ctrl._loaded_sheet = lambda: sheet
+        self.ctrl._active_store = lambda: self.store
+        menu = Menu()
+        self.addCleanup(menu.deleteLater)
+        self.ctrl._add_build_options(menu)
+        modes = self.ctrl._behavior_modes
+        self.assertEqual(modes["highlight"].currentData(), "off")
+        other = _fresh_store()  # a scene that keeps Key for highlight on this sheet
+        ptk.ManifestEdits.set_behavior_modes(other, sheet, ["highlight"], [])
+        self.ctrl._active_store = lambda: other
+        with patch.object(self.ctrl, "_set_behavior_mode") as chosen:
+            self.ctrl._populate_table()
+        self.assertEqual(modes["highlight"].currentData(), "key", "the scene's, shown")
+        chosen.assert_not_called()  # shown, not set
+        self.assertEqual(self.ctrl._settings.value("keyed_behaviors", []), [], "the user's own untouched")
 
     def test_a_typed_range_never_moves_a_built_shot(self):
         """A built row cannot be typed in, so a range for it was typed before
@@ -2975,55 +3956,6 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
             _mock_undo_info(self)
             self.ctrl.build()
         self.assertEqual(seen.get("A01"), (10, 70))
-
-
-class TestFormatBehaviorHtml(unittest.TestCase):
-    """Verify behaviour label HTML: an issue leads its behavior with its
-    glyph in its colour (the name itself never coloured); ``status_color``
-    colours every behaviour."""
-
-    def setUp(self):
-        from tentacle.slots.tools._shot_manifest.manifest_data import (
-            ManifestData,
-        )
-
-        self.format = ManifestData.format_behavior_html
-        self.glyph = ManifestData.glyph_html
-
-    def test_plain_when_no_broken(self):
-        """Behaviours with no issues produce plain text (no span tags)."""
-        html = self.format(["fade_in", "fade_out"])
-        self.assertNotIn("<span", html)
-        self.assertIn("Fade In", html)
-        self.assertIn("Fade Out", html)
-
-    def test_broken_leads_with_its_glyph(self):
-        """Only the broken behaviour is marked: its glyph, in the
-        ``missing_behavior`` colour, before its plain name."""
-        html = self.format(["fade_in", "fade_out"], broken=["fade_out"])
-        self.assertTrue(html.startswith("Fade In"), html)  # fade_in is plain
-        self.assertIn(f"{self.glyph('missing_behavior')} Fade Out", html)
-        self.assertNotIn("Fade Out</span>", html)
-
-    def test_stale_leads_with_its_glyph(self):
-        html = self.format(["fade_in"], stale=["fade_in"])
-        self.assertEqual(html, f"{self.glyph('stale_behavior')} Fade In")
-
-    def test_status_color_overrides_all(self):
-        """status_color colours every behaviour, ignoring broken."""
-        html = self.format(
-            ["fade_in", "fade_out"],
-            broken=["fade_out"],
-            status_color="#FF0000",
-        )
-        self.assertEqual(html.count("color:#FF0000"), 2)
-        self.assertIn("Fade In</span>", html)
-        self.assertIn("Fade Out</span>", html)
-
-    def test_empty_behaviors(self):
-        """Empty list returns empty string."""
-        self.assertEqual(self.format([]), "")
-        self.assertEqual(self.format([], status_color="#FF0000"), "")
 
 
 class TestDetectRegionsHonoursMode(unittest.TestCase, _ControllerHarness):
@@ -4175,7 +5107,7 @@ class TestReconcilePanel(unittest.TestCase, _ControllerHarness):
 
 class TestShotsTheDocDoesNotList(unittest.TestCase, _ControllerHarness):
     """A sheet whose scene was edited in the Shot Sequencer (the production
-    case, SOL_REPLACE_ASSEMBLY 2026-10-10: eight shots split off there, 37 of
+    case, a production scene 2026-10-10: eight shots split off there, 37 of
     57 steps never animated): every shot shows its members, sits where the
     timeline has it, and its row offers what a shot needs -- open, reveal,
     add to the manifest, pair with a step, remove; steps lock by row or by
@@ -4262,6 +5194,36 @@ class TestShotsTheDocDoesNotList(unittest.TestCase, _ControllerHarness):
         # A step's shot shows its members the step does not list, too.
         self.assertEqual(self._children(self._row("A01")), ["obj_A01", "KEYS", "LOCK"])
         self.assertEqual(self._children(self._row("A02")), ["obj_A02"])
+
+    def test_a_member_sharing_a_listed_names_leaf_is_its_own_row(self):
+        """Bug: a step's names and its shot's members were compared by their
+        leaves (``ShotStore.member_key``), so a step listing ``PANEL|LATCH``
+        hid the shot's other latch, ``DOOR|LATCH``: from its rows, from
+        Assess's extras and from the objects no step lists. Fixed: 2026-11-26
+        -- ``ShotStore.name_pairs``: a path's tail names the members it ends."""
+        from qtpy.QtCore import Qt
+
+        panel, door = "|rig|PANEL|LATCH", "|rig|DOOR|LATCH"
+        self.store.define_shot("B01", 400, 500, objects=[panel, door], metadata={"step": "B01"})
+        steps = _make_steps("A01", "A02", "A03", "B01")
+        steps[3].objects[0].name = "PANEL|LATCH"
+        self.ctrl._load_data(steps, csv_path=self.SHEET)
+
+        def names(row):
+            return [row.child(j).data(0, Qt.UserRole).name for j in range(row.childCount())]
+
+        self.assertEqual(names(self._row("B01")), ["PANEL|LATCH", door], "the other latch: a member row")
+        self.assertIn(door, self.ctrl._unlisted_object_names())
+        self.assertNotIn(panel, self.ctrl._unlisted_object_names())
+        # Assess's extras: what animates in the shot without being listed.
+        self.store.define_shot("B02", 600, 700, objects=[], metadata={"step": "B02"})
+        steps = _make_steps("A01", "A02", "A03", "B02")
+        steps[3].objects[0].name = "PANEL|LATCH"
+        self.ctrl._load_data(steps, csv_path=self.SHEET)
+        self.ctrl._apply_assessment(
+            [StepStatus(step_id="B02", built=True, objects=[], additional_objects=[panel, door])]
+        )
+        self.assertEqual(self._row("B02").childCount(), 2, "the step's latch, and the door's an extra")
 
     def test_a_split_shot_shows_the_section_of_the_step_it_was_split_from(self):
         """Bug: a split-off shot had no relation to its step, so its row (and
@@ -4521,7 +5483,7 @@ class TestShowInOutliner(unittest.TestCase):
 
 
 class TestControllerColumnLayout(unittest.TestCase):
-    """Verify the 6-column unified layout and manifest data constants."""
+    """Verify the unified layout and manifest data constants."""
 
     @classmethod
     def setUpClass(cls):
@@ -4548,13 +5510,13 @@ class TestControllerColumnLayout(unittest.TestCase):
         cls.fmt_behavior = staticmethod(ManifestData.fmt_behavior)
 
     def test_headers_count(self):
-        """Unified layout should have exactly 6 columns."""
-        self.assertEqual(len(self.HEADERS), 6)
+        """Six data columns, and the row's cause in words (Status, 2026-11-22)."""
+        self.assertEqual(len(self.HEADERS), 7)
 
     def test_headers_names(self):
         self.assertEqual(
             self.HEADERS,
-            ["Step", "Section", "Description", "Behaviors", "Start", "End"],
+            ["Step", "Section", "Description", "Behaviors", "Start", "End", "Status"],
         )
 
     def test_no_objects_column(self):
@@ -4580,8 +5542,9 @@ class TestControllerColumnLayout(unittest.TestCase):
         self.assertEqual(h[self.COL_END], "End")
 
     def test_fmt_behavior(self):
-        self.assertEqual(self.fmt_behavior("fade_in"), "Fade In")
-        self.assertEqual(self.fmt_behavior("fade_out"), "Fade Out")
+        self.assertEqual(self.fmt_behavior("fade_in"), "Fade · in")
+        self.assertEqual(self.fmt_behavior("fade_out"), "Fade · out")
+        self.assertEqual(self.fmt_behavior("set_clip"), "Set Clip")
         self.assertEqual(self.fmt_behavior(""), "")
 
     def test_pastel_status_keys(self):

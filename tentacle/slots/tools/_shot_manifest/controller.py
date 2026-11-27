@@ -19,14 +19,14 @@ through :attr:`behaviors`, that host's ``Behaviors``.
 """
 
 from contextlib import contextmanager
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pythontk as ptk
 from pythontk import BuilderStep, ColumnMap, ShotPairing, StepStatus
 
 from .export_preview import ExportPreviewMixin
 from .header_menu import HeaderMenuMixin
-from .manifest_data import ERROR_COLOR, SETTINGS_NS
+from .manifest_data import COL_STATUS, COL_STEP, ERROR_COLOR, HEADERS, SETTINGS_NS
 from .manifest_editor import ManifestEditor
 from .manifest_source import ManifestSourceMixin
 from .mapping_picker import MappingPickerMixin
@@ -93,7 +93,10 @@ class ShotManifestController(
         self._seeded_ranges: Dict[str, Tuple[float, float]] = {}
 
         tree = self.ui.tbl_steps
-        tree.enable_column_config()
+        # The cause sits beside the step it marks, whatever its index: the
+        # layout's default order, which a user's own drag outranks.
+        rest = [c for c in range(len(HEADERS)) if c not in (COL_STEP, COL_STATUS)]
+        tree.enable_column_config(default_order=[COL_STEP, COL_STATUS, *rest])
         # Colour tags: this panel's palette per user, the tags per sheet on the
         # scene's store (ManifestTags), a strip down each step row.
         self._row_tags = tree.enable_row_tags(
@@ -121,6 +124,8 @@ class ShotManifestController(
         self._reassess_on_show = False  # owed while the panel was hidden
         self._reassess_note = ""  # the edit a pending re-assessment follows
         self._behavior_sets = {}  # _behavior_set's lists, read once
+        self._behavior_modes = {}  # the header menu's combo per behavior type
+        self._build_tip: Optional[str] = None  # Build's own tooltip, read on first use
         self._store_listener_bound = False
         self._cached_gaps: Optional[List[float]] = None
         self._cached_gap_ends: Optional[Dict[float, float]] = None
@@ -128,6 +133,8 @@ class ShotManifestController(
         # {step_id: where}: the steps whose resolved range is where Build
         # would insert their shot on a built timeline (_projected_inserts).
         self._projected: Dict[str, str] = {}
+        # {step_id: PlannedInsert}: the same steps' plans (_resolve_ranges).
+        self._plans: Dict[str, Any] = {}
         # {step_id: frames}: the unbuilt steps whose typed range Build's
         # inserts move, and how far (_resolve_ranges).
         self._typed_shift: Dict[str, float] = {}
@@ -171,6 +178,8 @@ class ShotManifestController(
         self._setup_header_menu()
         self._setup_mapping_combo()
         self._setup_view_combos()
+        self._setup_search()
+        self._setup_detail()
         self._restore_color_overrides()
         self._move_action_buttons_to_footer()
         self._setup_export_button()
@@ -263,6 +272,12 @@ class ShotManifestController(
         that have no shot -- the table, Assess and Build alike."""
         return bool(self._settings.value("hide_missing", False))
 
+    @property
+    def _issues_only(self) -> bool:
+        """Hide > Steps With Nothing to Do (kept per user): show only the rows
+        that need something. A view alone: Assess and Build take every step."""
+        return bool(self._settings.value("issues_only", False))
+
     def _rows(self, pairing: Optional[ShotPairing] = None) -> list:
         """The table's ``(step, shot)`` rows (``ShotPairing.rows``): the
         steps, less those with no shot while they are hidden and some
@@ -333,9 +348,11 @@ class ShotManifestController(
             self._auto_fill_ranges(self._last_resolved)
             self._validate_range_collisions(self._last_resolved, mark=not assessed)
         if assessed:
-            self._apply_assessment(self._last_results)  # marks every row
+            self._apply_assessment(self._last_results)  # marks every row, the view's filters with it
             if reassess:
                 self._reassess_soon()
+        else:
+            self._apply_issues_filter()  # the search's words hold over a table not yet assessed too
         self._restore_tree_state(state)
         self._update_build_button()
 
@@ -426,10 +443,22 @@ class ShotManifestController(
         btn = getattr(self.ui, "b003", None)
         if btn is None:
             return
+        if self._build_tip is None:
+            self._build_tip = btn.toolTip()  # the button's own, shown unassessed
         if self._editor.viewing_original:
             btn.setEnabled(False)  # a view of the sheet, never built
+            btn.setText("Build")
+            btn.setToolTip(self._build_tip)
             return
-        btn.setEnabled(any(r.needs_build for r in self._last_results))
+        # The button says what pressing it does: how many steps a Build
+        # changes on its face, the whole plan in its tooltip.
+        plan = StepStatus.plan(self._last_results)
+        todo = plan["create"] + plan["update"]
+        btn.setEnabled(bool(todo))
+        btn.setText(f"Build ({todo})" if todo else "Build")
+        btn.setToolTip(
+            StepStatus.plan_text(plan) if self._last_results else self._build_tip
+        )
 
     def _confirm_inserts(self, inserts: list, store) -> bool:
         """Ask before *inserts* (``ShotManifest.plan_insertions``) move shots
@@ -465,11 +494,7 @@ class ShotManifestController(
             return
         if not self._ensure_steps():
             return
-
-        if not self.manifest_host.available():
-            self._set_footer(
-                f"{self.manifest_host.APP} is required to build shots.", color=ERROR_COLOR
-            )
+        if not self._host_available():
             return
 
         try:
@@ -523,11 +548,65 @@ class ShotManifestController(
             self._apply_post_build(assessment, store)
             self._update_build_button()
         except Exception as exc:
-            self.logger.error("Build failed: %s", exc)
-            self.sb.message_box(
-                f"<b>Build failed.</b><br>{exc}",
+            self._build_failed(exc)
+
+    def _host_available(self) -> bool:
+        """Whether the host is there to build in; said in the footer when not."""
+        if self.manifest_host.available():
+            return True
+        self._set_footer(
+            f"{self.manifest_host.APP} is required to build shots.", color=ERROR_COLOR
+        )
+        return False
+
+    def _build_failed(self, exc: Exception) -> None:
+        """Say a build raised *exc*: the log, a dialog and the footer."""
+        self.logger.error("Build failed: %s", exc)
+        self.sb.message_box(
+            f"<b>Build failed.</b><br>{exc}",
+        )
+        self._set_footer(f"Build error: {exc}", color=ERROR_COLOR)
+
+    def _rebuild_from_sheet(self, step_ids) -> None:
+        """Rebuild the shots of *step_ids* from the sheet though a hand edited
+        them (:meth:`_build_rows`, which a scoped build does): one row's
+        answer beside the header's Edits mode, which decides for every shot."""
+        self._build_rows(step_ids, lead="Rebuilt {n} shot{s} from the sheet")
+
+    def _build_rows(self, step_ids, lead: str = "Built {n} step{s}") -> None:
+        """Build the steps of *step_ids* alone (``ShotManifest.sync(only=...)``):
+        each shot's name, description, members and behaviors as the sheet has
+        them -- a hand's edits to it replaced -- its range kept, and no other
+        shot touched.  One undo step.  A locked shot stays, and a step with
+        no shot is Build's to place.  *lead* opens the footer's report, with
+        ``{n}`` the shots built and ``{s}`` their plural."""
+        if self._editor.refuse_viewing("build a row"):
+            return
+        if not self._host_available():
+            return
+        try:
+            store = self._store_cls().active()
+            paired = self._pairing(store=store).shots
+            ids = [sid for sid in step_ids if sid in paired]
+            if not ids:
+                self._set_footer("No shot to build alone: Build makes a step's shot first.")
+                return
+            actions, beh, assessment, _ridden = self._sync_build(
+                self._manifest(store), store, self._shown_steps(), [], {}, None, True, False, only=ids
             )
-            self._set_footer(f"Build error: {exc}", color=ERROR_COLOR)
+            self._store = store
+            done = sum(1 for action in actions.values() if action in ("patched", "skipped"))
+            report, failed = self._build_report(
+                actions,
+                beh,
+                lead=lead.format(n=done, s="" if done == 1 else "s"),
+                omit=(("shots", "patched"), ("shots", "skipped")),
+            )
+            self._set_footer(report, color=ERROR_COLOR if failed else "")
+            self._apply_post_build(assessment, store)
+            self._update_build_button()
+        except Exception as exc:
+            self._build_failed(exc)
 
     def _selected_keys_found(self, store) -> bool:
         """Whether selected keys give a selected-keys Build regions to build
@@ -586,10 +665,11 @@ class ShotManifestController(
         return build_steps
 
     def _sync_build(
-        self, builder, store, build_steps, inserts, typed, range_map, incremental, use_sel
+        self, builder, store, build_steps, inserts, typed, range_map, incremental, use_sel, only=None
     ):
         """Make the Build's shots, one scene edit: the planned inserts, then
-        ``sync`` over *build_steps*. Returns ``(actions, behaviors,
+        ``sync`` over *build_steps* -- scoped to the steps *only* names, when
+        given (:meth:`_rebuild_from_sheet`). Returns ``(actions, behaviors,
         assessment, ridden)``, *ridden* the typed ranges moved with the
         shots the inserts moved."""
         ridden = typed
@@ -623,6 +703,7 @@ class ShotManifestController(
                     fit_mode=self._fit_mode,
                     initial_shot_length=self._initial_shot_length,
                     skip_scene_discovery=use_sel,
+                    only=only,
                 )
                 # Sync patched what an insert made; a refused insert
                 # stays refused unless sync made its shot after all.
@@ -667,10 +748,13 @@ class ShotManifestController(
     )
 
     @classmethod
-    def _build_report(cls, actions: dict, beh: dict) -> Tuple[str, bool]:
-        """The Build's footer line from its shot *actions* and behavior
+    def _build_report(
+        cls, actions: dict, beh: dict, lead: str = "Build complete", omit=()
+    ) -> Tuple[str, bool]:
+        """A build's footer line from its shot *actions* and behavior
         outcomes *beh*, and whether anything failed (a behavior, or a shot
-        not built)."""
+        not built).  *lead* opens it; the ``(source, key)`` entries of
+        :attr:`BUILD_REPORT` in *omit* are left out (what the lead says)."""
         counts = {
             "shots": lambda key: sum(1 for a in actions.values() if a == key),
             "behaviors": lambda key: len(beh.get(key, [])),
@@ -678,10 +762,10 @@ class ShotManifestController(
         parts, failed = [], False
         for source, key, words in cls.BUILD_REPORT:
             n = counts[source](key)
-            if n:
+            if n and (source, key) not in omit:
                 parts.append(f"{n} {words}")
                 failed = failed or key in ("refused", "failed")
-        return f"Build complete: {', '.join(parts)}.", failed
+        return (f"{lead}: {', '.join(parts)}." if parts else f"{lead}."), failed
 
     @staticmethod
     def _sync_store_gap(store) -> None:
@@ -849,10 +933,17 @@ class ShotManifestController(
         total_frames = (
             (sorted_shots[-1].end - sorted_shots[0].start) if sorted_shots else 0
         )
-        parts = [f"{n_built}/{len(results)} steps built, {total_frames:.0f} frames"]
+        n_none = StepStatus.plan(results)["no_shot"]
+        parts = [f"{n_built}/{len(results) - n_none} steps built"]
+        if n_none:  # the steps that play no animation: nothing to build
+            parts.append(f"{n_none} with no shot")
+        parts[-1] += f", {total_frames:.0f} frames"
         hidden = len(self._steps) - len(results)
         if hidden:
             parts.append(f"{hidden} without a shot hidden")
+        quiet = len(self._quiet_rows()) if self._issues_only else 0
+        if quiet:  # said every time, so a filtered table never reads as a short sheet
+            parts.append(f"{quiet} with nothing to do hidden (Show)")
         if missing_obj_names:
             parts.append(f"{len(missing_obj_names)} missing objects")
         if missing_beh_names:

@@ -523,8 +523,8 @@ class TestAKeyDraggedOntoTheSeamSplitsNothing(unittest.TestCase):
         seq = self.seq
 
         class _Widget:
-            ctrl_held_at_press = False
-            shift_held_at_press = False
+            ctrl_held_in_drag = False
+            shift_held_in_drag = False
 
         class _Ctl(ShotSequencerController):
             def __init__(self):
@@ -1155,8 +1155,8 @@ class TestBoundHandleGrammar(unittest.TestCase):
         seq = self.seq
 
         class _Widget:
-            ctrl_held_at_press = False
-            shift_held_at_press = False
+            ctrl_held_in_drag = False
+            shift_held_in_drag = False
 
         widget = _Widget()
 
@@ -1195,8 +1195,8 @@ class TestBoundHandleGrammar(unittest.TestCase):
         return cmds.ls(self.seq.shot_by_id(shot_id).objects, long=True) or []
 
     def _hold(self, ctrl=False, shift=False):
-        self.ctl.widget.ctrl_held_at_press = ctrl
-        self.ctl.widget.shift_held_at_press = shift
+        self.ctl.widget.ctrl_held_in_drag = ctrl
+        self.ctl.widget.shift_held_in_drag = shift
 
     # ---- the active shot's own edge (range highlight) ---------------------
 
@@ -1464,7 +1464,7 @@ class TestACtrlEdgeDragMovesNoSample(unittest.TestCase):
         self.seq._enforce_gap_holds()  # so only the gesture is measured
         self.before = self._play()
         self.ctl = TestBoundHandleGrammar._ctl(self)
-        self.ctl.widget.ctrl_held_at_press = True
+        self.ctl.widget.ctrl_held_in_drag = True
 
     def tearDown(self):
         ShotStore.clear_active()
@@ -2426,8 +2426,8 @@ def _answering_controller(seq, ctrl=False, shift=False, active=None):
     heard = []
 
     class _Widget:
-        ctrl_held_at_press = ctrl
-        shift_held_at_press = shift
+        ctrl_held_in_drag = ctrl
+        shift_held_in_drag = shift
 
     class _Log:
         def warning(self, msg, *a, **k):
@@ -2745,7 +2745,7 @@ class TestARefusedDragReportsInsteadOfRaising(unittest.TestCase):
             end = clip_data["orig_end"]
 
         class _Widget:
-            shift_held_at_press = False
+            shift_held_in_drag = False
 
             @staticmethod
             def get_clip(_cid):
@@ -5488,7 +5488,7 @@ class TestGraphSync(_ControllerCase):
         graph records none), so after a Shift gesture there -- Shift: free
         across bounds -- a key moved past its shot's end left it outside.
         Fixed: 2026-10-12"""
-        self.widget.shift_held_at_press = True  # a tracks gesture's leftover
+        self.widget.shift_held_in_drag = True  # a tracks gesture's leftover
         self.g.keys_edited.emit([(self.crv, [(40.0, 15.0, 0.0)])])
         self.assertEqual(self._times(), [0.0, 55.0])
         self.assertGreaterEqual(self._shot("S0").end, 55.0)

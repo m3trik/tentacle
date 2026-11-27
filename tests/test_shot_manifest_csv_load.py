@@ -187,6 +187,31 @@ class LoadCsvNoStepsTest(unittest.TestCase):
         ctrl.detect.assert_called_once()
 
 
+class LoadCsvNarrationTest(unittest.TestCase):
+    """A local sheet's narration is found beside it (2026-11-25: the panel read a
+    sheet whose template narrates with no folder to look in, so every voice line
+    read as not narrated and no step's audio was keyed)."""
+
+    def test_a_local_sheets_narration_is_read_beside_it(self):
+        ctrl = _make_stub_controller()
+        ctrl._active_mapping = {"columns": {}}
+        seen = {}
+
+        def resolve(path, mapping=None, base=None, by_shot=False, **_):
+            seen["base"] = base
+            return [MagicMock()]
+
+        # An absolute path on whichever OS runs it: a drive path is relative on Linux.
+        sheet = os.path.join(os.path.abspath(os.sep), "docs", "sheet.csv")
+        with (
+            patch("os.path.isfile", return_value=True),
+            patch("pythontk.core_utils.engines.shots.manifest.mapping.Mapping.resolve", side_effect=resolve),
+        ):
+            ShotManifestController._load_csv(ctrl, sheet)
+
+        self.assertEqual(os.path.normpath(seen["base"]), os.path.dirname(sheet))
+
+
 class LoadCsvUrlSourceTest(unittest.TestCase):
     """A URL is a CSV source: it skips the file gate, and a fetch failure is
     reported as a fetch failure, never as the local disk/sync diagnosis."""

@@ -120,9 +120,10 @@ class UvSlots(Slots):
     def tb000_init(self, widget):
         """Initialize Pack UVs.
 
-        One option box for both hosts: the packer (cmb019, Maya's Standard
-        u3dLayout or the optional xatlas engine; Blender has one), then the
-        options. Each packer honors its own set (``UvUtils.PACK_ENGINES``): the
+        One option box for both hosts: the packer (cmb019, the host's own --
+        Maya's u3dLayout, Blender's Pack Islands -- or the optional xatlas
+        engine), then the options. Each packer honors its own set
+        (``UvUtils.PACK_ENGINES``): the
         others disable while it is chosen, and an option no packer of the host
         honors is hidden there. Rotate Step also needs Rotate Max > Rotate Min,
         and Tile Coverage locks while a Tiles U / V grid is active (the grid's
@@ -138,8 +139,9 @@ class UvSlots(Slots):
                 title="Pack Method",
                 body="Which packing engine runs.",
                 bullets=[
-                    "<b>Standard</b> -- Maya's <code>u3dLayout</code> (Unfold3D). "
-                    "Drives the full option set below.",
+                    "<b>Standard</b> -- the host's own packer: Maya's "
+                    "<code>u3dLayout</code> (Unfold3D, the full option set below), "
+                    "Blender's Pack Islands.",
                     "<b>xatlas</b> -- open-source external engine "
                     "(<code>pip install xatlas</code>). Scale-searches the "
                     "shells to fill the target region edge-to-edge; adds shell "
@@ -149,7 +151,7 @@ class UvSlots(Slots):
             ),
         )
         for text, data in [
-            ("Method: Standard (u3dLayout)", "standard"),
+            ("Method: Standard", "standard"),
             ("Method: xatlas", "xatlas"),
         ]:
             cmb019.addItem(text, data)
@@ -175,7 +177,7 @@ class UvSlots(Slots):
                 ],
             ),
         )
-        chk043 = menu.add(
+        menu.add(
             "QCheckBox",
             setText="Brute Force (xatlas)",
             setObjectName="chk043",
@@ -439,8 +441,9 @@ class UvSlots(Slots):
             ),
         )
         # Instances share one shape and UV set: packing every one reserves tile
-        # space for identical shells. Blender's linked duplicates share one mesh,
-        # which its packer edits once anyway.
+        # space for identical shells. Maya's alone: Blender's linked duplicates
+        # always share one mesh, which its packers edit once, so there is
+        # nothing to switch (blendertk's PACK_ENGINES lists no skip_instances).
         chk016 = menu.add(
             "QCheckBox",
             setText="Skip Instances",
@@ -457,9 +460,9 @@ class UvSlots(Slots):
                 ],
             ),
         )
-        for option in (
-            cmb019, chk043, cmb010, s011, s012, s013, s014, cmb018, s019, s020, chk016
-        ):
+        # The method and Brute Force are both hosts' (each has Standard and
+        # xatlas); the u3dLayout options and Skip Instances are Maya's.
+        for option in (cmb010, s011, s012, s013, s014, cmb018, s019, s020, chk016):
             self.requires(option, "maya")
         self.requires(s_pack_margin, "blender")
 
@@ -480,8 +483,7 @@ class UvSlots(Slots):
 
     def _pack_engine(self, menu):
         """``(engine, options)``: the chosen packer and the ``pack_uvs`` options
-        it honors. A host with one packer (Blender) hides the method combo; any
-        value it holds there resolves to that packer."""
+        it honors; a value the host's table lacks resolves to its own packer."""
         engines = self.tk.UvUtils.PACK_ENGINES
         engine = menu.cmb019.currentData()
         if engine not in engines:
@@ -578,6 +580,12 @@ class UvSlots(Slots):
                 f"past the end of the UDIM row.</i>"
             )
         packed = len(result.objects)
+        if result.fallbacks:
+            # Said, never silent: these landed through the other engine.
+            stats += (
+                f"<br><br><i>Packed with xatlas instead ({len(result.fallbacks)} "
+                f"mesh(es)): {result.fallback_reason}.</i>"
+            )
         if result.failed:
             failed_list = "<br>".join(
                 f"• <b>{name}</b>: {reason}" for name, reason in result.failed

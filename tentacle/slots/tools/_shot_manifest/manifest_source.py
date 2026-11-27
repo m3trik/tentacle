@@ -347,6 +347,7 @@ class ManifestSourceMixin:
         self._csv_path = csv_path
         self._source = source or ("csv" if csv_path else "detect")
         self._sheet_steps = steps
+        self._behavior_sets.clear()  # the modes a scene that keeps none starts with follow the sheet's words
         self._shown_record = None  # _follow_store reads the shots again
         self._editor.load()
         self._steps = self._editor.apply(steps)
@@ -355,6 +356,7 @@ class ManifestSourceMixin:
         self._last_results = []
         self._last_resolved = []
         self._projected = {}
+        self._plans = {}
         self._typed_shift = {}
         self._range_issues = {}
         self._inserts = []
@@ -371,8 +373,11 @@ class ManifestSourceMixin:
         hidden = len(self._steps) - len(self._shown_steps())
         if hidden:
             footer = f"{footer} {hidden} without a shot hidden.".strip()
+        said = self._sheet_issue_note()  # what the sheet's own check found, the first thing to fix
+        if said:
+            footer = f"{footer} {said}".strip()
         if footer:
-            self._set_footer(footer)
+            self._set_footer(footer, color=ERROR_COLOR if "issue" in said else "")
         if assessed and self._steps:
             self._reassess_soon(note=footer)
 
@@ -421,7 +426,9 @@ class ManifestSourceMixin:
             if self._active_mapping is not None:
                 from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
 
-                steps = Mapping.resolve(path, mapping=self._active_mapping)
+                # A local sheet's narration and recordings are read beside it (a URL's: as written).
+                beside = os.path.dirname(os.path.abspath(path)) if os.path.isfile(path) else None
+                steps = Mapping.resolve(path, mapping=self._active_mapping, base=beside)
             else:
                 steps = ManifestModel.parse_csv(path, columns=self._column_map)
         except ptk.RemoteFile.Error as exc:

@@ -19,12 +19,15 @@ class EmissiveGroupsSlots(Slots):
     (``self.engine``) -- no authoring logic lives here. A group's faces wear a
     copy of their material made for the group; the table lists groups by name,
     and the **Weight** column is scrub- and click-editable (Maya channel-box
-    idiom), setting the weight a group rests at. **Sync** (``tb000``) keeps
-    each copy in step with its base material.
+    idiom), setting the weight a group rests at; the **State** column's
+    dropdown rests (or, keyed, keys) a named state -- a tint and a weight,
+    an indicator light's off / green / blue / amber / red. **Sync**
+    (``tb000``) keeps each copy in step with its base material.
     """
 
-    COLUMNS = ("Group", "Weight", "Materials", "Faces")
+    COLUMNS = ("Group", "Weight", "State", "Materials", "Faces")
     WEIGHT_COL = 1
+    STATE_COL = 2
     #: pixels of horizontal scrub per full 0-1 weight sweep
     SCRUB_PX_PER_UNIT = 150.0
 
@@ -72,17 +75,24 @@ class EmissiveGroupsSlots(Slots):
                     "Select faces (or meshes), name the group, press Add.",
                     "Set each group's Weight in the table (0 = off, 1 = the "
                     "base material's own glow).",
-                    "Key it: table menu &gt; Key Weights @ Current Frame.",
-                    "Export as usual: each keyed copy's weight rides the file.",
+                    "An indicator light: pick its State (off, green, blue, "
+                    "amber, red) -- a tint over its material's emission colour "
+                    "and a weight.",
+                    "Key it: table menu &gt; Key Weights (or Key States) @ "
+                    "Current Frame.",
+                    "Export as usual: each keyed copy's weight, tint and states "
+                    "ride the file; a game engine switches a state by name.",
                 ],
                 notes=[
                     "A copy shares its base's maps; after changing a base, "
                     "press Sync (an export says which copies are out of step).",
-                    "One material per group and material: a face is in one "
-                    "group, and a region is whole faces -- cut a face to "
-                    "split it.",
+                    "One copy per material and group: a face is in one group, "
+                    "and a region is whole faces -- cut a face to split it.",
+                    "A keyed group's Weight and State edits key it at the "
+                    "current frame (a state holds until the next key).",
                     "The material needs an emission weight to key (Standard "
-                    "Surface, Principled BSDF).",
+                    "Surface, Principled BSDF); a state's tint, an unmapped "
+                    "emission colour (white shows each tint as named).",
                 ],
             )
         )
@@ -178,8 +188,22 @@ class EmissiveGroupsSlots(Slots):
                 setObjectName="key_weights",
                 setToolTip=self.sb.tooltip.fmt(
                     title="Key Weights @ Current Frame",
-                    body="Key every group's weight, at its current value and the "
-                    "current frame, on each of its copies.",
+                    body="Key the highlighted group's weight (every group's, with "
+                    "no row highlighted) at its current value and the current "
+                    "frame, on each of its copies, in one undo step.",
+                    notes=["Once keyed, editing its Weight keys the new value."],
+                ),
+            )
+            widget.menu.add(
+                "QPushButton",
+                setText="Key States @ Current Frame",
+                setObjectName="key_states",
+                setToolTip=self.sb.tooltip.fmt(
+                    title="Key States @ Current Frame",
+                    body="Key the highlighted group's State (every group showing "
+                    "one, with no row highlighted) at the current frame: its "
+                    "tint and weight, held until the next key, in one undo step.",
+                    notes=["Once keyed, picking a State keys the new one."],
                 ),
             )
             widget.menu.add(
@@ -188,8 +212,8 @@ class EmissiveGroupsSlots(Slots):
                 setObjectName="remove_keys",
                 setToolTip=self.sb.tooltip.fmt(
                     title="Remove Keys",
-                    body="Delete the highlighted group's weight keys, keeping "
-                    "its weight now.",
+                    body="Delete the highlighted group's weight and tint keys, "
+                    "keeping its weight and tint now.",
                 ),
             )
 
@@ -250,18 +274,61 @@ class EmissiveGroupsSlots(Slots):
                 values = (
                     name,
                     "" if weight is None else f"{weight:g}",
+                    data.get("state") or "",
                     str(len(data["materials"])),
                     str(data["faces"]),
                 )
                 for col, value in enumerate(values):
                     item = QtWidgets.QTableWidgetItem(value)
-                    if col != self.WEIGHT_COL or data["keyed"]:
-                        item.setFlags(flags_ro)  # a keyed weight is the animation's
+                    if col != self.WEIGHT_COL:
+                        item.setFlags(flags_ro)
+                    elif data["weight_keyed"]:
+                        # Editable: an edit keys the value at the current frame
+                        # (a locked cell could only key a constant curve).
+                        item.setToolTip("Keyed: an edit keys it at the current frame.")
                     if col:
                         item.setTextAlignment(Qt.AlignCenter)
                     table.setItem(row, col, item)
+                table.setCellWidget(row, self.STATE_COL, self._state_box(name, data))
         finally:
             self._updating = False
+
+    def _state_box(self, name: str, data: dict):
+        """The State cell's dropdown: the group's states as the engine lists
+        them (the defaults it would take, for one with none of its own: the
+        indicator states, or off / on where its colour cannot be tinted), the
+        one it shows now picked (blank when it shows none of them)."""
+        box = self.sb.QtWidgets.QComboBox()
+        names = list(data["states"])
+        box.addItems([""] + names)
+        box.setCurrentIndex(names.index(data["state"]) + 1 if data.get("state") in names else 0)
+        if data.get("tint") is None:
+            box.setToolTip("Its material's emission colour cannot be tinted: its states are its weight's.")
+        elif data["keyed"]:
+            box.setToolTip("Keyed: a pick keys the state at the current frame.")
+        else:
+            box.setToolTip("Rest the group in a state: its tint and weight.")
+        box.currentTextChanged.connect(lambda state, group=name: self._on_state_chosen(group, state))
+        return box
+
+    def _on_state_chosen(self, name: str, state: str) -> None:
+        """Rest group *name* in *state*, or key it there when its weight or
+        tint is keyed: one undo step, which stores the defaults on a group
+        with no states of its own."""
+        if self._updating or not state:
+            return
+        data = self.engine.list_groups().get(name)
+        if data is None:
+            return
+        try:
+            if data["keyed"]:
+                self.engine.key_state(name, state)
+            else:
+                self.engine.set_state(name, state)
+        except ValueError as error:
+            self.sb.message_box(str(error))
+        # After the signal returns: the refresh replaces the box that sent it.
+        self.sb.QtCore.QTimer.singleShot(0, self._refresh_table)
 
     def _group_at(self, row: int) -> Optional[str]:
         item = self.ui.tbl000.item(row, 0)
@@ -272,10 +339,17 @@ class EmissiveGroupsSlots(Slots):
         return self._group_at(row) if row >= 0 else None
 
     def _set_weight(self, row: int, weight: float) -> None:
+        """Rest the row's group at *weight*, or key it there at the current
+        frame when its weight is keyed (the animation owns a keyed copy; a
+        keyed tint alone leaves the weight to rest)."""
         name = self._group_at(row)
         if not name:
             return
-        self.engine.set_weight(name, weight)
+        groups = self.engine.list_groups()
+        if name in groups and groups[name]["weight_keyed"]:
+            self.engine.key_weight(name, weight)
+        else:
+            self.engine.set_weight(name, weight)
         self._refresh_table()
 
     def _on_cell_changed(self, row, col) -> None:
@@ -326,16 +400,24 @@ class EmissiveGroupsSlots(Slots):
     # ------------------------------------------------------------------
 
     def b000(self) -> None:
-        """Add (or extend) a group from the selection."""
+        """Add (or extend) a group from the selection. An empty name makes a
+        new group under the first free ``group_<n>``; the name stays in the
+        field, so a second Add extends the same group."""
         name = self.ui.txt000.text().strip()
         if not name:
-            name = f"group_{len(self.engine.list_groups())}"
+            taken = set(self.engine.list_groups())
+            name = next(f"group_{i}" for i in range(len(taken) + 1) if f"group_{i}" not in taken)
         try:
-            self.engine.add_group(name)
+            copies = self.engine.add_group(name)
         except ValueError as error:
             self.sb.message_box(str(error))
             return
-        self.ui.txt000.clear()
+        if not copies:
+            self.sb.message_box(
+                "No selected face wears a material: give the faces a material "
+                "that glows, then Add."
+            )
+        self.ui.txt000.setText(name)
         self._refresh_table()
 
     def b001(self) -> None:
@@ -399,7 +481,18 @@ class EmissiveGroupsSlots(Slots):
         if not name:
             self.sb.message_box("Select a group row first.")
             return
+        group = self.engine.list_groups().get(name, {})
+        kept = [
+            copy
+            for copy, base in zip(group.get("materials", []), group.get("bases", []))
+            if not base
+        ]
         self.engine.remove_group(name)
+        if kept:
+            self.sb.message_box(
+                f"Kept {', '.join(kept)}: its base material is gone, so its faces "
+                "keep it. Give them a material, then delete it."
+            )
         self._refresh_table()
 
     def remove_faces(self) -> None:
@@ -415,18 +508,52 @@ class EmissiveGroupsSlots(Slots):
         self._set_all_weights(0.0)
 
     def _set_all_weights(self, weight: float) -> None:
-        for name in self.engine.list_groups():
-            self.engine.set_weight(name, weight)
+        """Rest every group at *weight* in one undo step; a keyed group keeps
+        its curve, and is named."""
+        groups = self.engine.list_groups()
+        if not groups:
+            return
+        rested = self.engine.set_weights({name: weight for name in groups})
+        keyed = [name for name in groups if name not in rested]
+        if keyed:
+            self.sb.message_box(
+                f"{', '.join(keyed)}: keyed, so its curve plays; edit its Weight "
+                "to key a value, or Remove Keys first."
+            )
         self._refresh_table()
 
     def key_weights(self) -> None:
+        """Key the highlighted group's weight now, or every group's with no
+        row highlighted -- one undo step."""
         groups = self.engine.list_groups()
         if not groups:
             self.sb.message_box("No groups to key.")
             return
-        for name in groups:
-            self.engine.key_weight(name)
-        self.sb.message_box(f"Keyed {len(groups)} group weight(s) at the current frame.")
+        chosen = self._selected_group()
+        names = [chosen] if chosen in groups else list(groups)
+        self.engine.key_weights(names)
+        self.sb.message_box(
+            f"Keyed the weight of {', '.join(names)} at the current frame."
+        )
+        self._refresh_table()
+
+    def key_states(self) -> None:
+        """Key the highlighted group's state now, or every group showing one
+        with no row highlighted -- one undo step."""
+        groups = self.engine.list_groups()
+        chosen = self._selected_group()
+        names = [chosen] if chosen in groups else list(groups)
+        shown = {name: groups[name]["state"] for name in names if groups[name]["state"]}
+        if not shown:
+            self.sb.message_box("No group shows a state: pick one in the State column first.")
+            return
+        try:
+            self.engine.key_states(shown)
+        except ValueError as error:
+            self.sb.message_box(str(error))
+        else:
+            keyed = ", ".join(f"{name} ({state})" for name, state in shown.items())
+            self.sb.message_box(f"Keyed {keyed} at the current frame.")
         self._refresh_table()
 
     def remove_keys(self) -> None:
@@ -436,7 +563,7 @@ class EmissiveGroupsSlots(Slots):
             return
         cleared = self.engine.remove_keys(name)
         self.sb.message_box(
-            f"Removed the weight keys of {', '.join(cleared)}." if cleared else "No keys."
+            f"Removed the weight and tint keys of {', '.join(cleared)}." if cleared else "No keys."
         )
         self._refresh_table()
 

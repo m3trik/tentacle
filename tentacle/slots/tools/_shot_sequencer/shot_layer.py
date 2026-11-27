@@ -322,13 +322,13 @@ class GapOverlay:
 
     def _gap_drag_label(self) -> str:
         """``"<verb> <frame>"`` -- what this drag does under the modifiers
-        recorded at press, so the gesture reads at the cursor."""
+        held in it, so the gesture reads at the cursor."""
         sq = self._layer.sequencer
         if self._drag_mode == "move":
             verb = "Slide gap"
-        elif sq.shift_held_at_press:
+        elif sq.shift_held_in_drag:
             verb = "Retime"
-        elif sq.ctrl_held_at_press:
+        elif sq.ctrl_held_in_drag:
             verb = "Trim"
         elif self._tail or self._head:
             verb = "Resize"  # a shot bound: the bound moves, nothing slides
@@ -806,7 +806,8 @@ class ShotLayer(QtCore.QObject):
         zone = self._band_zone(event.pos())
         if not zone:
             return False
-        # The press's own modifiers decide the grab: move, bound-only, retime.
+        # The press's chord starts the grab (move, bound-only, retime); the
+        # widget follows it through the drag, so a modifier can switch it.
         self.sequencer.record_press_modifiers(mods)
         hl = self.sequencer.range_highlight_item
         hl.begin_edge_drag(zone, view.mapToScene(event.pos()).x())

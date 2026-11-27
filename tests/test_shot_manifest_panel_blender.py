@@ -178,6 +178,30 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         missing = [w for w in expected if not hasattr(self.ui, w)]
         self.assertEqual(missing, [])
 
+    def test_the_view_row_ends_in_its_search_field(self):
+        """Bug: the field was built in code into ``ui.view_layout``, which the
+        real panel never answers (uitk resolves widgets by name, never a
+        layout), so it was never made; the Maya suite passed on a stub ui.
+        Fixed: 2026-11-23 -- the ``.ui``'s ``txt_search``."""
+        from unittest import mock
+        from qtpy import QtWidgets as Qw
+
+        ctrl = self.ui.slots.controller
+        field = ctrl._search_field
+        self.assertIs(field, self.ui.txt_search)
+        row = self.ui.findChild(Qw.QHBoxLayout, "view_layout")
+        placed = [row.itemAt(i).widget() for i in range(row.count())]
+        holder = next(w for w in placed if w is field or w.isAncestorOf(field))
+        self.assertIs(holder, placed[-1], "at the row's right end")
+        # Review (2026-11-26): a 300 px minimum over a 180 px cap: the cap dead, the row 300 px wider than it needs.
+        self.assertLessEqual(field.minimumWidth(), field.maximumWidth(), "a minimum under its cap")
+        self.assertLessEqual(field.minimumWidth(), 120)
+        self.assertFalse(field.restore_state, "a search is never kept")
+        with mock.patch.object(ctrl, "_apply_issues_filter") as refilter:
+            field.setText("a01")
+        refilter.assert_called()
+        field.clear()
+
     def test_export_sits_before_assess_and_opens_its_preview(self):
         """Export (2026-10-10, in place of the header menu's Copy Asset Names)
         sits in the footer before Assess and Build; it has no option menu --
@@ -253,13 +277,13 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         )
 
     def test_tbl_steps_headers(self):
-        """The tree carries the unified 6-column layout."""
+        """The tree carries the unified layout: six data columns and Status."""
         from tentacle.slots.tools._shot_manifest.manifest_data import HEADERS
 
         self.assertIsNotNone(self.ui.tbl_steps)
         # populate_table sets header labels; before first populate the column
-        # count may be default — assert the constant is the 6-col contract.
-        self.assertEqual(len(HEADERS), 6)
+        # count may be default — assert the constant is the layout's contract.
+        self.assertEqual(len(HEADERS), 7)
         self.assertEqual(HEADERS[0], "Step")
 
     def test_template_options_render_and_apply(self):
@@ -576,7 +600,10 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         )
         self.assertIsNotNone(extra, "additional-object row not created")
         texts = [extra.text(c) for c in range(len(HEADERS))]
-        self.assertEqual(texts, ["", "", "ExtraObj", "", "", ""])
+        # Its cause in words in the Status column (2026-11-22), nothing else.
+        self.assertEqual(
+            texts, ["", "", "ExtraObj", "", "", "", StepStatus.LABELS["additional"]]
+        )
 
     def test_expand_missing_uses_logger_and_footer(self):
         """expand_missing reports through the logger + footer exactly as the mayatk
@@ -742,6 +769,34 @@ class TestShotManifestPanelLoads(unittest.TestCase):
             store.mark_dirty()
         self.assertEqual(cells(), ("10", "40"))
 
+    def test_a_step_row_leads_its_menu_with_its_own_fix(self):
+        """The row's fix is the shared panel's, so Blender's handler offers it
+        too: a shot a hand edited is rebuilt from the sheet, for that row
+        alone (the Maya-hosted module runs the build). Added: 2026-11-22"""
+        import pythontk as ptk
+        from pythontk import BuilderObject, BuilderStep
+        from qtpy import QtWidgets
+
+        ctrl = self.ui.slots.controller
+        store = self._fresh_store(ctrl, listen=True)
+        step = BuilderStep("A01", "A", "t", "the sheet's text", [BuilderObject("Arm")])
+        ptk.ShotManifest(store).update([step], initial_shot_length=40)
+        ctrl._load_data([step], csv_path="X:/sheet.csv")
+
+        def offered():
+            menu = QtWidgets.QMenu()
+            self.addCleanup(menu.deleteLater)
+            ctrl._add_fix_actions(menu, step, [])
+            default = menu.defaultAction()
+            return [a.text() for a in menu.actions() if not a.isSeparator()], default
+
+        self.assertEqual(offered()[0], [], "as built: nothing to fix")
+        shot = store.shot_by_name("A01")
+        store.update_shot(shot.shot_id, description="the artist's note")
+        labels, default = offered()
+        self.assertEqual(labels, ["Rebuild 'A01' from Sheet"])
+        self.assertEqual(default.text(), labels[0])
+
     def test_a_shot_deleted_or_added_elsewhere_reshapes_a_sheet(self):
         """A sheet follows the pairing, not only the ranges: a deleted shot's
         step reads unbuilt, an added shot is listed "not in doc" and its range
@@ -790,19 +845,20 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         edits = ctrl._editor._cmb_edits
         self.assertEqual(edits.currentData(), "keep")
         modes = ctrl._behavior_modes
-        self.assertEqual(sorted(modes), sorted(every))
+        self.assertEqual(sorted(modes), sorted(Behaviors.families(every)))
         self.assertEqual({c.currentData() for c in modes.values()}, {"off"})
         edits.setCurrentIndex(edits.findData("rebuild"))
         modes["highlight"].setCurrentIndex(modes["highlight"].findData("key"))
-        modes["fade_in"].setCurrentIndex(modes["fade_in"].findData("marker"))
+        modes["fade"].setCurrentIndex(modes["fade"].findData("marker"))  # Fade: in and out
+        fades = {"fade_in", "fade_out"}
         try:
             mani = ctrl._manifest()
             self.assertTrue(mani.rebuild_edited)
-            self.assertEqual(mani.disabled_behaviors, every - {"highlight", "fade_in"})
-            self.assertEqual(mani.marked_behaviors, frozenset({"fade_in"}))
+            self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - fades)
+            self.assertEqual(mani.marked_behaviors, frozenset(fades))
         finally:
             edits.setCurrentIndex(edits.findData("keep"))
-            for name in ("highlight", "fade_in"):
+            for name in ("highlight", "fade"):
                 modes[name].setCurrentIndex(modes[name].findData("off"))
         mani = ctrl._manifest()
         self.assertFalse(mani.rebuild_edited)
@@ -1421,20 +1477,39 @@ class TestShotManifestLocalEdits(unittest.TestCase):
             [["door", "bolt01"], ["latch", "red_door"]],
         )
 
-    def test_behavior_ticks_are_edits_while_they_are_in_force(self):
-        from unittest import mock
+    def _turn_off(self, obj, behavior) -> bool:
+        """Pick a behavior chip's "Turn Off", as a click on it
+        opens it (a keyed type's: an Off type offers its mode alone);
+        ``False`` when the menu offers none."""
+        from qtpy import QtCore
+        from qtpy import QtWidgets as Qw
 
+        cell = Qw.QWidget()
+        self.addCleanup(cell.deleteLater)
+        self.ctrl._chip_menu(obj, "A01", behavior, QtCore.QPoint(), cell)
+        menus = cell.findChildren(Qw.QMenu)
+        item = next((a for m in menus for a in m.actions() if a.text() == "Turn Off"), None)
+        if item is None:
+            return False
+        item.trigger()  # refused here while the original sheet is viewed
+        for menu in menus:
+            menu.hide()
+        return True
+
+    def test_a_behavior_turned_off_is_an_edit_while_edits_are_in_force(self):
+        self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
+        self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
+        self.ctrl._set_behavior_mode("fade_in", "key")  # an Off type's chip has no per-object toggle
         self._load(on=False)
         obj = self.ctrl._steps[0].objects[0]
-        box = mock.Mock(**{"isChecked.return_value": False})
-        self.ctrl._on_behaviors_changed(obj, [box], step_id="A01")
+        self.assertTrue(self._turn_off(obj, "fade_in"), "the menu opens; the pick is refused")
         self._settle()
         self.assertEqual(self.ctrl._steps[0].objects[0].behaviors, ["fade_in"])
         self.assertFalse(self.ctrl._editor.edits.has_edits)  # the sheet's view
 
         self._load()
         obj = self.ctrl._steps[0].objects[0]
-        self.ctrl._on_behaviors_changed(obj, [box], step_id="A01")
+        self.assertTrue(self._turn_off(obj, "fade_in"))
         self._settle()
         door = self.ctrl._steps[0].objects[0]  # the redrawn table's
         self.assertEqual(door.behaviors, [])
@@ -1499,10 +1574,10 @@ class TestShotManifestRowTags(unittest.TestCase):
         from qtpy.QtWidgets import QMenu, QWidgetAction
 
         def chosen(menu, *_args):
-            row = next(
+            row = next(  # the swatch row; the menu's section titles are widget actions too
                 a.defaultWidget()
                 for a in menu.actions()
-                if isinstance(a, QWidgetAction)
+                if isinstance(a, QWidgetAction) and hasattr(a.defaultWidget(), "swatches")
             )
             QTest.mouseClick(row.swatches[swatch], Qt.LeftButton)
             return None
@@ -1688,6 +1763,18 @@ class TestShotManifestUnlistedShots(unittest.TestCase):
         self._load(hide_missing=True)
         self.assertEqual(self._names(), ["A01", "A01_2", "A02"])
 
+    def test_a_view_action_finds_a_shot_row_by_its_shot(self):
+        """Bug: the view combos' row key was shadowed by the table's
+        (``ManifestTableMixin._row_key`` comes first in the controller's
+        bases), so a view action found a shot no step lists by its row's
+        text, not its shot.
+        Fixed: 2026-11-23"""
+        self._load()
+        row = self._row("A01_2")
+        shot_id = self.store.shot_by_name("A01_2").shot_id
+        self.assertEqual(self.ctrl._keys([row]), [("shot", shot_id)])
+        self.assertEqual(self.ctrl._rows_now([("shot", shot_id)]), [row])
+
 
 @_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
@@ -1861,10 +1948,10 @@ class TestShotManifestIncrementalPlacement(unittest.TestCase):
         self.assertEqual(self.ctrl._projected, {"B01": "after shot 'A02'"})
         self.ctrl._redraw()
         row = self._row("B01")
-        self.assertEqual(
-            (row.text(COL_START), row.text(COL_END)), ("200", f"{200 + length:.0f}")
-        )
+        # It moves A03: no frames shown, where it lands is in its tip (2026-11-22).
+        self.assertEqual((row.text(COL_START), row.text(COL_END)), ("insert", ""))
         self.assertIn("after shot 'A02'", row.toolTip(COL_START))
+        self.assertIn(f"lands at 200-{200 + length:.0f}", row.toolTip(COL_START))
 
     def test_a_step_whose_shot_was_deleted_is_inserted_not_put_back(self):
         self.ctrl._user_ranges["A02"] = self.ctrl._seeded_ranges["A02"] = (100, 200)
@@ -1896,7 +1983,7 @@ class TestShotManifestIncrementalPlacement(unittest.TestCase):
         self.ctrl._refresh_ranges()
         self.store.update_shot(self.store.shot_by_name("A02").shot_id, end=250)
         self.ctrl._follow_store()
-        self.assertEqual(self._row("B01").text(COL_START), "250")
+        self.assertIn("lands at 250-", self._row("B01").toolTip(COL_START))  # it moves A03: no frames shown
 
     def test_a_typed_range_rides_the_inserts_before_it(self):
         """A range typed in the timeline's current frames moves with the

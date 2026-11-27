@@ -244,6 +244,63 @@ class TestSceneExporterPanelSetup(_PanelCase):
         ui.b009.setChecked.assert_called_with(False)
         ui.b009.setEnabled.assert_called_with(True)
 
+    def test_a_saved_hierarchy_checkbox_restores_into_its_combo(self):
+        """REGRESSION (2026-11-26): Check Hierarchy vs Existing FBX became a
+        combo, and the window's store kept the checkbox's value under
+        ``<row>/toggled``, which the combo (``/currentIndexChanged``) never
+        reads: a check that was on opened at OFF. Opened here in the
+        switchboard's order -- the panel's ``__init__``, then the restore --
+        over a real ``StateManager`` and the combo the row builds: a saved
+        True restores as Strict, a saved False as OFF. A preset's bool, keyed
+        by objectName and applied as it stands, lands on the same."""
+        import uuid
+
+        from qtpy import QtWidgets
+        from uitk.managers.settings_manager import SettingsManager
+        from uitk.managers.state_manager import StateManager
+        from uitk.testing import TestSandbox
+
+        from _host import qt_widgets_available
+
+        if not TestSandbox.is_active():
+            self.skipTest("uitk's settings sandbox is not active: refusing to write")
+        if not qt_widgets_available():
+            self.skipTest("no QWidget in this process")
+        QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+        row = "check_hierarchy_vs_existing_fbx"
+
+        def built_combo():
+            """The row as the panel builds and registers it."""
+            combo = uitk.ComboBox()
+            combo.setObjectName(row)
+            combo.add(ptk.ExportProfile.HIERARCHY_CHECK_OPTIONS)
+            combo.restore_state = True
+            combo.derived_type = ptk.get_derived_type(combo, module="QtWidgets")
+            combo.default_signals = lambda: uitk.Switchboard.default_signals.get(
+                combo.derived_type
+            )
+            return combo
+
+        for saved, level in ((True, "strict"), (False, None)):
+            with self.subTest(saved=saved):
+                store = SettingsManager(
+                    namespace=f"switchboard/test_scene_exporter_{uuid.uuid4().hex[:8]}"
+                )
+                self.addCleanup(store.clear)
+                store.setValue(f"{row}/toggled", saved)
+                sb = mock.MagicMock()
+                sb.tk.SceneExporter = _FakeExporter
+                sb.loaded_ui.scene_exporter.settings = store
+                SceneExporterSlots(sb)
+                combo = built_combo()
+                StateManager(store).load(combo)
+                self.assertEqual(combo.currentData(), level, "the panel's saved state")
+                self.assertEqual(store.keys(), [f"{row}/currentIndexChanged"])
+
+                preset = built_combo()
+                self.assertTrue(StateManager(store).apply(preset, saved))
+                self.assertEqual(preset.currentData(), level, "a preset's value")
+
     def test_a_saved_regex_field_folds_into_the_restored_output_filename(self):
         """REGRESSION (2026-10-19): the retired RegEx field was read as
         ``settings.value("txt002")``, but the switchboard saves a widget under
@@ -689,10 +746,28 @@ class TestSceneExporterPanelRows(_PanelCase):
         with self.assertRaises(ValueError):
             slots._make_definition_widget("x", {"widget_type": "NoSuchWidget"})
 
+    def test_the_exclusions_read_under_one_section(self):
+        """Every row that leaves something out of what Scope chose sits under
+        one Exclude title -- each row names only what it drops (the hosts'
+        definitions, held by their suites) -- and none is left in Scope. Most
+        Detailed Only stays with LODs: one mode of a three-way choice.
+        Added: 2026-11-25"""
+        layout = dict(SceneExporterSlots._SETTINGS_LAYOUT)
+        self.assertEqual(list(layout), ["Output", "Scope", "Exclude"])
+        self.assertEqual(
+            layout["Exclude"],
+            ("ignore_groups", "exclude_hdr", "drop_rig_apparatus", "exclude_audio"),
+        )
+        self.assertEqual(
+            layout["Scope"],
+            ("export_visible_objects", "lods", "lod_write_back", "export_data_node"),
+        )
+
     def test_the_settings_combo_lays_out_the_hosts_settings_rows(self):
         """``_SETTINGS_LAYOUT`` in order: the two UI-only rows under their
         saved objectNames, a definition the host lacks (blendertk: no
-        set_workspace) skipped, and no Textures section."""
+        set_workspace) skipped, a section the host defines none of (here
+        Exclude) drawing no title, and no Textures section."""
         defs = {
             "set_linear_unit": {"panel": "settings", "widget_type": "ComboBox"},
             "export_visible_objects": {"panel": "settings", "widget_type": "ComboBox"},
