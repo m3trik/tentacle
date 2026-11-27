@@ -47,12 +47,21 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
             "Scope",
             (
                 "export_visible_objects",
-                "ignore_groups",
-                "exclude_hdr",
                 "lods",
                 "lod_write_back",
-                "drop_rig_apparatus",
                 "export_data_node",
+            ),
+        ),
+        # Everything the write leaves out of what Scope chose, under one title
+        # (each row names only what it drops: "Exclude ▸ Audio"). Most
+        # Detailed Only stays with LODs -- one mode of a three-way choice.
+        (
+            "Exclude",
+            (
+                "ignore_groups",
+                "exclude_hdr",
+                "drop_rig_apparatus",
+                "exclude_audio",
             ),
         ),
         # No Textures section: every texture dial — Texture Output included —
@@ -119,8 +128,8 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
         "chk004": "*_{date}_{time}",
     }
 
-    #: The Ignore row's case toggle, set by :meth:`ignore_groups_init`. Held on
-    #: the slots instance rather than re-resolved off the row each export: it
+    #: The Exclude ▸ Groups row's case toggle, set by :meth:`ignore_groups_init`.
+    #: Held on the slots instance rather than re-resolved off the row each export: it
     #: is a plain Python object, so unlike a Qt wrapper it cannot be
     #: invalidated by the option box's reparent. ``None`` until that slot runs
     #: — :meth:`_ignore_groups_case_sensitive` then reports the task's own
@@ -678,26 +687,30 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
 
     def cmb008_init(self, widget) -> None:
         """Settings — what is written and from what (the scene-prep steps are
-        Tasks). Rows come from :attr:`_SETTINGS_LAYOUT`; the FBX-preset
-        management lives on the ``cmb000`` row's own option box
+        Tasks). Rows come from :attr:`_SETTINGS_LAYOUT`, each section under
+        its title -- none for a section the host defines no row of; the
+        FBX-preset management lives on the ``cmb000`` row's own option box
         (``cmb000_init``)."""
         definitions = self.exporter.task_manager.task_definitions
         rows = []
         for group, names in self._SETTINGS_LAYOUT:
-            rows.append((self.sb.registered_widgets.Separator(title=group), group))
+            section = []
             for name in names:
                 spec = self._SETTINGS_WIDGETS.get(name)
                 if spec is not None:
-                    rows.append(
+                    section.append(
                         (
                             self._make_definition_widget(name, spec, object_name=name),
                             name,
                         )
                     )
                 elif name in definitions:
-                    rows.append(
+                    section.append(
                         (self._make_definition_widget(name, definitions[name]), name)
                     )
+            if section:
+                rows.append((self.sb.registered_widgets.Separator(title=group), group))
+                rows.extend(section)
         widget.add(rows, header="Settings", clear=True)
 
     def _refresh_presets(self) -> None:
@@ -710,7 +723,7 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
         self.logger.debug("Refreshed the FBX preset list.")
 
     def ignore_groups_init(self, widget) -> None:
-        """Init Ignore Groups — a Settings row (``cmb008``), created by
+        """Init Exclude ▸ Groups — a Settings row (``cmb008``), created by
         :meth:`cmb008_init` and registered by objectName.
 
         The row's own option box carries an "Aa" toggle for the match mode, so
@@ -736,14 +749,14 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
             # is registered by objectName (``register_children`` sweeps the
             # option box) but carries ``restore_state=False``, so the preset
             # manager's value-only window scope skips it — the export preset
-            # stores the Ignore field's text, never the match mode. uitk
+            # stores the Groups field's text, never the match mode. uitk
             # host-namespaces the key, so each host keeps its own state.
             settings_key="scene_exporter_ignore_groups_case_sensitive",
         )
         self._case_toggle = widget.option_box.find_option(self.sb.ToggleOption)
 
     def _ignore_groups_case_sensitive(self) -> bool:
-        """Whether the Ignore row's case toggle is on.
+        """Whether the Groups row's case toggle is on.
 
         ``False`` when :meth:`ignore_groups_init` never ran (no row, or an
         option box that never got wrapped) — the task's own default, so the

@@ -40,7 +40,10 @@ MAYA_PACK_ENGINES = {
     ),
     "xatlas": ("rotate", "brute_force", "skip_instances"),
 }
-BLENDER_PACK_ENGINES = {"standard": ("rotate", "margin")}
+BLENDER_PACK_ENGINES = {
+    "standard": ("rotate", "margin"),
+    "xatlas": ("rotate", "brute_force"),
+}
 
 
 def _value(v):
@@ -160,7 +163,7 @@ class TestPack(_SlotsCase):
     def _result(self, **overrides):
         fields = dict(
             succeeded=["a", "b"], failed=[], tiles=(1, 1), targets=["a", "b"],
-            objects=["a", "b"],
+            objects=["a", "b"], fallbacks=[], fallback_reason="",
         )
         fields.update(overrides)
         return SimpleNamespace(**fields)
@@ -200,16 +203,33 @@ class TestPack(_SlotsCase):
             {"rotate", "brute_force", "skip_instances"},
         )
 
-    def test_one_packer_hosts_send_rotate_and_margin(self):
-        """Blender: one packer, the method combo hidden; whatever it holds packs
-        with the host's own."""
+    def test_blenders_standard_sends_rotate_and_margin(self):
         self.tk.UvUtils.PACK_ENGINES = BLENDER_PACK_ENGINES
         self.tk.UvUtils.pack_uvs.return_value = self._result()
-        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        self.slots.tb000(_widget(**PACK_DEFAULTS))
         kwargs = self.tk.UvUtils.pack_uvs.call_args.kwargs
         self.assertEqual(kwargs["engine"], "standard")
         self.assertEqual((kwargs["rotate"], kwargs["margin"]), (True, 0.001))
         self.assertNotIn("tiles", kwargs)
+
+    def test_blenders_xatlas_sends_its_own_options(self):
+        """Blender packs with xatlas too (blendertk's engine, mirror of
+        mayatk's): the method combo is both hosts'."""
+        self.tk.UvUtils.PACK_ENGINES = BLENDER_PACK_ENGINES
+        self.tk.UvUtils.pack_uvs.return_value = self._result()
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        kwargs = self.tk.UvUtils.pack_uvs.call_args.kwargs
+        self.assertEqual(kwargs["engine"], "xatlas")
+        self.assertEqual(
+            {k for k in kwargs if k not in ("engine", "map_size", "udim", "coverage", "preserve_3d")},
+            {"rotate", "brute_force"},
+        )
+
+    def test_an_engine_the_host_lacks_packs_with_its_own(self):
+        self.tk.UvUtils.PACK_ENGINES = {"standard": ("rotate", "margin")}
+        self.tk.UvUtils.pack_uvs.return_value = self._result()
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        self.assertEqual(self.tk.UvUtils.pack_uvs.call_args.kwargs["engine"], "standard")
 
     def test_a_clamped_grid_and_skipped_meshes_are_reported(self):
         self.tk.UvUtils.pack_uvs.return_value = self._result(
@@ -220,6 +240,19 @@ class TestPack(_SlotsCase):
         self.assertIn("Skipped: 1", text)
         self.assertIn("1010-1020 (1 × 2)", text)
         self.assertIn("clamped", text)
+
+    def test_a_mesh_xatlas_packed_instead_is_said(self):
+        """The Standard packer left shells on each other and xatlas packed the
+        meshes instead: the summary says so, and why, never silently."""
+        self.tk.UvUtils.pack_uvs.return_value = self._result(
+            fallbacks=["a", "b"],
+            fallback_reason="u3dLayout put 12 texel(s) of shells on each other",
+        )
+        self.slots.tb000(_widget(**PACK_DEFAULTS))
+        text = self.messages()[0]
+        self.assertIn("Successfully packed 2 mesh(es)", text)
+        self.assertIn("Packed with xatlas instead (2 mesh(es))", text)
+        self.assertIn("u3dLayout put 12 texel(s) of shells on each other.", text)
 
     def test_a_refusal_is_shown_with_the_engine_note(self):
         self.tk.UvUtils.pack_uvs.side_effect = RuntimeError("pip install --user xatlas")
@@ -258,11 +291,12 @@ class TestOptionBoxes(_SlotsCase):
 
     def test_pack_tags(self):
         menu = self._init("tb000")
-        maya = ("cmb019", "chk043", "cmb010", "s011", "s012", "s013", "s014", "cmb018", "s019", "s020", "chk016")
+        maya = ("cmb010", "s011", "s012", "s013", "s014", "cmb018", "s019", "s020", "chk016")
         for name in maya:
             self.assertEqual(self._tag(getattr(menu, name)), "maya", name)
         self.assertEqual(self._tag(menu.s_pack_margin), "blender")
-        for name in ("chk044", "cmb009", "s004", "cmb015"):
+        both = ("cmb019", "chk043", "chk044", "cmb009", "s004", "cmb015")
+        for name in both:
             self.assertIsNone(self._tag(getattr(menu, name)), name)
 
     def test_pack_gates_follow_the_packers_table(self):
@@ -273,8 +307,13 @@ class TestOptionBoxes(_SlotsCase):
         menu.cmb010.setEnabled.assert_called_with(False)
         menu.s_pack_margin.setEnabled.assert_called_with(False)
         self.tk.UvUtils.PACK_ENGINES = BLENDER_PACK_ENGINES
+        menu.cmb019.currentIndexChanged.connect.call_args.args[0]()  # xatlas
+        menu.chk043.setEnabled.assert_called_with(True)
+        menu.s_pack_margin.setEnabled.assert_called_with(False)
+        menu.cmb019.currentData.return_value = "standard"
         menu.cmb019.currentIndexChanged.connect.call_args.args[0]()
         menu.chk044.setEnabled.assert_called_with(True)
+        menu.chk043.setEnabled.assert_called_with(False)
         menu.s_pack_margin.setEnabled.assert_called_with(True)
         menu.s019.setEnabled.assert_called_with(False)
 

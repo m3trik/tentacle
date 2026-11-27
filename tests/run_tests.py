@@ -92,6 +92,11 @@ try:
     TestSandbox.activate()
 except Exception as _sandbox_error:  # pragma: no cover - depends on the checkout
     print(f"# Warning: live-settings sandbox not active: {_sandbox_error!r} #")
+else:  # its scratch folder ages out, a step of its own
+    try:
+        TestSandbox.sweep_scratch(os.path.dirname(os.path.abspath(__file__)))
+    except Exception as _sweep_error:  # pragma: no cover - a held or unreadable folder
+        print(f"# Warning: scratch sweep failed: {_sweep_error!r} #")
 
 
 class TestResult:

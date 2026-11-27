@@ -14,9 +14,9 @@ One copy for both hosts: every host call goes through the controller's
 from typing import List, Optional, Tuple
 
 import pythontk as ptk
-from pythontk import BuilderStep
+from pythontk import BuilderStep, StepStatus
 
-from .manifest_data import COL_END, COL_START, PASTEL_STATUS
+from .manifest_data import COL_END, COL_START, PASTEL_STATUS, ManifestData
 
 
 class RangeColumnMixin:
@@ -31,18 +31,34 @@ class RangeColumnMixin:
     ``_fit_mode`` and ``sb``.
     """
 
-    #: The Start / End tip of an unbuilt step a Build inserts in sheet order
-    #: (``{where}``: after which shot).
+    # Start / End show only frames that hold on the timeline as it is now:
+    # a shot's own and a typed range (solid), and where Build places a new
+    # shot without moving any (dim, italic). A new shot that needs room made
+    # shows none -- any number would be wrong now or after Build -- and the
+    # moves are said where they happen, in the tooltips.
+
+    #: The Start / End tip of an unbuilt step Build places without moving a
+    #: shot (``{where}``: after which shot).
     PROJECTED_TIP = (
-        "Build inserts this step's shot {where}: these are its frames once the "
-        "shots after it have moved later to make room."
+        "Build inserts this step's shot {where}, at these frames: no shot moves."
     )
+    #: The Start cell of an unbuilt step whose shot needs room made.
+    INSERT_WORD = "insert"
+    #: Its Start / End tip (``{where}``; ``{push}``: how far the shots after it
+    #: move; ``{start}`` / ``{end}``: where it lands).
+    INSERT_TIP = (
+        "Build inserts this step's shot {where} and moves the shots after it "
+        "{push:.0f} frames later to make room: it lands at {start:.0f}-{end:.0f}. "
+        "No frames are shown: none on the timeline now would hold after Build."
+    )
+    #: The tip line of a row with a shot that Build's inserts move
+    #: (``{push}``: how far; ``{start}`` / ``{end}``: where it lands).
+    MOVED_TIP = "Build's new shots before it move it {push:.0f} frames later, to {start:.0f}-{end:.0f}."
     #: The Start / End tip of an unbuilt step whose typed range Build's
-    #: inserts move (``{typed}``: the range as typed; ``{push}``: how far).
+    #: inserts move (``{push}``: how far; ``{landed}``: where it lands).
     TYPED_RIDE_TIP = (
-        "Typed as {typed} on the timeline as it is now. Build inserts shots "
-        "before it, moving it {push:.0f} frames later with the shots after "
-        "them: these are its frames then."
+        "Typed for the timeline as it is now. Build inserts shots before it, "
+        "moving it {push:.0f} frames later with the shots after them, to {landed}."
     )
 
     @property
@@ -135,8 +151,10 @@ class RangeColumnMixin:
         is_parent = item.parent() is None
         if is_parent and column in (COL_START, COL_END):
             step_data = item.data(0, Qt.UserRole)
-            if isinstance(step_data, BuilderStep) and not self._step_is_built(
-                step_data.step_id
+            if (
+                isinstance(step_data, BuilderStep)
+                and step_data.animated  # no shot: no range to type
+                and not self._step_is_built(step_data.step_id)
             ):
                 self.ui.tbl_steps.editItem(item, column)
                 return
@@ -170,14 +188,13 @@ class RangeColumnMixin:
 
         # The edit rules (numbers, a start, start >= 0, end > start) are
         # RangeResolver.parse_range_edit's; both cells empty clears the range.
-        # A typed range's cells show where Build's inserts move it: the cell
-        # not edited is read as typed, or the range would move twice.
+        # The cells show frames of the timeline as it is now -- a typed range
+        # as typed -- so they read back as they stand; the other cell of a
+        # row that showed no frames (a new shot that needs room made) is empty.
         texts = {COL_START: item.text(COL_START), COL_END: item.text(COL_END)}
-        if step_data.step_id in self._typed_shift:
-            typed_start, typed_end = self._user_ranges[step_data.step_id]
-            other = COL_END if column == COL_START else COL_START
-            kept = typed_end if other == COL_END else typed_start
-            texts[other] = "" if kept is None else f"{kept:g}"
+        other = COL_END if column == COL_START else COL_START
+        if texts[other] == self.INSERT_WORD:
+            texts[other] = ""
         try:
             user_range = ptk.RangeResolver.parse_range_edit(
                 texts[COL_START], texts[COL_END]
@@ -246,6 +263,9 @@ class RangeColumnMixin:
             resolved=self._resolve_ranges(from_step_idx=from_step_idx)
         )
         self._validate_range_collisions(resolved, mark=mark)
+        # The range cells were just rewritten: a redline on one (a step marked
+        # as a shot, or as none) is drawn again over them.
+        self._editor.decorate()
         self._refresh_export_preview()  # an open one shows these frames
         return resolved
 
@@ -263,7 +283,9 @@ class RangeColumnMixin:
         are the user's own boundaries and never ask.
         """
         regions = len(self._cached_gaps or [])
-        auto = [s for s in self._steps if s.step_id not in self._user_ranges]
+        auto = [
+            s for s in self._steps if s.step_id not in self._user_ranges and s.animated
+        ]
         if self._use_selected_keys or not regions or len(auto) in (0, regions):
             return True
         answer = self.sb.message_box(
@@ -301,6 +323,7 @@ class RangeColumnMixin:
         # Nothing here survives from the last resolve: a step that stops
         # being projected (built, hidden, typed) must not keep its tip.
         self._projected = {}
+        self._plans = {}
         self._typed_shift = {}
         self._range_issues = {}
         self._inserts = []
@@ -362,6 +385,7 @@ class RangeColumnMixin:
         inserts = self._inserts = self._projected_inserts()
         plans = {p.step.step_id: p for p in inserts}
         names = {s.step_id: s.shot_name for s in self._steps}
+        self._plans = plans
         self._projected = {
             sid: self._insert_place(plan, names) for sid, plan in plans.items()
         }
@@ -423,15 +447,13 @@ class RangeColumnMixin:
         """
         if resolved is None:
             resolved = self._resolve_ranges()
-        if not resolved:
-            return resolved
 
         from qtpy.QtCore import Qt
         from qtpy.QtGui import QColor, QBrush
 
         tree = self.ui.tbl_steps
         dim = QBrush(QColor(PASTEL_STATUS["locked"][0]))
-        step_map = {r[0]: r for r in resolved}
+        step_map = {r[0]: r for r in resolved or ()}
         # A built row shows its shot (``_refresh_timing``), never a guess.
         built = self._pairing().shots
 
@@ -442,26 +464,117 @@ class RangeColumnMixin:
                 step_data = parent.data(0, Qt.UserRole)
                 if not isinstance(step_data, BuilderStep):
                     continue
-                entry = step_map.get(step_data.step_id)
-                if entry is None or step_data.step_id in built:
+                if step_data.step_id in built:
                     continue
-                step_id, start, end, is_user = entry
-                parent.setText(COL_START, f"{start:.0f}")
-                if end is not None:
-                    parent.setText(COL_END, f"{end:.0f}")
-                else:
-                    parent.setText(COL_END, "")
-                for col in (COL_START, COL_END):
-                    font = parent.font(col)
-                    if not is_user:
-                        parent.setForeground(col, dim)
-                        font.setItalic(True)
-                    else:
-                        font.setItalic(False)
-                    parent.setFont(col, font)
+                if not step_data.animated:
+                    self._draw_no_shot(parent)
+                    continue
+                entry = step_map.get(step_data.step_id)
+                if entry is None:
+                    continue
+                self._draw_unbuilt_range(parent, entry, dim)
         finally:
             tree.blockSignals(False)
+        self._note_moves()
         return resolved
+
+    def _makes_room(self, step_id: str) -> bool:
+        """Whether Build's insert for *step_id* moves an existing shot (its
+        plan's ``pivot``): its frames then hold on no timeline but Build's."""
+        plan = self._plans.get(step_id)
+        return plan is not None and plan.pivot is not None and plan.push > 1e-6
+
+    def _draw_unbuilt_range(self, item, entry, dim) -> None:
+        """An unbuilt row's Start / End from *entry* (``(step_id, start, end,
+        is_user)``), as the timeline holds it now: a typed range as typed
+        (where Build's inserts move it is in the tip), a new shot Build places
+        without moving one at its frames (dim, italic), and one that needs
+        room made with no frames -- :attr:`INSERT_WORD` -- since none would
+        hold both now and after Build."""
+        step_id, start, end, is_user = entry
+        if step_id in self._typed_shift:
+            start, end = self._user_ranges[step_id]
+        if not is_user and self._makes_room(step_id):
+            texts = (self.INSERT_WORD, "")
+        else:
+            texts = (f"{start:.0f}", "" if end is None else f"{end:.0f}")
+        item.setText(COL_START, texts[0])
+        item.setText(COL_END, texts[1])
+        for col in (COL_START, COL_END):
+            font = item.font(col)
+            if not is_user:
+                item.setForeground(col, dim)
+                font.setItalic(True)
+            else:
+                font.setItalic(False)
+            item.setFont(col, font)
+
+    def _note_moves(self) -> None:
+        """Each row with a shot that Build's inserts move (``_inserts``) keeps
+        its shot's frames -- the keys are there now -- and says in its tooltip
+        how far Build moves it and where it lands (:attr:`MOVED_TIP`)."""
+        if not self._inserts:
+            return
+        from qtpy.QtCore import Qt
+
+        store = self._active_store()
+        if store is None:
+            return
+        paired = self._pairing().shots
+        tree = self.ui.tbl_steps
+        rows = []
+        for i in range(tree.topLevelItemCount()):
+            item = tree.topLevelItem(i)
+            data = item.data(0, Qt.UserRole)
+            if isinstance(data, BuilderStep):
+                shot = paired.get(data.step_id)
+            elif isinstance(data, ptk.ShotBlock):
+                shot = store.shot_by_id(data.shot_id)
+            else:
+                shot = None
+            if shot is not None:
+                rows.append((item, shot))
+        landed = self._landed(
+            {n: (shot.start, shot.end) for n, (_item, shot) in enumerate(rows)}
+        )
+        blocked = tree.blockSignals(True)
+        try:
+            for n, (item, shot) in enumerate(rows):
+                start, end = landed[n]
+                if abs(start - shot.start) < 1e-6:
+                    continue
+                note = self.MOVED_TIP.format(
+                    push=start - shot.start, start=start, end=end
+                )
+                for col in (COL_START, COL_END):
+                    tip = (
+                        f"{shot.end - shot.start:.0f}f"  # as _refresh_timing writes it
+                    )
+                    item.setToolTip(col, f"{tip}\n{note}")
+        finally:
+            tree.blockSignals(blocked)
+
+    def _draw_no_shot(self, item) -> None:
+        """An unbuilt row of a step that plays no animation: no frames to
+        place, so its Start cell says so (``StepStatus.LABELS``), dim and
+        italic, its sentence (``StepStatus.HELP``) on both cells.  Drawn with
+        the table and again with each range pass, so it never waits on one."""
+        from qtpy.QtGui import QBrush, QColor
+
+        dim = QBrush(QColor(PASTEL_STATUS["locked"][0]))
+        tree = self.ui.tbl_steps
+        blocked = tree.blockSignals(True)
+        try:
+            item.setText(COL_START, ManifestData.label("no_shot"))
+            item.setText(COL_END, "")
+            for col in (COL_START, COL_END):
+                item.setForeground(col, dim)
+                font = item.font(col)
+                font.setItalic(True)
+                item.setFont(col, font)
+                item.setToolTip(col, StepStatus.HELP["no_shot"])
+        finally:
+            tree.blockSignals(blocked)
 
     def _validate_range_collisions(self, resolved=None, mark: bool = True) -> int:
         """Find the shown steps whose ranges overlap a neighbour's and mark them.
@@ -520,10 +633,15 @@ class RangeColumnMixin:
                     continue  # its shot's frames and length (_refresh_timing)
                 entry = resolved_map.get(sid)
                 brush = QBrush() if entry and entry[3] else dim
+                tip = (
+                    self._range_tip(sid)
+                    if step_data.animated
+                    else StepStatus.HELP["no_shot"]
+                )
                 for col in (COL_START, COL_END):
                     item.setForeground(col, brush)
                     item.setBackground(col, QBrush())
-                    item.setToolTip(col, self._range_tip(sid))
+                    item.setToolTip(col, tip)
         finally:
             tree.blockSignals(False)
         if mark:
@@ -531,32 +649,46 @@ class RangeColumnMixin:
         return len(pairs)
 
     def _range_tip(self, step_id: str) -> str:
-        """An unbuilt row's Start / End tooltip: where Build inserts its shot,
-        or how far Build's inserts move its typed range (``""``: neither)."""
-        where = self._projected.get(step_id)
-        if where:
+        """An unbuilt row's Start / End tooltip: where Build inserts its shot
+        (and, where it makes room, where it lands), or how far Build's
+        inserts move its typed range (``""``: neither)."""
+        plan = self._plans.get(step_id)
+        if plan is not None:
+            where = self._projected.get(step_id, "here")
+            if self._makes_room(step_id):
+                return self.INSERT_TIP.format(
+                    where=where, push=plan.push, start=plan.start, end=plan.end
+                )
             return self.PROJECTED_TIP.format(where=where)
         push = self._typed_shift.get(step_id)
         if not push:
             return ""
         start, end = self._user_ranges[step_id]
-        typed = f"{start:.0f}" if end is None else f"{start:.0f}-{end:.0f}"
-        return self.TYPED_RIDE_TIP.format(typed=typed, push=push)
+        landed = (
+            f"{start + push:.0f}"
+            if end is None
+            else f"{start + push:.0f}-{end + push:.0f}"
+        )
+        return self.TYPED_RIDE_TIP.format(push=push, landed=landed)
 
     def _revert_range_cell(self, item, step_id: str) -> None:
-        """Revert Start/End cells to their last resolved values after a rejected edit."""
+        """Draw a row's Start / End again after a rejected edit, as the last
+        resolve left them (:meth:`_draw_unbuilt_range`)."""
+        from qtpy.QtGui import QBrush, QColor
+
         tree = self.ui.tbl_steps
         tree.blockSignals(True)
-        for entry in self._last_resolved:
-            if entry[0] == step_id:
-                _, s, e, _ = entry
-                item.setText(COL_START, f"{s:.0f}")
-                item.setText(COL_END, f"{e:.0f}" if e is not None else "")
-                break
-        else:
-            item.setText(COL_START, "")
-            item.setText(COL_END, "")
-        tree.blockSignals(False)
+        try:
+            entry = next((e for e in self._last_resolved if e[0] == step_id), None)
+            if entry is not None:
+                self._draw_unbuilt_range(
+                    item, entry, QBrush(QColor(PASTEL_STATUS["locked"][0]))
+                )
+            else:
+                item.setText(COL_START, "")
+                item.setText(COL_END, "")
+        finally:
+            tree.blockSignals(False)
 
     def _restore_user_ranges(self, tree) -> None:
         """Write ``_user_ranges`` values back into Start/End cells after a table rebuild."""

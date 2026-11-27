@@ -478,7 +478,7 @@ class TestShotBoundsDragFromTheRuler(_LayerCase):
         start, end = self.emitted[0]
         self.assertAlmostEqual(start, 40.0, places=0)
         self.assertAlmostEqual(end, 150.0, places=0)
-        self.assertFalse(self.w.ctrl_held_at_press)
+        self.assertFalse(self.w.ctrl_held_in_drag)
 
     def test_alt_dragging_a_bound_resizes_about_the_centre(self):
         """Alt: the other bound moves as far the other way (the graph's scale)."""
@@ -494,7 +494,7 @@ class TestShotBoundsDragFromTheRuler(_LayerCase):
         start, end = self.emitted[0]
         self.assertAlmostEqual(start, 40.0, places=0)
         self.assertAlmostEqual(end, 150.0, places=0)
-        self.assertTrue(self.w.ctrl_held_at_press)
+        self.assertTrue(self.w.ctrl_held_in_drag)
 
     def test_dragging_the_start_bound_on_the_ruler_resizes_the_shot(self):
         self._drag(40.0, 20.0)
@@ -502,6 +502,44 @@ class TestShotBoundsDragFromTheRuler(_LayerCase):
         start, end = self.emitted[0]
         self.assertAlmostEqual(start, 20.0, places=0)
         self.assertAlmostEqual(end, 120.0, places=0)
+
+    def test_a_modifier_pressed_mid_drag_switches_the_lane_drag(self):
+        """Ctrl after the grab: the label says Trim at once and the drag
+        commits as one, without letting go and grabbing again."""
+        C, G = QtCore, QtGui
+        y, hl = self._lane_y(), self.w.range_highlight_item
+        plain, ctrl = C.Qt.NoModifier, C.Qt.ControlModifier
+        self.tl.mousePressEvent(
+            G.QMouseEvent(
+                C.QEvent.MouseButtonPress,
+                C.QPointF(self._vx(120.0), y),
+                C.Qt.LeftButton,
+                C.Qt.LeftButton,
+                plain,
+            )
+        )
+        self.assertTrue(hl._range_drag_label().startswith("Resize"))
+        self.tl.mouseMoveEvent(
+            G.QMouseEvent(
+                C.QEvent.MouseMove,
+                C.QPointF(self._vx(150.0), y),
+                C.Qt.NoButton,
+                C.Qt.LeftButton,
+                ctrl,
+            )
+        )
+        self.assertTrue(hl._range_drag_label().startswith("Trim"))
+        self.tl.mouseReleaseEvent(
+            G.QMouseEvent(
+                C.QEvent.MouseButtonRelease,
+                C.QPointF(self._vx(150.0), y),
+                C.Qt.LeftButton,
+                C.Qt.NoButton,
+                ctrl,
+            )
+        )
+        self.assertEqual(len(self.emitted), 1, self.emitted)
+        self.assertTrue(self.w.ctrl_held_in_drag, "the consumer reads a trim")
 
     def test_ctrl_dragging_the_start_bound_on_the_ruler_resizes_the_shot(self):
         self._drag(40.0, 20.0, modifiers=QtCore.Qt.ControlModifier)
@@ -1090,7 +1128,8 @@ class TestTheShotBoundOwnsItsEdge(_LayerCase):
 
 
 class TestBoundHandleGrammar(_LayerCase):
-    """A gap's edge press records Ctrl, and its frame label names the trim."""
+    """A gap's edge press records Ctrl, and its frame label names the trim;
+    a modifier changed mid-drag switches the drag."""
 
     SIZE = (900, 400)
     SHOW = True
@@ -1113,8 +1152,59 @@ class TestBoundHandleGrammar(_LayerCase):
             )
         )
         self.assertEqual(gap._drag_mode, "right")
-        self.assertTrue(self.w.ctrl_held_at_press)
+        self.assertTrue(self.w.ctrl_held_in_drag)
         self.assertTrue(gap._gap_drag_label().startswith("Trim 160"))
+
+    def test_shift_pressed_mid_gap_drag_turns_the_slide_into_a_retime(self):
+        """Through the viewport: a plain grab of the gap's edge slides, Shift
+        pressed partway retimes -- the label says so, and the release commits
+        the next shot's start as shown under the chord it ENDS with. A slide
+        and a retime commit the same bounds: the mode is the Shift the
+        consumer reads as the signal fires (``GapManager.on_gap_resized``)."""
+        C, G = QtCore, QtGui
+        self.w.add_track("A")
+        vp = self.tl.viewport()
+        resized = []
+        self.layer.gap_resized.connect(
+            lambda a, b: resized.append(
+                (a, b, self.w.ctrl_held_in_drag, self.w.shift_held_in_drag)
+            )
+        )
+        left, plain, shift = C.Qt.LeftButton, C.Qt.NoModifier, C.Qt.ShiftModifier
+        blocks = [
+            {"id": 1, "name": "s", "start": 40.0, "end": 120.0, "active": True},
+            {"id": 2, "name": "t", "start": 160.0, "end": 200.0},
+        ]
+        for released_under, retime in ((shift, True), (plain, False)):
+            with self.subTest(retime=retime):
+                self.layer.set_shot_blocks([dict(b) for b in blocks])
+                gap = self._gap(120, 160)
+                r = gap._rect()
+                at = self.tl.mapFromScene(C.QPointF(r.right() - 1, r.center().y()))
+
+                def send(kind, dx, button, buttons, mods):
+                    pos = C.QPointF(at.x() + dx, at.y())
+                    glob = C.QPointF(vp.mapToGlobal(pos.toPoint()))
+                    ev = G.QMouseEvent(kind, pos, glob, button, buttons, mods)
+                    {
+                        C.QEvent.MouseButtonPress: self.tl.mousePressEvent,
+                        C.QEvent.MouseMove: self.tl.mouseMoveEvent,
+                        C.QEvent.MouseButtonRelease: self.tl.mouseReleaseEvent,
+                    }[kind](ev)
+
+                resized.clear()
+                send(C.QEvent.MouseButtonPress, 0, left, left, plain)
+                self.assertEqual(gap._drag_mode, "right", "the viewport press grabbed")
+                send(C.QEvent.MouseMove, 30, C.Qt.NoButton, left, plain)
+                self.assertTrue(gap._gap_drag_label().startswith("Slide"))
+                send(C.QEvent.MouseMove, 40, C.Qt.NoButton, left, shift)
+                self.assertTrue(gap._gap_drag_label().startswith("Retime"))
+                shown = gap._end
+                self.assertGreater(shown, 160.0)
+                send(
+                    C.QEvent.MouseButtonRelease, 40, left, C.Qt.NoButton, released_under
+                )
+                self.assertEqual(resized, [(160.0, shown, False, retime)])
 
 
 # --------------------------------------------------------- legend and menus

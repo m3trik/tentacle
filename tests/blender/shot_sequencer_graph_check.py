@@ -207,7 +207,7 @@ def run():
     # the widget's flags (Shift: free across bounds) left the moved key
     # outside its shot (mayatk's twin, 2026-10-12).
     c = Case()
-    c.widget.shift_held_at_press = True  # a tracks gesture's leftover
+    c.widget.shift_held_in_drag = True  # a tracks gesture's leftover
     c.g.keys_edited.emit([(c.crv, [(40.0, 15.0, 0.0)])])
     check(
         "move past the end after a Shift gesture: the shot still grows",

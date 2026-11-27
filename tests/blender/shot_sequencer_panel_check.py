@@ -1009,7 +1009,7 @@ def _run_panel_checks():
     # A gap holding the animator's key keeps a frame too, its poses agreeing:
     # the retime refuses a zero-width gap (it would cut or stack the key), so
     # closed flush the key stayed where it was and B played it.  Found on
-    # SOL_REPLACE_ASSEMBLY pulled with its stepped keys: A04 0.0012 off.
+    # a production scene pulled with its stepped keys: A04 0.0012 off.
     _st, _offs = _closing_case(
         "CloseRespaceGapKey",
         [("A", 0, 40), ("B", 50, 90)],

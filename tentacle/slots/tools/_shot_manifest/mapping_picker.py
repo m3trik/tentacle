@@ -298,9 +298,11 @@ class MappingPickerMixin:
             return False
         values = self._option_values() if self._mapping_name else {}
         self._sheet_values = dict(values)
-        return ptk.ManifestEdits.set_sheet_options(
+        changed = ptk.ManifestEdits.set_sheet_options(
             store, path, self._mapping_name, values
         )
+        # And the behavior modes it was built with: seeded from the user's own where the scene keeps none.
+        return self._record_behavior_modes(store) or changed
 
     def _adopt_sheet_options(self, path: str) -> None:
         """Read sheet *path* the way the scene reads it, before it is parsed:
@@ -315,7 +317,9 @@ class MappingPickerMixin:
         if record is None:
             record = self._inferred_sheet_options(store, path)
         if record is None:
-            user = getattr(self, "_user_template", self._mapping_name)
+            # A sheet written in cells names the template it is written for (its header's
+            # own columns, its words); a sheet of sentences names none: the user's reads it.
+            user = self._written_for(path) or getattr(self, "_user_template", self._mapping_name)
             if user != self._mapping_name:
                 self._switch_template(user)  # a record's, switched in before
             elif getattr(self, "_sheet_values", None) is None:
@@ -339,6 +343,15 @@ class MappingPickerMixin:
             else None
         )
         self._build_option_rows()
+
+    def _written_for(self, path: str) -> Optional[str]:
+        """The template sheet *path* is written for (``Mapping.template_for``), or ``None``: a
+        sheet of sentences, or one that cannot be read (its load says why)."""
+        try:
+            return Mapping.template_for(path, self._mapping_dir or None)
+        except Exception as exc:
+            self.logger.debug("No template read from %r: %s", path, exc)
+            return None
 
     def _switch_template(self, name: Optional[str]) -> bool:
         """Read with template *name* (``None``: no template) for the sheet

@@ -16,19 +16,19 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>4</number>
+     <number>1</number>
     </property>
     <property name="leftMargin">
-     <number>4</number>
+     <number>1</number>
     </property>
     <property name="topMargin">
-     <number>4</number>
+     <number>1</number>
     </property>
     <property name="rightMargin">
-     <number>4</number>
+     <number>1</number>
     </property>
     <property name="bottomMargin">
-     <number>4</number>
+     <number>1</number>
     </property>
     <item>
      <widget class="Header" name="header" native="true">
@@ -217,6 +217,34 @@
         </property>
         <property name="toolTip">
          <string>Show the steps and objects Local Edits hid, or the steps without a shot.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="LineEdit" name="txt_search">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>180</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show the steps whose words match every word typed: the step's ID, name and status, its objects' names, behaviors and statuses. A view alone: Assess and Build still take every step.</string>
+        </property>
+        <property name="placeholderText">
+         <string>Search</string>
         </property>
        </widget>
       </item>

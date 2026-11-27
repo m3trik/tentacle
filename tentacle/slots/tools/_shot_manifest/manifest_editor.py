@@ -39,7 +39,7 @@ from typing import Callable, List, Optional, Tuple
 
 import pythontk as ptk
 
-from .manifest_data import COL_DESC, COL_STEP, ERROR_COLOR
+from .manifest_data import COL_DESC, COL_START, COL_STEP, EDIT_COLOR, ERROR_COLOR
 
 
 class ManifestEditor:
@@ -113,6 +113,9 @@ class ManifestEditor:
         cmb.setObjectName("cmb_edits")
         cmb.restore_state = False  # its modes are kept (or not) by name
         cmb.setCurrentTextPrefix("Edits:  ")
+        # As wide as its widest mode and the prefix: the menu sizes to its rows,
+        # and a combo sized to no contents was cut to "Keep All Ec".
+        cmb.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContents)
         cmb.setToolTip(
             "How Build treats your edits: keep a shot edited by hand, rebuild\n"
             "it, or compare the manifest with the sheet as delivered."
@@ -501,7 +504,7 @@ class ManifestEditor:
         from qtpy.QtCore import Qt
 
         data = item.data(0, Qt.UserRole) if item is not None else None
-        menu.addSeparator()
+        self.host._menu_section(menu, "Local Edits")
         if isinstance(data, ptk.BuilderObject):
             step = item.parent().data(0, Qt.UserRole)
             if self._editable(data) and not self._locked(step):
@@ -530,6 +533,7 @@ class ManifestEditor:
     def _step_actions(self, menu, step, selected: List[str]) -> None:
         name = step.shot_name
         self._hide_flyout(menu, step, selected)
+        self._shot_mark(menu, step, selected)
         if self.edits.is_added(step.step_id):
             menu.addAction(f"Remove '{name}'", lambda: self.remove_step(step))
         if self.edits.step_record(step.step_id):
@@ -545,6 +549,57 @@ class ManifestEditor:
                     label,
                     lambda h=home, n=sheet_name: self.hide_object(h, n, False),
                 )
+
+    def _shot_mark(self, menu, step, selected: List[str]) -> None:
+        """A step row's "Mark as No Shot" (or, on a step that plays no
+        animation, "Mark as a Shot"): a Local Edit of whether the step gets a
+        shot, over the steps of *selected* in the same state (the clicked one
+        alone when it is not among them).  A built step keeps its shot: Build
+        never removes one, so it is never marked as none."""
+        host = self.host
+        built = host._pairing().shots
+        to = not step.animated  # what the clicked step becomes
+        by_id = {s.step_id: s for s in host._steps}
+        targets = [
+            sid
+            for sid in selected
+            if sid in by_id and by_id[sid].animated != to and not (not to and sid in built)
+        ]
+        label = f"'{by_id[targets[0]].shot_name}'" if len(targets) == 1 else (
+            f"{len(targets)} Steps" if targets else f"'{step.shot_name}'"
+        )
+        act = menu.addAction(
+            f"Mark {label} as {'a Shot' if to else 'No Shot'}",
+            lambda: self.mark_shots(targets, to),
+        )
+        act.setEnabled(bool(targets))
+        if not targets:
+            act.setToolTip("Its shot stays: Build never removes a shot.")
+        elif to:
+            act.setToolTip(
+                "Give the step a shot: Build places one, though the sheet names no\n"
+                "animation clip for it -- a Local Edit (a redline on its Start cell)."
+            )
+        else:
+            act.setToolTip(
+                "The step plays no animation: Build makes no shot for it and places\n"
+                "nothing -- a Local Edit (a redline on its Start cell)."
+            )
+
+    def mark_shots(self, step_ids: List[str], animated: bool) -> None:
+        """Mark *step_ids* as steps that get a shot (*animated*) or none, each
+        a Local Edit against the sheet's own reading (``BuilderStep.animated``):
+        marked back to the sheet's, the edit goes."""
+        by_id = {s.step_id: s for s in self.host._steps}
+        for sid in step_ids:
+            step = by_id.get(sid)
+            if step is None:
+                continue
+            sheet = step.sheet.get("animated", step.animated)
+            self.edits.set_step(sid, "animated", animated, sheet=sheet)
+        if step_ids:
+            what = "a shot" if animated else "no shot"
+            self._commit(f"Marked {len(step_ids)} step(s) as {what}.")
 
     def _hide_flyout(self, menu, step, selected: List[str]) -> None:
         """A step row's Hide flyout: the step, the selected steps, the steps
@@ -594,11 +649,12 @@ class ManifestEditor:
 
     def _object_actions(self, menu, step, obj) -> None:
         name = obj.name
+        leaf = self.host.manifest_host.leaf_name(name)  # what the labels say; the edits keep the name
         home, sheet_name = ptk.ManifestEdits.anchor(step, obj)
         menu.addAction(
-            f"Hide '{name}'", lambda: self.hide_object(home, sheet_name, True)
+            f"Hide '{leaf}'", lambda: self.hide_object(home, sheet_name, True)
         )
-        sub = menu.addMenu(f"Move '{name}' To")
+        sub = menu.addMenu(f"Move '{leaf}' To")
         locked = self.host._locked_step_ids()  # final: nothing moves into one
         for target in self.host._steps:
             if target is step:
@@ -609,10 +665,10 @@ class ManifestEditor:
             )
             if target.step_id in locked or any(o.name == name for o in target.objects):
                 act.setEnabled(False)
-        menu.addAction(f"Rename All '{name}'…", lambda: self.rename_all(name))
+        menu.addAction(f"Rename All '{leaf}'…", lambda: self.rename_all(name))
         if obj.sheet or self.edits.object_record(home, sheet_name):
             menu.addAction(
-                f"Revert '{name}'",
+                f"Revert '{leaf}'",
                 lambda: self.revert_object(home, sheet_name, name),
             )
 
@@ -763,7 +819,7 @@ class ManifestEditor:
     # ---- the marks -----------------------------------------------------------
 
     def decorate(self) -> None:
-        """Mark the edited cells -- italic, the sheet's value in the tooltip --
+        """Mark the edited cells as redlines -- italic and amber, the sheet's value in the tooltip --
         while the edits are in force. Idempotent: the table and the assessment
         both call it after they draw."""
         if not self.enabled:
@@ -791,6 +847,15 @@ class ManifestEditor:
         finally:
             tree.blockSignals(False)
 
+    def is_edited(self, step) -> bool:
+        """Whether Local Edits changed anything of *step* or its objects while
+        they are in force: what :meth:`decorate` marks as a redline."""
+        if not self.enabled or not isinstance(step, ptk.BuilderStep):
+            return False
+        return bool(self._step_notes(step)) or any(
+            self._object_notes(obj, {}) for obj in step.objects
+        )
+
     def _step_notes(self, step) -> List[Tuple[int, str]]:
         notes = []
         if self.edits.is_added(step.step_id):
@@ -800,6 +865,8 @@ class ManifestEditor:
         if "description" in step.sheet:
             sheet = step.sheet["description"] or "(empty)"
             notes.append((COL_DESC, f"Sheet: {sheet}"))
+        if "animated" in step.sheet:
+            notes.append((COL_START, "Sheet: a shot" if step.sheet["animated"] else "Sheet: no shot"))
         hidden = self.edits.hidden_objects(step.step_id)
         if hidden:
             listed = ", ".join(name for _home, name in hidden)
@@ -821,10 +888,14 @@ class ManifestEditor:
 
     @staticmethod
     def _mark(item, column: int, note: str) -> None:
+        from qtpy.QtGui import QBrush, QColor
+
         font = item.font(column)
         if not font.italic():
             font.setItalic(True)
             item.setFont(column, font)
+        # A redline: italic alone also marks an audio row and a shot's member.
+        item.setForeground(column, QBrush(QColor(EDIT_COLOR)))
         tip = item.toolTip(column)
         if note not in tip:
             item.setToolTip(column, f"{tip}\n{note}" if tip else note)

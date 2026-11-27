@@ -57,6 +57,18 @@ class RowMenusMixin:
         if store is not None and step_ids:
             ptk.ManifestTags.assign(store, self._editor.source_key, step_ids, slot)
 
+    def _menu_section(self, menu, title: str) -> None:
+        """A titled rule in *menu* (a ``QMenu``): uitk's ``Separator``, as
+        the header menu's sections are drawn, so every menu of the panel
+        names its parts alike."""
+        from qtpy import QtWidgets
+
+        holder = QtWidgets.QWidgetAction(menu)
+        # Enabled: a disabled one is drawn on the theme's disabled ground. A
+        # rule takes no focus, so the keys and the pointer pass it by.
+        holder.setDefaultWidget(self.sb.Separator(title=title))
+        menu.addAction(holder)
+
     def _show_item_menu(self, pos) -> None:
         """Show a context menu for the clicked tree item; each entry carries
         its own callback."""
@@ -96,7 +108,9 @@ class RowMenusMixin:
         menu = QMenu(tree)
         StyleSheet.cast_shadow(menu)
         menu.setToolTipsVisible(True)
+        self._menu_section(menu, f"Step {step_data.shot_name}")
         if not is_child:
+            self._add_fix_actions(menu, step_data, selected_step_ids)
             # Colour swatches: every selected step when the clicked one is
             # among them, else the clicked one.
             tag_ids = (
@@ -121,6 +135,63 @@ class RowMenusMixin:
 
         menu.exec_(tree.viewport().mapToGlobal(pos))
         menu.deleteLater()  # the actions stay valid until the event loop runs
+
+    def _add_fix_actions(self, menu, step, selected: List[str]) -> None:
+        """What fixes a step row's own trouble, leading its menu, the first
+        entry the menu's default action (drawn bold): "Build" for a built
+        step a Build would change (built alone), "Rebuild from Sheet" for a
+        shot a hand edited -- each over its own rows of the selection when
+        the step is in it.  Both are one scoped build (:meth:`_build_rows`).
+
+        Nothing for a step with no shot (Build places it among the others),
+        a locked one, a row whose trouble waits on a person
+        (``StepStatus.NEEDS_YOU``), or while the original sheet is compared.
+        Under Edits: Rebuild Hand-Edited Shots an edited shot is a Build's
+        like any other, so "Build" is its one entry."""
+        if self._editor.viewing_original:
+            return
+        pairing = self._pairing()
+        chosen = list(selected) if step.step_id in selected else [step.step_id]
+        built = [sid for sid in chosen if sid in pairing.shots]
+        if not built:
+            return
+        owed = {r.step_id for r in self._last_results if r.needs_build}
+        build = [sid for sid in built if sid in owed]
+        edited = []
+        if not self._rebuild_edited:
+            engine = ptk.ShotManifest(self._active_store(), match=self._match)
+            edited = [
+                sid
+                for sid in built
+                if not pairing.shots[sid].locked and engine.edited_by_hand(pairing.shots[sid])
+            ]
+        names = {s.step_id: s.shot_name for s in self._steps}
+
+        def label(ids):
+            return f"'{names.get(ids[0], ids[0])}'" if len(ids) == 1 else f"{len(ids)} Steps"
+
+        fixes = []
+        if build:
+            act = menu.addAction(f"Build {label(build)}", lambda: self._build_rows(build))
+            act.setToolTip(
+                "Build this step alone: what the sheet changed since its shot was\n"
+                "built, and the keys a Build owes it. No other row is built. One\n"
+                "undo step."
+            )
+            fixes.append(act)
+        if edited:
+            act = menu.addAction(
+                f"Rebuild {label(edited)} from Sheet", lambda: self._rebuild_from_sheet(edited)
+            )
+            act.setToolTip(
+                "Replace what a hand changed in the shot with the sheet's: its name,\n"
+                "description, objects and behaviors. Its range stays. One undo step.\n"
+                "No other row is built."
+            )
+            fixes.append(act)
+        if fixes:
+            menu.setDefaultAction(fixes[0])
+            menu.addSeparator()
 
     def _selected_step_ids(self) -> List[str]:
         """The selected rows' step IDs, each once in selection order (an
@@ -202,24 +273,38 @@ class RowMenusMixin:
                 )
             )
         many = len(obj_names) > 1
-        menu.addSeparator()
-        menu.addAction(
+        leaf_name = self.manifest_host.leaf_name
+        leaves = [leaf_name(n) for n in obj_names]
+        leaf = leaves[0]
+        self._menu_section(menu, f"{len(obj_names)} objects" if many else leaf)
+        show = menu.addAction(
             f"Show {len(obj_names)} Objects in Outliner"
             if many
-            else f"Show '{obj_name}' in Outliner",
+            else f"Show '{leaf}' in Outliner",
             lambda: self._show_in_outliner(obj_names),
         )
-        menu.addAction(
+        show.setToolTip("Select it in the scene and bring it into view in the Outliner.")
+        copy = menu.addAction(
             f"Copy {len(obj_names)} Names to Clipboard"
             if many
-            else f"Copy '{obj_name}' to Clipboard",
-            lambda: self._copy_names(obj_names),
+            else f"Copy '{leaf}' to Clipboard",
+            lambda: self._copy_names(leaves),
         )
+        copy.setToolTip("Its name without its parents, a line each.")
+        if leaves != obj_names:  # a path: its whole name too
+            whole = menu.addAction(
+                f"Copy {len(obj_names)} Full Names to Clipboard"
+                if many
+                else "Copy Full Name to Clipboard",
+                lambda: self._copy_names(obj_names),
+            )
+            whole.setToolTip("\n".join(obj_names[:12]) + ("\n…" if len(obj_names) > 12 else ""))
         if self._is_built and obj_data.behaviors:
             names = ", ".join(ManifestData.fmt_behavior(b) for b in obj_data.behaviors)
-            menu.addAction(
-                f"Apply [{names}]", lambda: self._reapply_behavior(step_id, obj_data)
+            again = menu.addAction(
+                f"Re-apply {names}", lambda: self._reapply_behavior(step_id, obj_data)
             )
+            again.setToolTip("Key its behaviors on its shot again, as one undo step.")
 
         # The panels that say HOW its behaviors are keyed, opened on this
         # object alone (the recipe there is the build's). A closure per page:
@@ -228,12 +313,10 @@ class RowMenusMixin:
             return lambda: self._open_effect(step_id, obj_data, channel)
 
         for channel, verb in self._effect_pages(obj_data):
-            menu.addAction(f"{verb} '{obj_name}'\u2026", open_page(channel))
+            edit = menu.addAction(f"Edit {verb}\u2026", open_page(channel))
+            edit.setToolTip(f"Render Effects' {verb} page, on '{leaf}' alone: how Build keys it.")
         if obj_data.kind == "audio":
-            menu.addAction(
-                f"Open '{obj_name}' in Audio Clips",
-                lambda: self._open_audio_clip(obj_name),
-            )
+            menu.addAction("Open in Audio Clips", lambda: self._open_audio_clip(obj_name))
 
     def _show_shot_menu(self, item, shot, pos) -> None:
         """The context menu of a "not in doc" row (*item* the row or one of

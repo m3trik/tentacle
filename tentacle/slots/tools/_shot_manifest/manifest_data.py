@@ -9,7 +9,7 @@ One copy for both hosts: every host call goes through the controller's
 import html as _html
 from typing import Iterable, Optional, Tuple
 
-from pythontk import SHOT_PALETTE, SHOT_STATUS_LEVELS
+from pythontk import SHOT_PALETTE, SHOT_STATUS_LEVELS, Color, StepStatus
 from pythontk.core_utils.engines.shots.manifest.behaviors import (
     Behaviors as _PyBehaviors,
 )
@@ -18,15 +18,22 @@ from pythontk.core_utils.engines.shots.manifest.behaviors import (
 SETTINGS_NS = "ShotManifest"
 
 # Column headers for the manifest tree widget
-HEADERS = ["Step", "Section", "Description", "Behaviors", "Start", "End"]
+HEADERS = ["Step", "Section", "Description", "Behaviors", "Start", "End", "Status"]
 
-# Fixed column indices for the unified 6-column layout
+# Fixed column indices for the unified layout
 COL_STEP = 0
 COL_SECTION = 1
 COL_DESC = 2  # parent: description, child: object name
 COL_BEHAVIORS = 3
 COL_START = 4
 COL_END = 5
+#: The row's cause in a few words (``StepStatus.LABELS``), so it reads without
+#: a hover. The last column by index, drawn second: beside the step it marks.
+COL_STATUS = 6
+
+#: A cell a Local Edit changed, drawn as a redline: the sheet's value is in
+#: its tooltip.
+EDIT_COLOR = "#E0A040"
 
 STEP_ICON_COLOR = "#8E8E8E"  # neutral dark grey for parent step rows
 
@@ -48,6 +55,7 @@ class ManifestData:
         "warn": "\u25b2",
         "info": "\u25cf",
         "locked": "\u25a0",
+        "success": "\u270e",  # edited by hand, kept: a pencil, never the lock
     }
     #: The icon of a row whose worst issue has that severity.
     LEVEL_ICONS = {
@@ -55,9 +63,15 @@ class ManifestData:
         "warn": "warning",
         "info": "info",
         "locked": "lock",
+        "success": "edit",
     }
     #: The severities, mildest first.
-    LEVELS = ("valid", "locked", "info", "warn", "error")
+    LEVELS = ("valid", "locked", "success", "info", "warn", "error")
+
+    @staticmethod
+    def label(status: Optional[str]) -> str:
+        """*status* in a few words (``StepStatus.LABELS``); ``""`` for none."""
+        return StepStatus.LABELS.get(status, "") if status else ""
 
     @staticmethod
     def level(status: str) -> str:
@@ -106,7 +120,8 @@ class ManifestData:
 
     @staticmethod
     def fmt_behavior(name: str) -> str:
-        """``'fade_in'`` → ``'Fade In'`` (``Behaviors.label``: the marker
+        """``'highlight'`` → ``'Highlight'``, ``'fade_in'`` → ``'Fade · in'``
+        (``Behaviors.label``: the marker
         notes a Build writes read the same)."""
         return _PyBehaviors.label(name)
 
@@ -114,61 +129,47 @@ class ManifestData:
     #: shape of the marker it places.
     MARKED_GLYPH = "\u25c6"
 
+    #: The behavior states (``StepStatus.BEHAVIOR_STATES``) not in force on
+    #: the row: drawn struck through, in the locked grey.
+    STRUCK_STATES = ("taken", "off")
+
     @staticmethod
-    def format_behavior_html(
-        behaviors, broken=(), status_color=None, stale=(), disabled=(), marked=()
-    ) -> str:
-        """Return rich-text HTML for a list of behavior names.
+    def chip_look(state: str) -> Tuple[Optional[str], str, bool]:
+        """A behavior chip's colour, glyph and strike for *state* (a
+        ``StepStatus.BEHAVIOR_STATES`` key), in this panel's palette as it is
+        now (the Colors... editor's): its status's colour and its severity's
+        glyph (:attr:`LEVEL_GLYPHS`) -- in order (``valid``) the check's green
+        and none; added by a Local Edit, the redline's :data:`EDIT_COLOR` and
+        the pencil; not in force (:attr:`STRUCK_STATES`), struck in its grey
+        and none; not assessed, the theme's text (``None``) and none."""
+        status = StepStatus.BEHAVIOR_STATES.get(state, (None, ""))[0]
+        if state in ManifestData.STRUCK_STATES:
+            return ManifestData.status_color(status), "", True
+        if state == "added":
+            return EDIT_COLOR, ManifestData.LEVEL_GLYPHS["success"], False
+        if status is None:
+            return None, "", False
+        if status == "valid":
+            return ManifestData.status_color("success"), "", False
+        glyph = ManifestData.LEVEL_GLYPHS.get(ManifestData.level(status), "")
+        return ManifestData.status_color(status), glyph, False
 
-        A behavior with an issue is led by its glyph, in its colour
-        (:meth:`glyph_html`); the name itself is never coloured.
+    #: How much of its colour a chip's border shows, by its severity (an added
+    #: one: ``"edit"``): the Unity manifest's lines (``EditorLook.uss``), the
+    #: brightest hue the faintest.
+    LINE_ALPHA = {"error": 0.65, "warn": 0.6, "info": 0.55, "valid": 0.45, "edit": 0.7}
 
-        Parameters:
-            behaviors: Sequence of raw behavior names to display.
-            broken: Subset of *behaviors* that failed verification: led by the
-                ``missing_behavior`` glyph.
-            status_color: Optional colour every behaviour is shown in instead.
-            stale: Subset of *behaviors* keyed under an older effect recipe
-                (Build re-keys them): led by the ``stale_behavior`` glyph.
-            disabled: Behavior types turned off (header menu): struck through
-                in the ``locked`` grey, whatever else applies.
-            marked: Behavior types set to Marker (header menu): shown after
-                :attr:`MARKED_GLYPH`; *broken* then means its marker is missing.
-        """
-        if not behaviors:
-            return ""
-        spans = []
-        off = set(disabled)
-        if off:
-            grey = PASTEL_STATUS["locked"][0]
-            on = [b for b in behaviors if b not in off]
-            html = ManifestData.format_behavior_html(
-                on, broken, status_color, stale, marked=marked
-            )
-            struck = [
-                f'<span style="color:{grey};text-decoration:line-through">'
-                f"{ManifestData.fmt_behavior(b)}</span>"
-                for b in behaviors
-                if b in off
-            ]
-            return "  ".join(([html] if html else []) + struck)
-        marked = set(marked)
-
-        def _display(b):
-            text = ManifestData.fmt_behavior(b)
-            return f"{ManifestData.MARKED_GLYPH} {text}" if b in marked else text
-
-        if status_color:
-            for b in behaviors:
-                display = _display(b)
-                spans.append(f'<span style="color:{status_color}">{display}</span>')
-        else:
-            broken_set, stale_set = set(broken), set(stale)
-            for b in behaviors:
-                display = _display(b)
-                if b in broken_set:
-                    display = f"{ManifestData.glyph_html('missing_behavior')} {display}"
-                elif b in stale_set:
-                    display = f"{ManifestData.glyph_html('stale_behavior')} {display}"
-                spans.append(display)
-        return "  ".join(spans)
+    @staticmethod
+    def chip_line(state: str) -> Optional[str]:
+        """A behavior chip's border for *state*: its colour
+        (:meth:`chip_look`) at its severity's :attr:`LINE_ALPHA`, as
+        ``rgba()``; ``None`` -- the faint border every chip has -- where it
+        has no colour or no severity of its own (not in force, locked)."""
+        color, _mark, struck = ManifestData.chip_look(state)
+        status = StepStatus.BEHAVIOR_STATES.get(state, (None, ""))[0]
+        level = "edit" if state == "added" else ManifestData.level(status) if status else None
+        alpha = ManifestData.LINE_ALPHA.get(level)
+        if color is None or struck or alpha is None:
+            return None
+        r, g, b = Color.from_hex(color).rgb
+        return f"rgba({r},{g},{b},{round(alpha * 255)})"
