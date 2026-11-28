@@ -120,7 +120,7 @@ class ManifestData:
 
     @staticmethod
     def fmt_behavior(name: str) -> str:
-        """``'highlight'`` → ``'Highlight'``, ``'fade_in'`` → ``'Fade · in'``
+        """``'highlight'`` → ``'Highlight'``, ``'show'`` → ``'Visibility · show'``
         (``Behaviors.label``: the marker
         notes a Build writes read the same)."""
         return _PyBehaviors.label(name)

@@ -849,16 +849,16 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         self.assertEqual({c.currentData() for c in modes.values()}, {"off"})
         edits.setCurrentIndex(edits.findData("rebuild"))
         modes["highlight"].setCurrentIndex(modes["highlight"].findData("key"))
-        modes["fade"].setCurrentIndex(modes["fade"].findData("marker"))  # Fade: in and out
-        fades = {"fade_in", "fade_out"}
+        modes["visibility"].setCurrentIndex(modes["visibility"].findData("marker"))  # Visibility: show and hide
+        visibility = {"show", "hide"}
         try:
             mani = ctrl._manifest()
             self.assertTrue(mani.rebuild_edited)
-            self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - fades)
-            self.assertEqual(mani.marked_behaviors, frozenset(fades))
+            self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - visibility)
+            self.assertEqual(mani.marked_behaviors, frozenset(visibility))
         finally:
             edits.setCurrentIndex(edits.findData("keep"))
-            for name in ("highlight", "fade"):
+            for name in ("highlight", "visibility"):
                 modes[name].setCurrentIndex(modes[name].findData("off"))
         mani = ctrl._manifest()
         self.assertFalse(mani.rebuild_edited)
@@ -880,7 +880,7 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         ctrl._load_data(
             [BuilderStep(step_id="A01", section="A", section_title="", description="")]
         )
-        obj = BuilderObject(name="ghost", behaviors=["fade_in"])
+        obj = BuilderObject(name="ghost", behaviors=["show"])
         builder = mock.MagicMock()
         builder.reapply_object.return_value = False
         footers = self._footers(ctrl)
@@ -957,7 +957,7 @@ class TestShotManifestLocalEdits(unittest.TestCase):
                 "Access",
                 "Open the door " * 12,
                 [
-                    BuilderObject("door", behaviors=["fade_in"]),
+                    BuilderObject("door", behaviors=["show"]),
                     BuilderObject("bolt01"),
                 ],
             ),
@@ -1249,7 +1249,7 @@ class TestShotManifestLocalEdits(unittest.TestCase):
         child = self._child("A01", "red_door")
         self.assertTrue(child.font(COL_DESC).italic())
         self.assertIn("Sheet: door", child.toolTip(COL_DESC))
-        self.assertEqual(self.ctrl._steps[0].objects[0].behaviors, ["fade_in"])
+        self.assertEqual(self.ctrl._steps[0].objects[0].behaviors, ["show"])
 
     def test_a_long_description_shows_in_full_in_its_tooltip(self):
         self._load()
@@ -1499,26 +1499,26 @@ class TestShotManifestLocalEdits(unittest.TestCase):
     def test_a_behavior_turned_off_is_an_edit_while_edits_are_in_force(self):
         self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
         self.addCleanup(self.ctrl._settings.clear, "marked_behaviors")
-        self.ctrl._set_behavior_mode("fade_in", "key")  # an Off type's chip has no per-object toggle
+        self.ctrl._set_behavior_mode("show", "key")  # an Off type's chip has no per-object toggle
         self._load(on=False)
         obj = self.ctrl._steps[0].objects[0]
-        self.assertTrue(self._turn_off(obj, "fade_in"), "the menu opens; the pick is refused")
+        self.assertTrue(self._turn_off(obj, "show"), "the menu opens; the pick is refused")
         self._settle()
-        self.assertEqual(self.ctrl._steps[0].objects[0].behaviors, ["fade_in"])
+        self.assertEqual(self.ctrl._steps[0].objects[0].behaviors, ["show"])
         self.assertFalse(self.ctrl._editor.edits.has_edits)  # the sheet's view
 
         self._load()
         obj = self.ctrl._steps[0].objects[0]
-        self.assertTrue(self._turn_off(obj, "fade_in"))
+        self.assertTrue(self._turn_off(obj, "show"))
         self._settle()
         door = self.ctrl._steps[0].objects[0]  # the redrawn table's
         self.assertEqual(door.behaviors, [])
-        self.assertEqual(door.sheet, {"behaviors": ["fade_in"]})
+        self.assertEqual(door.sheet, {"behaviors": ["show"]})
         self.assertEqual(
             self.store.manifest_edits[self.SHEET]["objects"]["A01"]["door"],
             {"behaviors": []},
         )
-        self.assertEqual(self.ctrl._sheet_steps[0].objects[0].behaviors, ["fade_in"])
+        self.assertEqual(self.ctrl._sheet_steps[0].objects[0].behaviors, ["show"])
 
 
 @_needs_blendertk

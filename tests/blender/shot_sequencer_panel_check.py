@@ -1761,7 +1761,7 @@ def _run_panel_checks():
     da_seq = ShotSequencer(da_store)
     da_key = _ShotSequencerInternal._fc_key("DelAuthored", _loc_x(da_obj))
     for t in (10.0, 30.0, 40.0):
-        da_seq.ledger.record_authored(da_key, t, 0, "fade_in", "DelAuthored")
+        da_seq.ledger.record_authored(da_key, t, 0, "show", "DelAuthored")
     da_sub = {"obj": "DelAuthored", "attr_name": "translateX", "shot_id": 0}
     _KeysHost(_FakeWidget(_FakeClip(da_sub)), sequencer=da_seq).on_keys_deleted(
         1, [30.0]
@@ -2300,7 +2300,7 @@ def _run_panel_checks():
     al_c = keyed_x("kmAlC", [(10, 0.0), (30, 1.0)])
     al_d = keyed_x("kmAlD", [(10, 7.0), (20, 0.0), (40, 1.0)])
     d_key = _SSI._fc_key("kmAlD", fc_of(al_d))
-    kh.sequencer.ledger.record_authored(d_key, 10.0, 0, "fade_in", "kmAlD")
+    kh.sequencer.ledger.record_authored(d_key, 10.0, 0, "show", "kmAlD")
     kh._align_selected_keys(
         [
             ("kmAlC", "translateX", [10.0], None),
@@ -2316,7 +2316,7 @@ def _run_panel_checks():
     )
     inv_o = keyed_x("kmInvO", [(0, 0.0), (3, 1.0), (7, 4.0), (10, 9.0)])
     o_key = _SSI._fc_key("kmInvO", fc_of(inv_o))
-    kh.sequencer.ledger.record_authored(o_key, 7.0, 0, "fade_in", "kmInvO")
+    kh.sequencer.ledger.record_authored(o_key, 7.0, 0, "show", "kmInvO")
     kh._invert_selected_keys([("kmInvO", "translateX", [0.0, 3.0, 10.0], None)])
     check(
         "key menu: Invert Keys releases the claims of a key it lands on",
@@ -2329,7 +2329,7 @@ def _run_panel_checks():
     # and the moved fade key read as the animator's.
     inv_m = keyed_x("kmInvM", [(10, 1.0), (15, 2.0), (25, 3.0), (30, 4.0)])
     m_key = _SSI._fc_key("kmInvM", fc_of(inv_m))
-    kh.sequencer.ledger.record_authored(m_key, 15.0, 0, "fade_in", "kmInvM")
+    kh.sequencer.ledger.record_authored(m_key, 15.0, 0, "show", "kmInvM")
     kh._invert_selected_keys([("kmInvM", "translateX", [10.0, 15.0, 25.0, 30.0], None)])
     check(
         "key menu: Invert Keys carries a moved key's claims to its new frame",
@@ -2340,7 +2340,7 @@ def _run_panel_checks():
     al_m = keyed_x("kmAlM", [(10, 1.0), (20, 2.0)])
     keyed_x("kmAlN", [(5, 0.0), (30, 1.0)])  # its selection starts the block at 5
     am_key = _SSI._fc_key("kmAlM", fc_of(al_m))
-    kh.sequencer.ledger.record_authored(am_key, 20.0, 0, "fade_out", "kmAlM")
+    kh.sequencer.ledger.record_authored(am_key, 20.0, 0, "hide", "kmAlM")
     kh._align_selected_keys(
         [
             ("kmAlM", "translateX", [10.0, 20.0], None),
@@ -2365,7 +2365,7 @@ def _run_panel_checks():
     # does: left on the frame, a behavior's claim passed to the next key there.
     km_tc = keyed_x("kmThinC", [(0, 0.0), (10, 1.0), (20, 3.0)])
     tc_key = _SSI._fc_key("kmThinC", fc_of(km_tc))
-    kh.sequencer.ledger.record_authored(tc_key, 10.0, 0, "fade_in", "kmThinC")
+    kh.sequencer.ledger.record_authored(tc_key, 10.0, 0, "show", "kmThinC")
     kh._thin_selected_keys([("kmThinC", "translateX", [0.0, 10.0, 20.0], None)])
     check(
         "key menu: Remove Intermediate Keys releases the claims of the keys it removes",
@@ -2375,7 +2375,7 @@ def _run_panel_checks():
     )
     km_sc = keyed_x("kmSimpC", [(0, 0.0), (10, 1.0), (20, 2.0)])  # 10: no shape
     sc_key = _SSI._fc_key("kmSimpC", fc_of(km_sc))
-    kh.sequencer.ledger.record_authored(sc_key, 10.0, 0, "fade_in", "kmSimpC")
+    kh.sequencer.ledger.record_authored(sc_key, 10.0, 0, "show", "kmSimpC")
     kh._simplify_selected_keys([("kmSimpC", "translateX", [0.0, 10.0, 20.0], None)])
     check(
         "key menu: Simplify releases the claims of a key the shape pass removes",
@@ -2385,7 +2385,7 @@ def _run_panel_checks():
     )
     km_hc = keyed_x("kmHoldC", [(0, 1.0), (10, 1.0), (20, 1.0), (30, 0.0)])
     hc_key = _SSI._fc_key("kmHoldC", fc_of(km_hc))
-    kh.sequencer.ledger.record_authored(hc_key, 10.0, 0, "fade_in", "kmHoldC")
+    kh.sequencer.ledger.record_authored(hc_key, 10.0, 0, "show", "kmHoldC")
     kh._simplify_selected_keys(
         [("kmHoldC", "translateX", [0.0, 10.0, 20.0, 30.0], None)]
     )
@@ -2475,7 +2475,7 @@ def _run_panel_checks():
     # passed to the pasted key, which the next Build then deleted as its own.
     km_ps = keyed_x("kmPaste", [(0, 0.0), (20, 2.0), (40, 5.0)])
     ps_key = _SSI._fc_key("kmPaste", fc_of(km_ps))
-    kh.sequencer.ledger.record_authored(ps_key, 20.0, 0, "fade_in", "kmPaste")
+    kh.sequencer.ledger.record_authored(ps_key, 20.0, 0, "show", "kmPaste")
     kh._copy_selected_keys([("kmPaste", "translateX", [40.0], None)])
     bpy.context.scene.frame_set(20)
     kh._paste_selected_keys([("kmPaste", "translateX", [40.0], None)])

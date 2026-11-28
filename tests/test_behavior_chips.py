@@ -24,7 +24,7 @@ _app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 from tentacle.slots.tools._shot_manifest.behavior_chips import BehaviorChips, Chip
 
 
-def _chip(raw="fade_in", state="", text=None, line="", struck=False):
+def _chip(raw="show", state="", text=None, line="", struck=False):
     text = text or raw.replace("_", " ").title()
     return Chip(raw, text, state, line or text, f"{text}\n\nClick: ...", struck)
 
@@ -44,10 +44,10 @@ class TestBehaviorChips(unittest.TestCase):
     def test_a_redraw_updates_the_chips_in_place(self):
         """Every draw and every Assess deleted and remade each chip.
         Fixed: 2026-11-23"""
-        self.cell.set_chips([_chip("fade_in"), _chip("fade_out")])
+        self.cell.set_chips([_chip("show"), _chip("hide")])
         first = list(self.cell.chips)
         plus = self.cell.plus
-        self.cell.set_chips([_chip("fade_in", "built"), _chip("fade_out")])
+        self.cell.set_chips([_chip("show", "built"), _chip("hide")])
         self.assertEqual(self.cell.chips, first, "the same buttons")
         self.assertIs(self.cell.plus, plus)
         self.assertEqual(first[0].property(BehaviorChips.STATE_PROPERTY), "built")
@@ -55,9 +55,9 @@ class TestBehaviorChips(unittest.TestCase):
         self.assertEqual([c.styleSheet() for c in first], ["", ""], "no style sheet per chip")
 
     def test_more_or_fewer_chips_reuse_the_rest_and_keep_the_plus_last(self):
-        self.cell.set_chips([_chip("fade_in")])
+        self.cell.set_chips([_chip("show")])
         kept = self.cell.chips[0]
-        self.cell.set_chips([_chip("fade_in"), _chip("fade_out"), _chip("highlight")])
+        self.cell.set_chips([_chip("show"), _chip("hide"), _chip("highlight")])
         self.assertIs(self.cell.chips[0], kept)
         self.assertEqual(self._order(), [*self.cell.chips, self.cell.plus])
         self.cell.set_chips([_chip("highlight")])
@@ -67,7 +67,7 @@ class TestBehaviorChips(unittest.TestCase):
     def test_a_reused_chip_reports_its_new_behavior(self):
         seen = []
         self.cell.chip_clicked.connect(lambda raw, _pos: seen.append(raw))
-        self.cell.set_chips([_chip("fade_in")])
+        self.cell.set_chips([_chip("show")])
         self.cell.set_chips([_chip("highlight")])
         self.cell.chips[0].click()
         self.assertEqual(seen, ["highlight"])
@@ -84,7 +84,7 @@ class TestBehaviorChips(unittest.TestCase):
 
     def test_the_cell_keeps_what_each_chip_says_as_data(self):
         """The detail pane read a chip's state back off its tooltip text."""
-        chips = [_chip("fade_in", "built", line="Fade In  (built)")]
+        chips = [_chip("show", "built", line="Show  (built)")]
         self.cell.set_chips(chips)
         self.assertEqual(self.cell.shown, chips)
 
@@ -119,17 +119,17 @@ class TestBehaviorChips(unittest.TestCase):
 
     def test_a_struck_chip_is_marked_for_its_bare_look(self):
         """A behavior not in force here has no ground (the Unity manifest's Off)."""
-        self.cell.set_chips([_chip("fade_in", "off", struck=True)])
+        self.cell.set_chips([_chip("show", "off", struck=True)])
         button = self.cell.chips[0]
         self.assertTrue(button.property(BehaviorChips.STRUCK_PROPERTY))
         self.assertTrue(button.font().strikeOut())
-        self.cell.set_chips([_chip("fade_in", "built")])
+        self.cell.set_chips([_chip("show", "built")])
         self.assertFalse(button.property(BehaviorChips.STRUCK_PROPERTY))
         self.assertFalse(button.font().strikeOut())
 
     def test_a_chip_too_wide_for_its_cell_is_elided(self):
         """The cell clipped chips past its 110 px. Fixed: 2026-11-23"""
-        short = "Fade In"
+        short = "Show"
         long = "A Very Long Behavior Name Indeed"
         self.cell.set_chips([_chip("x", text=long), _chip("y", text=short)])
         self.holder.show()
@@ -151,16 +151,16 @@ class TestBehaviorChips(unittest.TestCase):
         text, the Unity manifest's padding (5 px the +, 7 px a chip), its 1 px
         border and the 3 px Qt's style sheets add to any tool button."""
         self.holder.setStyleSheet(BehaviorChips.style_sheet({}))
-        self.cell.set_chips([_chip("fade_in")])
+        self.cell.set_chips([_chip("show")])
         for button, unity_padding in ((self.cell.plus, 5), (self.cell.chips[0], 7)):
             button.ensurePolished()
             chrome = button.sizeHint().width() - button.fontMetrics().horizontalAdvance(button.text())
             self.assertEqual(chrome, 2 * unity_padding + 2 + 3, button.text())
 
     def test_the_preferred_width_holds_every_whole_chip(self):
-        self.cell.set_chips([_chip("fade_in"), _chip("fade_out")])
+        self.cell.set_chips([_chip("show"), _chip("hide")])
         narrow = self.cell.preferred_width()
-        self.cell.set_chips([_chip("fade_in", text="Fade In and a good deal more"), _chip("fade_out")])
+        self.cell.set_chips([_chip("show", text="Show and a good deal more"), _chip("hide")])
         self.assertGreater(self.cell.preferred_width(), narrow)
 
 

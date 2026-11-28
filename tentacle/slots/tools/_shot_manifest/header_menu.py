@@ -212,7 +212,7 @@ class HeaderMenuMixin:
                             "marked, and not reported by Assess; its chips show it struck "
                             "through. Marker and Off leave the keys a type already has. "
                             "A behavior the sheet asks for by its word (a row in cells: "
-                            "<i>highlight</i>, <i>fade_out</i>) starts at Key, any other is Off "
+                            "<i>highlight</i>, <i>hide</i>) starts at Key, any other is Off "
                             "until you choose; the choices are kept with the scene, for its "
                             "sheet (your own seed a scene that keeps none).",
                         ],
@@ -392,8 +392,8 @@ class HeaderMenuMixin:
         return mode
 
     def _family_members(self, name: str) -> List[str]:
-        """The behavior types of *name*'s family (``fade_in`` or ``fade``:
-        ``["fade_in", "fade_out"]``), else ``[name]``: one Key / Marker / Off
+        """The behavior types of *name*'s family (``show`` or ``visibility``:
+        ``["hide", "show"]``), else ``[name]``: one Key / Marker / Off
         choice sets them all. Every type's family is read once
         (:meth:`_behavior_cache`)."""
         cache = self._behavior_cache()
@@ -425,7 +425,7 @@ class HeaderMenuMixin:
         self._migrate_behavior_modes()
         menu.add("Separator", setTitle="Behaviors")
         self._behavior_modes = {}
-        # A family (fade_in and fade_out: fade) is one behavior, one choice.
+        # A family (show and hide: visibility) is one behavior, one choice.
         for name in self.behaviors.families(self.behaviors.list_behaviors()):
             label = ManifestData.fmt_behavior(name)
             cmb = menu.add(

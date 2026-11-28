@@ -590,20 +590,28 @@ class RowMenusMixin:
                     controller._update_shot_nav_state()
                     break
 
-    #: The Render Effects page each recipe effect is keyed from, and the verb
-    #: its row entry reads with.
-    EFFECT_PAGES = {
-        "fade_in": ("opacity", "Fade"),
-        "fade_out": ("opacity", "Fade"),
-        "pulse": ("highlight", "Highlight"),
-    }
+    #: The verb a row entry names a Render Effects page with, by the channel
+    #: the page keys: this panel's own words. Which channel an effect keys is
+    #: the recipe's (``ptk.EffectRecipe.channel_of``); a channel with no verb
+    #: here (the clip's ``audio``) has no page.
+    CHANNEL_VERBS = {"opacity": "Fade", "highlight": "Highlight"}
+
+    def _effect_page(self, behavior):
+        """``(channel, verb)`` -- the Render Effects page *behavior* is keyed
+        from, or ``None``: it keys no recipe effect, or one no page keys."""
+        effect = self.behaviors.effect_of(behavior)
+        if effect is None:
+            return None
+        channel = ptk.EffectRecipe.channel_of(effect)
+        verb = self.CHANNEL_VERBS.get(channel)
+        return (channel, verb) if verb else None
 
     def _effect_pages(self, obj) -> list:
         """``[(channel, verb)]`` -- the Render Effects pages *obj*'s behaviors
         are keyed from, each once, in behavior order."""
         pages = []
         for behavior in obj.behaviors or ():
-            page = self.EFFECT_PAGES.get(self.behaviors.effect_of(behavior))
+            page = self._effect_page(behavior)
             if page is not None and page not in pages:
                 pages.append(page)
         return pages

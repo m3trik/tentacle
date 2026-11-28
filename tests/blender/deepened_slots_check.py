@@ -325,7 +325,7 @@ try:
             key_obj(o, frames)
             key = btk.BlenderShotsHost.curve_key(o.name, path, 0)
             if at is not None:
-                claims.edit_ledger.record_authored(key, at, 0, "fade_in", o.name)
+                claims.edit_ledger.record_authored(key, at, 0, "show", o.name)
             bpy.ops.object.select_all(action="DESELECT")
             o.select_set(True)
             bpy.context.view_layer.objects.active = o
@@ -411,7 +411,7 @@ try:
             setattr(h, vis_path, False)
             h.keyframe_insert(vis_path, frame=1)
         h_key = btk.BlenderShotsHost.curve_key(h.name, "hide_viewport", 0)
-        claims.edit_ledger.record_authored(h_key, 1.0, 0, "fade_in", h.name)
+        claims.edit_ledger.record_authored(h_key, 1.0, 0, "show", h.name)
         bpy.context.scene.frame_set(1)
         slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
                               cmb002=combo("current"), s008=spin(0), chk016=chk(False)))
@@ -420,7 +420,7 @@ try:
 
         i, i_key = claimed("ClaimSnap", (1, 10), at=None)
         btk.get_fcurves(i)[0].keyframe_points.insert(4.4, 4.0)
-        claims.edit_ledger.record_authored(i_key, 4.4, 0, "fade_in", i.name)
+        claims.edit_ledger.record_authored(i_key, 4.4, 0, "show", i.name)
         slot.tb009(option_box(chk017=chk(False), chk018=chk(False),
                               cmb003=combo("nearest")))
         check("animation tb009 carries the shot claims of the keys it snaps",
@@ -481,7 +481,7 @@ try:
         sc.frame_start, sc.frame_end = 1, 30
         q_obj, q_key = claimed("ClaimUntie", (5, 10), at=None)
         btk.tie_keyframes([q_obj])  # bookends at 1 and 30
-        claims.edit_ledger.record_authored(q_key, 30.0, 0, "fade_out", q_obj.name)
+        claims.edit_ledger.record_authored(q_key, 30.0, 0, "hide", q_obj.name)
         slot.tb011(option_box(cmb_tie=NS(currentText=lambda: "Untie"),
                               chk023=chk(False)))
         check("animation tb011 untie releases the claims of the bookends it deletes",
@@ -499,7 +499,7 @@ try:
         for f in (0, 10):
             r_obj.keyframe_insert(data_path="location", index=1, frame=f)  # static
         ry_key = btk.BlenderShotsHost.curve_key(r_obj.name, "location", 1)
-        claims.edit_ledger.record_authored(ry_key, 0.0, 0, "fade_in", r_obj.name)
+        claims.edit_ledger.record_authored(ry_key, 0.0, 0, "show", r_obj.name)
         slot.tb019(option_box(chk000=chk(True), chk030=chk(True), chk032=chk(False),
                               chk040=chk(False), d017=spin(0.001)))
         check("animation tb019 releases the claims of the keys and curves it deletes",
@@ -559,7 +559,7 @@ try:
         # TC-5: the repair-scoped Snap and Copy + Paste carry claims too.
         w, w_key = claimed("ClaimSnapFrac", (1, 10), at=None)
         btk.get_fcurves(w)[0].keyframe_points.insert(4.4, 4.0)
-        claims.edit_ledger.record_authored(w_key, 4.4, 0, "fade_in", w.name)
+        claims.edit_ledger.record_authored(w_key, 4.4, 0, "show", w.name)
         slot.tb021(option_box(cmb042=combo("nearest")))
         check("animation tb021 carries the shot claims of the keys it snaps",
               claimed_at(w) == [4.0], f"{key_times(w)} {claims.edit_ledger.to_dict()}")

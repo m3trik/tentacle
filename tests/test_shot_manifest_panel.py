@@ -51,7 +51,7 @@ from mayatk.anim_utils.shots.shot_manifest.behaviors import Behaviors
 def _make_steps(*names, behaviors=None):
     """Create a list of BuilderSteps with one object each."""
     if behaviors is None:
-        behaviors = ["fade_in", "fade_out"]
+        behaviors = ["show", "hide"]
     steps = []
     for name in names:
         step = BuilderStep(
@@ -907,22 +907,22 @@ class TestLocalEditsCells(unittest.TestCase, _ControllerHarness):
         self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
         self._load()
         obj = self.tree.topLevelItem(0).child(0).data(0, QtCore.Qt.UserRole)
-        self.assertEqual(sorted(obj.behaviors), ["fade_in", "fade_out"])  # one family: one mode
+        self.assertEqual(sorted(obj.behaviors), ["hide", "show"])  # one family: one mode
         def chips():  # the redrawn row's
             return self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS).shown
 
-        self.ctrl._set_behavior_mode("fade_in", "marker")
+        self.ctrl._set_behavior_mode("show", "marker")
         for chip in chips():
             self.assertIn(ManifestData.MARKED_GLYPH, chip.text, chip)
-        self.ctrl._set_behavior_mode("fade_in", "key")
+        self.ctrl._set_behavior_mode("show", "key")
         for chip in chips():
             self.assertNotIn(ManifestData.MARKED_GLYPH, chip.text, chip)
 
     def test_a_familys_chips_read_as_one_behavior_with_a_suffix(self):
         """User 2026-11-23: consolidate the behaviors, a suffix saying how one
-        is set (the Unity manifest's chips). Added: 2026-11-24 -- fade_in and
-        fade_out are one Fade (pythontk ``Behaviors.family_of``): their chips
-        read *Fade · in* / *Fade · out*, and one chip's mode sets both."""
+        is set (the Unity manifest's chips). Added: 2026-11-24 -- show and
+        hide are one Visibility (pythontk ``Behaviors.family_of``): their chips
+        read *Visibility · show* / *Visibility · hide*, and one chip's mode sets both."""
         from tentacle.slots.tools._shot_manifest.manifest_data import COL_BEHAVIORS
 
         self.addCleanup(self.ctrl._settings.clear, "keyed_behaviors")
@@ -931,10 +931,10 @@ class TestLocalEditsCells(unittest.TestCase, _ControllerHarness):
         cell = self.tree.itemWidget(self.tree.topLevelItem(0).child(0), COL_BEHAVIORS)
         self.assertEqual(
             {c.behavior: c.text for c in cell.shown},
-            {"fade_in": "Fade · in", "fade_out": "Fade · out"},
+            {"show": "Visibility · show", "hide": "Visibility · hide"},
         )
-        self.ctrl._set_behavior_mode("fade_out", "key")  # Key for Every Row on one chip
-        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"fade_in", "fade_out"}))
+        self.ctrl._set_behavior_mode("hide", "key")  # Key for Every Row on one chip
+        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"show", "hide"}))
 
     def test_an_off_types_chip_offers_its_mode_even_on_a_locked_step(self):
         """Bug: every chip stayed struck whatever was clicked -- every type
@@ -3710,15 +3710,15 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         from pythontk import BuilderStep
 
         asks = BuilderStep("A01", "A", "t", "", [])
-        asks.rows = [{"cells": True, "word": "fade_out"}, {"cells": True, "word": "use"}]
+        asks.rows = [{"cells": True, "word": "hide"}, {"cells": True, "word": "use"}]
         implied = BuilderStep("A02", "A", "The door is highlighted", "", [])
         implied.rows = [{"text": "The door is highlighted"}]
         self.ctrl._loaded_sheet = lambda: "O:/docs/service.csv"
         self.ctrl._active_store = lambda: self.store
         self.ctrl._sheet_steps = [asks, implied]
         self.ctrl._behavior_sets.clear()
-        modes = {name: self.ctrl._behavior_mode(name) for name in ("fade_in", "fade_out", "highlight", "set_clip")}
-        self.assertEqual(modes, {"fade_in": "key", "fade_out": "key", "highlight": "off", "set_clip": "off"})
+        modes = {name: self.ctrl._behavior_mode(name) for name in ("show", "hide", "highlight", "set_clip")}
+        self.assertEqual(modes, {"show": "key", "hide": "key", "highlight": "off", "set_clip": "off"})
         # The Audio option gives a step its clip: chosen for the sheet, so keyed with the rest.
         from pythontk import BuilderObject
 
@@ -3729,17 +3729,17 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         asks.objects.pop()
         self.ctrl._behavior_sets.clear()
         self.assertEqual(self.ctrl._manifest(self.store).disabled_behaviors,
-                         frozenset(Behaviors.list_behaviors()) - {"fade_in", "fade_out"})
-        # The user's own seed marks fades instead: theirs.
-        self.ctrl._settings.setValue("marked_behaviors", ["fade_in", "fade_out"])
+                         frozenset(Behaviors.list_behaviors()) - {"show", "hide"})
+        # The user's own seed marks the Visibility family instead: theirs.
+        self.ctrl._settings.setValue("marked_behaviors", ["show", "hide"])
         self.ctrl._behavior_sets.clear()
-        self.assertEqual(self.ctrl._behavior_mode("fade_out"), "marker")
+        self.assertEqual(self.ctrl._behavior_mode("hide"), "marker")
         # And a mode chosen for this scene is the scene's from then on: Off stays Off.
         self.ctrl._settings.clear("marked_behaviors")
         self.ctrl._behavior_sets.clear()
-        self.ctrl._set_behavior_mode("fade_out", "off")
+        self.ctrl._set_behavior_mode("hide", "off")
         self.ctrl._behavior_sets.clear()
-        self.assertEqual(self.ctrl._behavior_mode("fade_in"), "off")
+        self.assertEqual(self.ctrl._behavior_mode("show"), "off")
 
     def test_the_modes_in_force_are_the_one_rule_every_builder_reads(self):
         """Bug: the modes a scene that keeps none starts with were the panel's own
@@ -3802,27 +3802,27 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         at once again after a choice."""
         with patch.object(self.ctrl.behaviors, "families", side_effect=Behaviors.families) as families:
             for _ in range(5):
-                for name in ("fade_in", "fade", "highlight"):
+                for name in ("show", "visibility", "highlight"):
                     self.ctrl._behavior_mode(name)
             self.assertLessEqual(families.call_count, 1)
-            self.ctrl._set_behavior_mode("fade_in", "key")
-            self.assertEqual(self.ctrl._behavior_mode("fade_out"), "key", "a choice is read at once")
-            self.assertEqual(self.ctrl._behavior_mode("fade"), "key")
+            self.ctrl._set_behavior_mode("show", "key")
+            self.assertEqual(self.ctrl._behavior_mode("hide"), "key", "a choice is read at once")
+            self.assertEqual(self.ctrl._behavior_mode("visibility"), "key")
 
     def test_the_options_reach_the_engine(self):
         every = frozenset(Behaviors.list_behaviors())
         self.ctrl._set_rebuild_edited(True)
         self.ctrl._set_behavior_mode("highlight", "key")
-        self.ctrl._set_behavior_mode("fade_in", "marker")  # the whole Fade family
-        fades = {"fade_in", "fade_out"}
+        self.ctrl._set_behavior_mode("show", "marker")  # the whole Visibility family
+        visibility = {"show", "hide"}
         mani = self.ctrl._manifest(self.store)
         self.assertTrue(mani.rebuild_edited)
-        self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - fades)
-        self.assertEqual(mani.marked_behaviors, frozenset(fades))
+        self.assertEqual(mani.disabled_behaviors, every - {"highlight"} - visibility)
+        self.assertEqual(mani.marked_behaviors, frozenset(visibility))
         self.ctrl._set_behavior_mode("highlight", "off")
-        self.ctrl._set_behavior_mode("fade_out", "key")
+        self.ctrl._set_behavior_mode("hide", "key")
         mani = self.ctrl._manifest(self.store)
-        self.assertEqual(mani.disabled_behaviors, every - fades)
+        self.assertEqual(mani.disabled_behaviors, every - visibility)
         self.assertEqual(mani.marked_behaviors, frozenset())
 
     def test_the_modes_are_the_scenes_and_the_users_own_seed_a_scene_without(self):
@@ -3838,13 +3838,13 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
             {"key": ["highlight"], "marker": []},
             "kept with the scene",
         )
-        self.ctrl._settings.setValue("keyed_behaviors", ["fade_in"])  # someone else's preferences
+        self.ctrl._settings.setValue("keyed_behaviors", ["show"])  # someone else's preferences
         self.ctrl._behavior_sets.clear()
         mani = self.ctrl._manifest(self.store)
         self.assertEqual(mani.disabled_behaviors, every - {"highlight"}, "the scene's modes, not the user's")
         other = _fresh_store()
         self.ctrl._active_store = lambda: other
-        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"fade_in"}), "a scene with none: the user's own seed it")
+        self.assertEqual(self.ctrl._keyed_behaviors(), frozenset({"show"}), "a scene with none: the user's own seed it")
 
     def test_a_users_old_choices_carry_over(self):
         """Before Off became the default, the settings named the types turned
@@ -3863,7 +3863,7 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         modes = {n: self.ctrl._behavior_mode(n) for n in Behaviors.list_behaviors()}
         self.assertEqual(modes["highlight"], "off")
         self.assertEqual(modes["set_clip"], "marker")
-        self.assertEqual(modes["fade_in"], "key")
+        self.assertEqual(modes["show"], "key")
         self.assertEqual(settings.value("disabled_behaviors", None), ["highlight"])
 
     def test_the_carry_over_runs_once(self):
@@ -3873,7 +3873,7 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         settings.setValue("disabled_behaviors", ["highlight"])
         self.ctrl._behavior_sets.clear()
         self.ctrl._migrate_behavior_modes()
-        self.assertEqual(self.ctrl._behavior_mode("fade_in"), "key")
+        self.assertEqual(self.ctrl._behavior_mode("show"), "key")
         for name in Behaviors.list_behaviors():  # the user turns every one Off
             self.ctrl._set_behavior_mode(name, "off")
         self.ctrl._behavior_sets.clear()
@@ -3892,17 +3892,17 @@ class TestBuildOptions(unittest.TestCase, _ControllerHarness):
         self.addCleanup(menu.deleteLater)
         self.ctrl._add_build_options(menu)
         modes = self.ctrl._behavior_modes
-        # A family is one choice (fade_in and fade_out: Fade).
+        # A family is one choice (show and hide: Visibility).
         self.assertEqual(sorted(modes), sorted(Behaviors.families(Behaviors.list_behaviors())))
-        self.assertIn("fade", modes)
+        self.assertIn("visibility", modes)
         cmb = modes["highlight"]
         self.assertEqual(
             [cmb.itemText(i) for i in range(cmb.count())], ["Key", "Marker", "Off"]
         )
         self.assertEqual(cmb.currentData(), "marker")
-        self.assertEqual(modes["fade"].currentData(), "off")
-        modes["fade"].setCurrentIndex(modes["fade"].findData("key"))
-        self.assertEqual({self.ctrl._behavior_mode(n) for n in ("fade_in", "fade_out")}, {"key"}, "both set")
+        self.assertEqual(modes["visibility"].currentData(), "off")
+        modes["visibility"].setCurrentIndex(modes["visibility"].findData("key"))
+        self.assertEqual({self.ctrl._behavior_mode(n) for n in ("show", "hide")}, {"key"}, "both set")
         cmb.setCurrentIndex(cmb.findData("off"))
         self.ctrl._behavior_sets.clear()  # read back from the settings
         self.assertEqual(self.ctrl._behavior_mode("highlight"), "off")
@@ -5367,7 +5367,7 @@ class TestReapplyReportsWhatItDid(unittest.TestCase, _ControllerHarness):
         self.store.define_shot("A01", 1, 40)
         self.ctrl._store = self.store
         self.ctrl._steps = _make_steps("A01")
-        self.obj = BuilderObject(name="ghost", behaviors=["fade_in"])
+        self.obj = BuilderObject(name="ghost", behaviors=["show"])
         self.builder = MagicMock()
         for p in (
             patch.object(self.ctrl, "_manifest", return_value=self.builder),
@@ -5419,6 +5419,36 @@ class TestReapplyReportsWhatItDid(unittest.TestCase, _ControllerHarness):
 
         self.builder.reapply_object.return_value = True
         self.assertEqual(apply(), "Re-applied ghost's behaviors in A01.")
+
+
+class TestEffectPages(unittest.TestCase, _ControllerHarness):
+    """The Render Effects page an object row's Edit entry opens is the channel
+    its behavior's effect keys, as the recipe declares it
+    (``ptk.EffectRecipe.channel_of``), named with the panel's own verb for
+    that channel (``CHANNEL_VERBS``). Added: 2026-11-28 -- the panel kept an
+    effect table of its own, which said each effect's channel a second time."""
+
+    def setUp(self):
+        self.setup_controller()
+
+    def test_each_behaviors_page_is_its_effects_channel(self):
+        self.assertEqual(self.ctrl._effect_page("show"), ("opacity", "Fade"))
+        self.assertEqual(self.ctrl._effect_page("hide"), ("opacity", "Fade"))
+        self.assertEqual(self.ctrl._effect_page("highlight"), ("highlight", "Highlight"))
+        self.assertIsNone(self.ctrl._effect_page("set_clip"), "the clip's audio has no Render Effects page")
+        self.assertIsNone(self.ctrl._effect_page("no_such_behavior"))
+
+    def test_a_page_is_offered_once_in_behavior_order(self):
+        obj = BuilderObject(name="door", behaviors=["highlight", "show", "hide"])
+        self.assertEqual(
+            self.ctrl._effect_pages(obj), [("highlight", "Highlight"), ("opacity", "Fade")]
+        )
+
+    def test_every_render_channel_a_recipe_effect_keys_has_a_verb(self):
+        import pythontk as ptk
+
+        channels = {ptk.EffectRecipe.channel_of(e) for e in ptk.EffectRecipe.effect_names()}
+        self.assertEqual(channels - {"audio"}, set(self.ctrl.CHANNEL_VERBS))
 
 
 class TestShowInOutliner(unittest.TestCase):
@@ -5542,8 +5572,8 @@ class TestControllerColumnLayout(unittest.TestCase):
         self.assertEqual(h[self.COL_END], "End")
 
     def test_fmt_behavior(self):
-        self.assertEqual(self.fmt_behavior("fade_in"), "Fade · in")
-        self.assertEqual(self.fmt_behavior("fade_out"), "Fade · out")
+        self.assertEqual(self.fmt_behavior("show"), "Visibility · show")
+        self.assertEqual(self.fmt_behavior("hide"), "Visibility · hide")
         self.assertEqual(self.fmt_behavior("set_clip"), "Set Clip")
         self.assertEqual(self.fmt_behavior(""), "")
 
@@ -5598,7 +5628,7 @@ class TestRenderedRowColors(unittest.TestCase):
       missing_shot (gold+amber), missing_object (rose+rose),
       missing_behavior (sky+blue), user_animated (lavender+purple),
       locked (grey, no bg)
-    - Behavior text colors: fade_in (teal), fade_out (amber)
+    - Behavior text colors: show (teal), hide (amber)
     - Valid rows retain default appearance
     """
 
@@ -5647,7 +5677,7 @@ class TestRenderedRowColors(unittest.TestCase):
         p_valid = tree.create_item(
             ["A01", "Sec", "Valid step", "1 behaviors", "1\u201330"]
         )
-        c_valid = tree.create_item(["", "", "OBJ_VALID", "Fade In", ""], parent=p_valid)
+        c_valid = tree.create_item(["", "", "OBJ_VALID", "Visibility · show", ""], parent=p_valid)
 
         # Row 2: missing_shot parent (A02)
         p_mshot = tree.create_item(["A02", "Sec", "Missing shot", "", "31\u201360"])
@@ -5656,14 +5686,14 @@ class TestRenderedRowColors(unittest.TestCase):
         p_mobj = tree.create_item(
             ["A03", "Sec", "Missing obj step", "1 behaviors", "61\u201390"]
         )
-        c_mobj = tree.create_item(["", "", "GONE_OBJ", "Fade In", ""], parent=p_mobj)
+        c_mobj = tree.create_item(["", "", "GONE_OBJ", "Visibility · show", ""], parent=p_mobj)
 
         # Row 5: missing_behavior parent (A04) with affected child
         p_mbeh = tree.create_item(
             ["A04", "Sec", "Missing beh step", "1 behaviors", "91\u2013120"]
         )
         c_mbeh = tree.create_item(
-            ["", "", "NO_KEYS_OBJ", "Fade Out", ""], parent=p_mbeh
+            ["", "", "NO_KEYS_OBJ", "Visibility · hide", ""], parent=p_mbeh
         )
 
         # Row 7: user_animated parent (A05) with affected child
@@ -5671,7 +5701,7 @@ class TestRenderedRowColors(unittest.TestCase):
             ["A05", "Sec", "User animated step", "1 behaviors", "121\u2013150"]
         )
         c_uanim = tree.create_item(
-            ["", "", "ANIM_OBJ", "Fade In Out", ""], parent=p_uanim
+            ["", "", "ANIM_OBJ", "Visibility · show, Visibility · hide", ""], parent=p_uanim
         )
 
         # Row 9: locked parent (A06)

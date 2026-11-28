@@ -1376,7 +1376,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
             cmds.setKeyframe(obj, attribute="translateX", time=t, value=t)
         crv = cmds.keyframe(obj, attribute="translateX", query=True, name=True)[0]
         if at is not None:
-            self.store.edit_ledger.record_authored(crv, at, 0, "fade_in", obj)
+            self.store.edit_ledger.record_authored(crv, at, 0, "show", obj)
         cmds.select(obj, replace=True)
         return crv
 
@@ -1477,7 +1477,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
         cmds.setKeyframe(obj, attribute="translateX", time=10, value=1)
         cmds.setKeyframe(obj, attribute="visibility", time=1, value=1)
         crv = cmds.keyframe(obj, attribute="visibility", query=True, name=True)[0]
-        self.store.edit_ledger.record_authored(crv, 1.0, 0, "fade_in", obj)
+        self.store.edit_ledger.record_authored(crv, 1.0, 0, "show", obj)
         cmds.select(obj, replace=True)
         self.instance.tb008(
             _widget(
@@ -1492,7 +1492,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
     def test_snap_carries_the_claims_of_the_keys_it_moves(self):
         crv = self._claimed("claim_snap", (1, 10), at=None)
         cmds.setKeyframe("claim_snap", attribute="translateX", time=4.4, value=4)
-        self.store.edit_ledger.record_authored(crv, 4.4, 0, "fade_in", "claim_snap")
+        self.store.edit_ledger.record_authored(crv, 4.4, 0, "show", "claim_snap")
         self.instance.tb009(
             _widget(cmb003=_combo("nearest"), chk017=_chk(False), chk018=_chk(False))
         )
@@ -1580,7 +1580,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
         crv = self._claimed("claim_untie", (5, 10), at=None)
         cmds.playbackOptions(minTime=1, maxTime=20)
         self.mtk.AnimUtils.tie_keyframes(["claim_untie"])  # bookends at 1 and 20
-        self.store.edit_ledger.record_authored(crv, 20.0, 0, "fade_out", "claim_untie")
+        self.store.edit_ledger.record_authored(crv, 20.0, 0, "hide", "claim_untie")
         self.instance.tb011(_widget(cmb_tie=_combo(None, "Untie"), chk023=_chk(False)))
         self.assertEqual(
             sorted(cmds.keyframe(crv, query=True, timeChange=True)), [5.0, 10.0]
@@ -1596,8 +1596,8 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
         tx = cmds.keyframe(obj, attribute="translateX", query=True, name=True)[0]
         ty = cmds.keyframe(obj, attribute="translateY", query=True, name=True)[0]
         led = self.store.edit_ledger
-        led.record_authored(tx, 10.0, 0, "fade_in", obj)  # a flat key
-        led.record_authored(ty, 0.0, 0, "fade_in", obj)  # on a static curve
+        led.record_authored(tx, 10.0, 0, "show", obj)  # a flat key
+        led.record_authored(ty, 0.0, 0, "show", obj)  # on a static curve
         cmds.select(obj, replace=True)
         self.instance.sb.progress = contextlib.contextmanager(
             lambda **_kw: (yield lambda *a, **k: None)
@@ -1654,7 +1654,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
     def test_a_no_op_snap_between_does_not_block_the_aligns_undo(self):
         cmds.undoInfo(state=True, infinity=True)
         crv = self._claimed("claim_noop", (10, 20, 30))
-        self.store.edit_ledger.record_authored(crv, 30.0, 0, "fade_out", "claim_noop")
+        self.store.edit_ledger.record_authored(crv, 30.0, 0, "hide", "claim_noop")
         self._select_keys(crv, 10)
         self._align(20)
         self.instance.tb021(_widget(cmb042=_combo("nearest")))  # all whole
@@ -1670,7 +1670,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
         crv = self._claimed("claim_snap_frac", (1, 10), at=None)
         cmds.setKeyframe("claim_snap_frac", attribute="translateX", time=4.4, value=4)
         self.store.edit_ledger.record_authored(
-            crv, 4.4, 0, "fade_in", "claim_snap_frac"
+            crv, 4.4, 0, "show", "claim_snap_frac"
         )
         self.instance.tb021(_widget(cmb042=_combo("nearest")))
         self.assertEqual(self._claimed_frames(), [4.0])

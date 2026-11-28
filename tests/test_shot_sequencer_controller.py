@@ -2104,7 +2104,7 @@ class TestDeleteKeysBracketing(unittest.TestCase):
         ctrl, store, loc = self._ctrl_with_clip()
         crv = cmds.listConnections(f"{loc}.translateX", type="animCurve")[0]
         led = store.edit_ledger
-        led.record_authored(crv, 5.0, 0, "fade_in", loc)
+        led.record_authored(crv, 5.0, 0, "show", loc)
         ctrl._delete_clip_keys([1])
         self.assertEqual(cmds.keyframe(loc, q=True, timeChange=True) or [], [])
         self.assertFalse(led.owns_any(crv, 5.0), led.to_dict())
@@ -3325,7 +3325,7 @@ class TestKeyDeletePathsRaiseTheSyncGuard(unittest.TestCase):
         clips = {1: self._Clip({"obj": obj, "attr_name": "translateX", "shot_id": 0})}
         ctrl, store = self._controller(clips)
         crv = cmds.listConnections(f"{obj}.translateX", type="animCurve")[0]
-        store.edit_ledger.record_authored(crv, 10.0, 0, "fade_in", obj)
+        store.edit_ledger.record_authored(crv, 10.0, 0, "show", obj)
 
         ctrl.on_keys_deleted(1, [10.0])
 
@@ -3339,7 +3339,7 @@ class TestKeyDeletePathsRaiseTheSyncGuard(unittest.TestCase):
         clips = {1: self._Clip({"obj": obj, "attr_name": "translateX", "shot_id": 0})}
         ctrl, store = self._controller(clips)
         crv = cmds.listConnections(f"{obj}.translateX", type="animCurve")[0]
-        store.edit_ledger.record_authored(crv, 10.0, 0, "fade_in", obj)
+        store.edit_ledger.record_authored(crv, 10.0, 0, "show", obj)
 
         widget = ctrl._get_sequencer_widget()
         widget.selected_keys = lambda: [{"clip_id": 1, "times": [10.0]}]
@@ -3632,7 +3632,7 @@ class TestToolMarkersOnTheTimeline(_ControllerCase):
     TAG = {
         "owner": "shot_manifest",
         "shot_id": 0,
-        "behavior": "fade_in",
+        "behavior": "show",
         "objects": ["ctlA"],
     }
 
@@ -4685,7 +4685,7 @@ class TestKeySelectionEdits(_ControllerCase):
 
     # -- the shot system's claims follow the key edits (mirror of blendertk) --
 
-    def _claim(self, frame, behavior="fade_in"):
+    def _claim(self, frame, behavior="show"):
         """Claim cube A's translateX key at *frame* for a behavior of S0."""
         crv = cmds.keyframe(self.a, at="translateX", q=True, name=True)[0]
         self.ctrl.sequencer.ledger.record_authored(

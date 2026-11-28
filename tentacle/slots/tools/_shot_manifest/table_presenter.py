@@ -370,7 +370,7 @@ class ManifestTableMixin:
         menu.setToolTipsVisible(True)
         self.sb.StyleSheet.cast_shadow(menu)
         leaf = self.manifest_host.leaf_name(obj.name)
-        # Its mode is its family's (Fade for Fade · in): one choice sets them all.
+        # Its mode is its family's (Visibility for Visibility · show): one choice sets them all.
         label = ManifestData.fmt_behavior(self.behaviors.family_of(raw))
         mode = self._behavior_mode(raw)
         if mode != "off":
@@ -394,7 +394,7 @@ class ManifestTableMixin:
             choice.addAction(act)
             act.setToolTip(self.BEHAVIOR_MODE_TIPS[value].format(label=label))
             act.triggered.connect(lambda _c=False, v=value: self._set_behavior_mode(raw, v))
-        page = self.EFFECT_PAGES.get(self.behaviors.effect_of(raw))
+        page = self._effect_page(raw)
         if page is not None:
             channel, verb = page
             menu.addSeparator()
